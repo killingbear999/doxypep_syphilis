@@ -134,6 +134,7 @@ functions {
       real zeta = theta[20]; # Scaling factor accounting for doxycycline inefficacy due to inconsistent and irregular usage
       real xi_m = theta[21]; # Effective doxycycline intolerance rate
       real kappa_D = theta[22]; # Shape parameter of communicable disease surveillance data
+      real beta_nu = theta[23]; # Probability of death at tertiary stage
       
       # time-dependent variables
       real C_H = get_C(I_N_H, P_N_H, S_N_H, E_N_H, I_X_H, P_X_H, S_X_H, E_X_H, I_D_H, P_D_H, S_D_H, E_D_H, I_M_H, P_M_H, S_M_H, E_M_H); # Number of infectious individuals in group H
@@ -158,7 +159,7 @@ functions {
       real dS_N_H = psi_S * P_N_H - (mu + psi_E + 1/gamma + iota) * S_N_H + xi_N * S_X_H;
       real dE_N_H = psi_E * S_N_H - (eta_H + psi_L + 1/gamma + iota) * E_N_H + xi_N * E_X_H;
       real dL_N_H = psi_L * E_N_H - (eta_H + psi_T + 1/gamma + iota) * L_N_H + xi_N * L_X_H;
-      real dT_N_H = psi_T * L_N_H - (mu + nu + 1/gamma + iota) * T_N_H + xi_N * T_X_H;
+      real dT_N_H = psi_T * L_N_H - (mu + beta_nu * nu + 1/gamma + iota) * T_N_H + xi_N * T_X_H;
       real dR_N_H = mu * (P_N_H + S_N_H + T_N_H) + eta_H * (E_N_H + L_N_H) - (rho + 1/gamma + iota) * R_N_H + xi_N * R_X_H;
       
       # doxy-inconsistent (X)
@@ -168,7 +169,7 @@ functions {
       real dS_X_H = (1 - delta) * S_D_H + psi_S * P_X_H - (mu + psi_E + 1/gamma + xi_N + delta) * S_X_H;
       real dE_X_H = (1 - delta) * E_D_H + psi_E * S_X_H - (eta_H + psi_L + 1/gamma + xi_N + delta) * E_X_H;
       real dL_X_H = (1 - delta) * L_D_H + psi_L * E_X_H - (eta_H + psi_T + 1/gamma + xi_N + delta) * L_X_H;
-      real dT_X_H = (1 - delta) * T_D_H + psi_T * L_X_H - (mu + nu + 1/gamma + xi_N + delta) * T_X_H;
+      real dT_X_H = (1 - delta) * T_D_H + psi_T * L_X_H - (mu + beta_nu * nu + 1/gamma + xi_N + delta) * T_X_H;
       real dR_X_H = (1 - delta) * R_D_H + mu * (P_X_H + S_X_H + T_X_H) + eta_H * (E_X_H + L_X_H) - (rho + 1/gamma + xi_N + delta) * R_X_H;
       
       # doxy-pep (D)
@@ -178,7 +179,7 @@ functions {
       real dS_D_H = delta * S_X_H + psi_S * P_D_H + iota * S_N_H - (mu + psi_E + 1/gamma + xi_m + (1 - delta)) * S_D_H;
       real dE_D_H = delta * E_X_H + psi_E * S_D_H + iota * E_N_H - (eta_H + psi_L + 1/gamma + xi_m + (1 - delta)) * E_D_H;
       real dL_D_H = delta * L_X_H + psi_L * E_D_H + iota * L_N_H - (eta_H + psi_T + 1/gamma + xi_m + (1 - delta)) * L_D_H;
-      real dT_D_H = delta * T_X_H + psi_T * L_D_H + iota * T_N_H - (mu + nu + 1/gamma + xi_m + (1 - delta)) * T_D_H;
+      real dT_D_H = delta * T_X_H + psi_T * L_D_H + iota * T_N_H - (mu + beta_nu * nu + 1/gamma + xi_m + (1 - delta)) * T_D_H;
       real dR_D_H = delta * R_X_H + mu * (P_D_H + S_D_H + T_D_H) + eta_H * (E_D_H + L_D_H) + iota * R_N_H - (rho + 1/gamma + xi_N + (1 - delta)) * R_D_H;
       
       # doxy_intolerant (M)
@@ -188,7 +189,7 @@ functions {
       real dS_M_H = xi_m * S_D_H + psi_S * P_M_H - (mu + psi_E + 1/gamma) * S_M_H;
       real dE_M_H = xi_m * E_D_H + psi_E * S_M_H - (eta_H + psi_L + 1/gamma) * E_M_H;
       real dL_M_H = xi_m * L_D_H + psi_L * E_M_H - (eta_H + psi_T + 1/gamma) * L_M_H;
-      real dT_M_H = xi_m * T_D_H + psi_T * L_M_H - (mu + nu + 1/gamma) * T_M_H;
+      real dT_M_H = xi_m * T_D_H + psi_T * L_M_H - (mu + beta_nu * nu + 1/gamma) * T_M_H;
       real dR_M_H = xi_m * R_D_H + mu * (P_M_H + S_M_H + T_M_H) + eta_H * (E_M_H + L_M_H) - (rhp + 1/gamma) * R_M_H;
 
       # low-risk group
@@ -199,7 +200,7 @@ functions {
       real dS_N_L = psi_S * P_N_L - (mu + psi_E + 1/gamma + iota) * S_N_L + xi_N * S_X_L;
       real dE_N_L = psi_E * S_N_L - (eta_L + psi_L + 1/gamma + iota) * E_N_L + xi_N * E_X_L;
       real dL_N_L = psi_L * E_N_L - (eta_L + psi_T + 1/gamma + iota) * L_N_L + xi_N * L_X_L;
-      real dT_N_L = psi_T * L_N_L - (mu + nu + 1/gamma + iota) * T_N_L + xi_N * T_X_L;
+      real dT_N_L = psi_T * L_N_L - (mu + beta_nu * nu + 1/gamma + iota) * T_N_L + xi_N * T_X_L;
       real dR_N_L = mu * (P_N_L + S_N_L + T_N_L) + eta_L * (E_N_L + L_N_L) - (rho + 1/gamma + iota) * R_N_L + xi_N * R_X_L;
       
       # doxy-inconsistent (X)
@@ -209,7 +210,7 @@ functions {
       real dS_X_L = (1 - delta) * S_D_L + psi_S * P_X_L - (mu + psi_E + 1/gamma + xi_N + delta) * S_X_L;
       real dE_X_L = (1 - delta) * E_D_L + psi_E * S_X_L - (eta_L + psi_L + 1/gamma + xi_N + delta) * E_X_L;
       real dL_X_L = (1 - delta) * L_D_L + psi_L * E_X_L - (eta_L + psi_T + 1/gamma + xi_N + delta) * L_X_L;
-      real dT_X_L = (1 - delta) * T_D_L + psi_T * L_X_L - (mu + nu + 1/gamma + xi_N + delta) * T_X_L;
+      real dT_X_L = (1 - delta) * T_D_L + psi_T * L_X_L - (mu + beta_nu * nu + 1/gamma + xi_N + delta) * T_X_L;
       real dR_X_L = (1 - delta) * R_D_L + mu * (P_X_L + S_X_L + T_X_L) + eta_L * (E_X_L + L_X_L) - (rho + 1/gamma + xi_N + delta) * R_X_L;
       
       # doxy-pep (D)
@@ -219,7 +220,7 @@ functions {
       real dS_D_L = delta * S_X_L + psi_S * P_D_L + iota * S_N_L - (mu + psi_E + 1/gamma + xi_m + (1 - delta)) * S_D_L;
       real dE_D_L = delta * E_X_L + psi_E * S_D_L + iota * E_N_L - (eta_L + psi_L + 1/gamma + xi_m + (1 - delta)) * E_D_L;
       real dL_D_L = delta * L_X_L + psi_L * E_D_L + iota * L_N_L - (eta_L + psi_T + 1/gamma + xi_m + (1 - delta)) * L_D_L;
-      real dT_D_L = delta * T_X_L + psi_T * L_D_L + iota * T_N_L - (mu + nu + 1/gamma + xi_m + (1 - delta)) * T_D_L;
+      real dT_D_L = delta * T_X_L + psi_T * L_D_L + iota * T_N_L - (mu + beta_nu * nu + 1/gamma + xi_m + (1 - delta)) * T_D_L;
       real dR_D_L = delta * R_X_L + mu * (P_D_L + S_D_L + T_D_L) + eta_L * (E_D_L + L_D_L) + iota * R_N_L - (rho + 1/gamma + xi_N + (1 - delta)) * R_D_L;
       
       # doxy_intolerant (M)
@@ -229,7 +230,7 @@ functions {
       real dS_M_L = xi_m * S_D_L + psi_S * P_M_L - (mu + psi_E + 1/gamma) * S_M_L;
       real dE_M_L = xi_m * E_D_L + psi_E * S_M_L - (eta_L + psi_L + 1/gamma) * E_M_L;
       real dL_M_L = xi_m * L_D_L + psi_L * E_M_L - (eta_L + psi_T + 1/gamma) * L_M_L;
-      real dT_M_L = xi_m * T_D_L + psi_T * L_M_L - (mu + nu + 1/gamma) * T_M_L;
+      real dT_M_L = xi_m * T_D_L + psi_T * L_M_L - (mu + beta_nu * nu + 1/gamma) * T_M_L;
       real dR_M_L = xi_m * R_D_L + mu * (P_M_L + S_M_L + T_M_L) + eta_L * (E_M_L + L_M_L) - (rhp + 1/gamma) * R_M_L;
       
       return {dU_N_H, dI_N_H, dP_N_H, dS_N_H, dE_N_H, dL_N_H, dT_N_H, dR_N_H, dU_X_H, dI_X_H, dP_X_H, dS_X_H, dE_X_H, dL_X_H, dT_X_H, dR_X_H, dU_D_H, dI_D_H, dP_D_H, dS_D_H, dE_D_H, dL_D_H, dT_D_H, dR_D_H, dU_M_H, dI_M_H, dP_M_H, dS_M_H, dE_M_H, dL_M_H, dT_M_H, dR_M_H
@@ -299,6 +300,7 @@ parameters {
   real<lower=0, upper=1> zeta;
   real<lower=0> xi_m;
   real<lower=0, upper=1> kappa_D;
+  real<lower=1, upper=1> beta_nu;
 }
 transformed parameters{
   real y[n_years, 64];
@@ -326,6 +328,7 @@ transformed parameters{
   theta[20] = zeta;
   theta[21] = xi_m;
   theta[22] = kappa_D;
+  theta[23] = beta_nu;
 
   y = integrate_ode_rk45(doxypep_syphilis_model, y0, t_0, ts, theta, x_r, x_i);
   for (t in 1:(n_years - 1)) {

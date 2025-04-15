@@ -66,6 +66,7 @@ functions {
       real psi_T = theta[13]; # Rate of leaving late latent stage
       real nu = theta[14]; # Mortality rate at tertiary stage
       real kappa_D = theta[15]; # Shape parameter of communicable disease surveillance data
+      real beta_nu = theta[16]; # Probability of death at tertiary stage
       
       # time-dependent variables
       real C_H = get_C(I_N_H, P_N_H, S_N_H, E_N_H); # Number of infectious individuals in group H
@@ -88,7 +89,7 @@ functions {
       real dS_N_H = psi_S * P_N_H - (mu + psi_E + 1/gamma) * S_N_H;
       real dE_N_H = psi_E * S_N_H - (eta_H + psi_L + 1/gamma) * E_N_H;
       real dL_N_H = psi_L * E_N_H - (eta_H + psi_T + 1/gamma) * L_N_H;
-      real dT_N_H = psi_T * L_N_H - (mu + nu + 1/gamma) * T_N_H;
+      real dT_N_H = psi_T * L_N_H - (mu + beta_nu * nu + 1/gamma) * T_N_H;
       real dR_N_H = mu * (P_N_H + S_N_H + T_N_H) + eta_H * (E_N_H + L_N_H) - (rho + 1/gamma) * R_N_H;
 
       # low-risk group
@@ -99,7 +100,7 @@ functions {
       real dS_N_L = psi_S * P_N_L - (mu + psi_E + 1/gamma) * S_N_L;
       real dE_N_L = psi_E * S_N_L - (eta_L + psi_L + 1/gamma) * E_N_L;
       real dL_N_L = psi_L * E_N_L - (eta_L + psi_T + 1/gamma) * L_N_L;
-      real dT_N_L = psi_T * L_N_L - (mu + nu + 1/gamma) * T_N_L;
+      real dT_N_L = psi_T * L_N_L - (mu + beta_nu * nu + 1/gamma) * T_N_L;
       real dR_N_L = mu * (P_N_L + S_N_L + T_N_L) + eta_L * (E_N_L + L_N_L) - (rho + 1/gamma) * R_N_L;
       
       return {dU_N_H, dI_N_H, dP_N_H, dS_N_H, dE_N_H, dL_N_H, dT_N_H, dR_N_H, dU_N_L, dI_N_L, dP_N_L, dS_N_L, dE_N_L, dL_N_L, dT_N_L, dR_N_L};
@@ -151,6 +152,7 @@ parameters {
   real<lower=0> psi_T;
   real<lower=0> nu;
   real<lower=0, upper=1> kappa_D;
+  real<lower=1, upper=1> beta_nu;
 }
 transformed parameters{
   real y[n_years, 64];
@@ -170,11 +172,38 @@ transformed parameters{
   theta[12] = psi_L;
   theta[13] = psi_T;
   theta[14] = nu;
-  theta[25] = kappa_D;
+  theta[15] = kappa_D;
+  theta[16] = beta_nu;
 
   y = integrate_ode_rk45(syphilis_model, y0, t_0, ts, theta, x_r, x_i);
   for (t in 1:(n_years - 1)) {
     // Trapezoidal rule: (f(a) + f(b)) / 2 * (b - a)
     incidence[t] = 0.5 * rho * (y[t, 2] + y[t + 1, 2] + y[t, 10] + y[t + 1, 10]);
   }
+}
+model {
+  # priors
+  beta ~ uniform(0,1);
+  phi_beta ~ uniform(0,1);
+  epsilon ~ uniform(0,1);
+  rho ~ lognormal(log(20), 0.3); # 20.94 (11.1, 35.9)
+  eta_H_init ~ uniform(0,4);
+  phi_eta ~ uniform(0,1);
+  omega ~ lognormal(-0.87,0.39); # 0.451 (0.22, 0.80)
+  sigma ~ lognormal(log(15), 0.5); # 17 (6.6, 34.1)
+  mu ~ lognormal(log(200), 0.6); # 239.5 (74.6, 535.9)
+  psi_S ~ lognormal(log(10), 0.4); # 10.83 (5.18, 19.19)
+  psi_E ~ lognormal(log(2), 0.4); # 2.17 (1.04, 3.86)
+  psi_L ~ lognormal(log(0.5), 0.4); # 0.542 (0.26, 0.97)
+  psi_T ~ lognormal(log(0.05), 0.7); # 0.064 (0.016, 0.158)
+  nu ~ lognormal(log(0.04), 0.3); # 0.0419 (0.024, 0.066)
+  kappa_D ~ uniform(0,1);
+  beta_nu ~ uniform(0.08,0.56);
+  
+  # sampling distribution
+  cases[1:(n_years-1)] ~ neg_binomial_2(incidence, kappa_D);
+}
+generated quantities {
+  real pred_cases[n_years-1];
+  pred_cases = neg_binomial_2_rng(incidence, kappa_D);
 }
