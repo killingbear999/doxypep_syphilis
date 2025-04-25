@@ -44,6 +44,12 @@ functions {
       real c_L = x_r[3]; # Annual rate of partner change in group L
       real t_0 = x_r[4]; # Initial time
       real q_L = x_r[5]; # Proportion of the MSM population in group L
+      real sigma = x_r[6]; # Rate of leaving incubation period
+      real psi_S = x_r[7]; # Rate of leaving primary stage
+      real psi_E = x_r[8]; # Rate of leaving secondary stage
+      real psi_L = x_r[9]; # Rate of leaving early latent stage
+      real psi_T = x_r[10]; # Rate of leaving late latent stage
+      real nu = x_r[11]; # Mortality rate at tertiary stage
       
       # fixed integer parameters
       int alpha = x_i[1]; # Annual MSM population entrants (at age 15)
@@ -58,40 +64,34 @@ functions {
       real eta_H_init = theta[5]; # Initial rate of asymptomatic screening in group H
       real phi_eta = theta[6]; # Annual increase in screening rate
       real omega = theta[7]; # Ratio of screening rate in group L vs group H
-      real sigma = theta[8]; # Rate of leaving incubation period
-      real mu = theta[9]; # Rate of seeking treatment due to symptoms 
-      real psi_S = theta[10]; # Rate of leaving primary stage
-      real psi_E = theta[11]; # Rate of leaving secondary stage
-      real psi_L = theta[12]; # Rate of leaving early latent stage
-      real psi_T = theta[13]; # Rate of leaving late latent stage
-      real nu = theta[14]; # Mortality rate at tertiary stage
-      real kappa_D = theta[15]; # Shape parameter of communicable disease surveillance data
-      real beta_nu = theta[16]; # Probability of death at tertiary stage
+      real mu = theta[8]; # Rate of seeking treatment due to symptoms 
+      real kappa_D = theta[9]; # Shape parameter of communicable disease surveillance data
+      real beta_nu = theta[10]; # Probability of death at tertiary stage
       
-      // print("t:", t);
-      // // print("mu:", mu);
-      // print("psi_S:", psi_S);
-      // print("psi_E:", psi_E);
-      // print("psi_L:", psi_L);
-      // print("psi_T:", psi_T);
-      // // print("rho:", rho);
-      // print("U:", U_N_H);
-      // print("I:", I_N_H);
-      // print("P:", P_N_H);
-      // print("S:", S_N_H);
-      // print("E:", E_N_H);
-      // print("L:", L_N_H);
-      // print("T:", T_N_H);
-      // print("R:", R_N_H);
-      // 
-      // print("U:", U_N_L);
-      // print("I:", I_N_L);
-      // print("P:", P_N_L);
-      // print("S:", S_N_L);
-      // print("E:", E_N_L);
-      // print("L:", L_N_L);
-      // print("T:", T_N_L);
-      // print("R:", R_N_L);
+      print("t:", t);
+      // print("mu:", mu);
+      print("psi_S:", psi_S);
+      print("psi_E:", psi_E);
+      print("psi_L:", psi_L);
+      print("psi_T:", psi_T);
+      // print("rho:", rho);
+      print("U:", U_N_H);
+      print("I:", I_N_H);
+      print("P:", P_N_H);
+      print("S:", S_N_H);
+      print("E:", E_N_H);
+      print("L:", L_N_H);
+      print("T:", T_N_H);
+      print("R:", R_N_H);
+      
+      print("U:", U_N_L);
+      print("I:", I_N_L);
+      print("P:", P_N_L);
+      print("S:", S_N_L);
+      print("E:", E_N_L);
+      print("L:", L_N_L);
+      print("T:", T_N_L);
+      print("R:", R_N_L);
       
       # time-dependent variables
       real C_H = get_C(I_N_H, P_N_H, S_N_H, E_N_H); # Number of infectious individuals in group H
@@ -105,46 +105,46 @@ functions {
       real eta_L = omega * eta_H; # Rate of screening in the absence of symptoms in group L
       real lambda_L = get_lambda(t, t_0, c_L, beta, phi_beta, epsilon, C_L, N_L, pi_L, C_H, N_H, pi_H); # Force of infection in group L
       
-      // print("lambda_H:", lambda_H);
-      // print("lambda_L:", lambda_L);
-      // print("eta_H:", eta_H);
-      // print("eta_L:", eta_L);
-      // print("C_H:", C_H);
-      // print("C_L:", C_L);
-      // print("total population:", N_H+N_L);
+      print("lambda_H:", lambda_H);
+      print("lambda_L:", lambda_L);
+      print("eta_H:", eta_H);
+      print("eta_L:", eta_L);
+      print("C_H:", C_H);
+      print("C_L:", C_L);
+      print("total population:", N_H+N_L);
       
       # ODEs
       # debug: 1. when setting alpha, gamma, nu values to be 0, i.e., no inflow and outflow, the total population remains unchanged --> the odes have no problem.
       # high-risk group
       # non-doxy-pep (N)
-      real dU_N_H = q_H * alpha - (lambda_H + 1/gamma) * fmax(1e-8, U_N_H) + rho *fmax(1e-8,  R_N_H);
-      real dI_N_H = lambda_H * fmax(1e-8, U_N_H) - (sigma + 1/gamma) * fmax(1e-8, I_N_H);
-      real dP_N_H = sigma * fmax(1e-8, I_N_H) - (beta_nu * mu + (1 - beta_nu) * psi_S + 1/gamma) * fmax(1e-8, P_N_H);
-      real dS_N_H = (1 - beta_nu) * psi_S * fmax(1e-8, P_N_H) - (beta_nu * mu + (1 - beta_nu) * psi_E + 1/gamma) * fmax(1e-8, S_N_H);
-      real dE_N_H = (1 - beta_nu) * psi_E * fmax(1e-8, S_N_H) - (beta_nu * eta_H + (1 - beta_nu) * psi_L + 1/gamma) * fmax(1e-8, E_N_H);
-      real dL_N_H = (1 - beta_nu) * psi_L * fmax(1e-8, E_N_H) - (beta_nu * eta_H + (1 - beta_nu) * psi_T + 1/gamma) * fmax(1e-8, L_N_H);
-      real dT_N_H = (1 - beta_nu) * psi_T * fmax(1e-8, L_N_H) - (beta_nu * mu + (1 - beta_nu) * nu + 1/gamma) * fmax(1e-8, T_N_H);
-      real dR_N_H = beta_nu * mu * (fmax(1e-8, P_N_H) + fmax(1e-8, S_N_H) + fmax(1e-8, T_N_H)) + beta_nu * eta_H * (fmax(1e-8, E_N_H) + fmax(1e-8, L_N_H)) - (rho + 1/gamma) * fmax(1e-8, R_N_H);
-      
-      // print("inflow:", psi_L * E_N_H);
-      // print("outflow:", (beta_nu * eta_H + (1 - beta_nu) * psi_T + 1/gamma) * L_N_H);
-      // print("dL_N_H:", dL_N_H);
+      real dU_N_H = q_H * alpha - (lambda_H + 1/gamma) * U_N_H + rho * R_N_H;
+      real dI_N_H = lambda_H * U_N_H - (sigma + 1/gamma) * I_N_H;
+      real dP_N_H = sigma * I_N_H - (mu + psi_S + 1/gamma) * P_N_H;
+      real dS_N_H = psi_S * P_N_H - (mu + psi_E + 1/gamma) * S_N_H;
+      real dE_N_H = psi_E * S_N_H - (eta_H + psi_L + 1/gamma) * E_N_H;
+      real dL_N_H = psi_L * E_N_H - (eta_H + psi_T + 1/gamma) * L_N_H;
+      real dT_N_H = psi_T * L_N_H - (mu + beta_nu * nu + 1/gamma) * T_N_H;
+      real dR_N_H = mu * (P_N_H + S_N_H + T_N_H) + eta_H * (E_N_H + L_N_H) - (rho + 1/gamma) * R_N_H;
+
+      print("inflow:", psi_L * E_N_H);
+      print("outflow:", (eta_H + psi_T + 1/gamma) * L_N_H);
+      print("dL_N_H:", dL_N_H);
 
       # low-risk group
       # non-doxy-pep (N)
-      real dU_N_L = q_L * alpha - (lambda_L + 1/gamma) * fmax(1e-8, U_N_L) + rho * fmax(1e-8, R_N_L);
-      real dI_N_L = lambda_L * fmax(1e-8, U_N_L) - (sigma + 1/gamma) * fmax(1e-8, I_N_L);
-      real dP_N_L = sigma * fmax(1e-8, I_N_L) - (beta_nu * mu + (1 - beta_nu) * psi_S + 1/gamma) * fmax(1e-8, P_N_L);
-      real dS_N_L = (1 - beta_nu) * psi_S * fmax(1e-8, P_N_L) - (beta_nu * mu + (1 - beta_nu) * psi_E + 1/gamma) * fmax(1e-8, S_N_L);
-      real dE_N_L = (1 - beta_nu) * psi_E * fmax(1e-8, S_N_L) - (beta_nu * eta_L + (1 - beta_nu) * psi_L + 1/gamma) * fmax(1e-8, E_N_L);
-      real dL_N_L = (1 - beta_nu) * psi_L * fmax(1e-8, E_N_L) - (beta_nu * eta_L + (1 - beta_nu) * psi_T + 1/gamma) * fmax(1e-8, L_N_L);
-      real dT_N_L = (1 - beta_nu) * psi_T * fmax(1e-8, L_N_L) - (beta_nu * mu + (1 - beta_nu) * nu + 1/gamma) * fmax(1e-8, T_N_L);
-      real dR_N_L = beta_nu * mu * (fmax(1e-8, P_N_L) + fmax(1e-8, S_N_L) + fmax(1e-8, T_N_L)) + beta_nu * eta_L * (fmax(1e-8, E_N_L) + fmax(1e-8, L_N_L)) - (rho + 1/gamma) * fmax(1e-8, R_N_L);
-      
+      real dU_N_L = q_L * alpha - (lambda_L + 1/gamma) * U_N_L + rho * R_N_L;
+      real dI_N_L = lambda_L * U_N_L - (sigma + 1/gamma) * I_N_L;
+      real dP_N_L = sigma * I_N_L - (mu + psi_S + 1/gamma) * P_N_L;
+      real dS_N_L = psi_S * P_N_L - (mu + psi_E + 1/gamma) * S_N_L;
+      real dE_N_L = psi_E * S_N_L - (eta_L + psi_L + 1/gamma) * E_N_L;
+      real dL_N_L = psi_L * E_N_L - (eta_L + psi_T + 1/gamma) * L_N_L;
+      real dT_N_L = psi_T * L_N_L - (mu + beta_nu * nu + 1/gamma) * T_N_L;
+      real dR_N_L = mu * (P_N_L + S_N_L + T_N_L) + eta_L * (E_N_L + L_N_L) - (rho + 1/gamma) * R_N_L;
+
       // if (L_N_H < 0) {
       //   reject("L_N_H must not be negative; found L_N_H=", L_N_H);
       // }
-      // 
+      
       return {dU_N_H, dI_N_H, dP_N_H, dS_N_H, dE_N_H, dL_N_H, dT_N_H, dR_N_H, dU_N_L, dI_N_L, dP_N_L, dS_N_L, dE_N_L, dL_N_L, dT_N_L, dR_N_L};
   }
 }
@@ -161,9 +161,15 @@ data {
   int alpha;
   int N_t0;
   int gamma;
+  real sigma;
+  real psi_S;
+  real psi_E;
+  real psi_L;
+  real psi_T;
+  real nu;
 }
 transformed data {
-  real x_r[5];
+  real x_r[11];
   int x_i[3];
   
   # assign values to x_r
@@ -172,6 +178,12 @@ transformed data {
   x_r[3] = c_L;
   x_r[4] = t_0;
   x_r[5] = q_L;
+  x_r[6] = sigma;
+  x_r[7] = psi_S;
+  x_r[8] = psi_E;
+  x_r[9] = psi_L;
+  x_r[10] = psi_T;
+  x_r[11] = nu;
   
   # assign values to x_i
   x_i[1] = alpha;
@@ -186,20 +198,14 @@ parameters {
   real<lower=0, upper=4> eta_H_init;
   real<lower=0, upper=1> phi_eta;
   real<lower=0.1, upper=0.9> omega;
-  real<lower=5, upper=40> sigma;
   real<lower=50, upper=600> mu;
-  real<lower=3, upper=25> psi_S;
-  real<lower=0.5, upper=5> psi_E;
-  real<lower=0.1, upper=1.5> psi_L;
-  real<lower=0.01, upper=0.2> psi_T;
-  real<lower=0.01, upper=0.1> nu;
   real<lower=0, upper=1> kappa_D;
-  real<lower=0.8, upper=1> beta_nu;
+  real<lower=0, upper=1> beta_nu;
 }
 transformed parameters{
   real y[n_years, 16];
   real incidence[n_years - 1];
-  real theta[16];
+  real theta[10];
   theta[1] = beta;
   theta[2] = phi_beta;
   theta[3] = epsilon;
@@ -207,22 +213,19 @@ transformed parameters{
   theta[5] = eta_H_init;
   theta[6] = phi_eta;
   theta[7] = omega;
-  theta[8] = sigma;
-  theta[9] = mu;
-  theta[10] = psi_S;
-  theta[11] = psi_E;
-  theta[12] = psi_L;
-  theta[13] = psi_T;
-  theta[14] = nu;
-  theta[15] = kappa_D;
-  theta[16] = beta_nu;
+  theta[8] = mu;
+  theta[9] = kappa_D;
+  theta[10] = beta_nu;
+  
+  print(theta);
 
   y = integrate_ode_rk45(syphilis_model, y0, t_0, ts, theta, x_r, x_i);
   for (t in 1:(n_years - 1)) {
     // Trapezoidal rule: (f(a) + f(b)) / 2 * (b - a)
     incidence[t] = 0.5 * rho * (y[t, 8] + y[t + 1, 8] + y[t, 16] + y[t + 1, 16]);
+    print(y[t]);
   }
-  // print("predicted_cases: ", incidence);
+  print("predicted_cases: ", incidence);
 }
 model {
   # priors
@@ -233,15 +236,9 @@ model {
   eta_H_init ~ uniform(0,4);
   phi_eta ~ uniform(0,1);
   omega ~ lognormal(-0.87,0.39); # 0.451 (0.22, 0.80)
-  sigma ~ lognormal(log(15), 0.5); # 17 (6.6, 34.1)
   mu ~ lognormal(log(200), 0.6); # 239.5 (74.6, 535.9)
-  psi_S ~ lognormal(log(10), 0.4); # 10.83 (5.18, 19.19)
-  psi_E ~ lognormal(log(2), 0.4); # 2.17 (1.04, 3.86)
-  psi_L ~ lognormal(log(0.5), 0.4); # 0.542 (0.26, 0.97)
-  psi_T ~ lognormal(log(0.05), 0.7); # 0.064 (0.016, 0.158)
-  nu ~ lognormal(log(0.04), 0.3); # 0.0419 (0.024, 0.066)
   kappa_D ~ uniform(0,1);
-  beta_nu ~ uniform(0.8,0.9);
+  beta_nu ~ uniform(0.08,0.56);
   
   # sampling distribution
   cases[1:(n_years-1)] ~ neg_binomial_2(incidence, kappa_D);
