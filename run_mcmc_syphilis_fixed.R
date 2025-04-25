@@ -74,9 +74,9 @@ y0 = c(U_N_H=U_N_H, I_N_H=I_N_H, P_N_H=P_N_H, S_N_H=S_N_H, E_N_H=E_N_H, L_N_H=L_
 data_syphilis <- list(n_years = n_years, y0 = y0, ts = t, t_0 = t_0, q_H = q_H, c_H = c_H, c_L = c_L, q_L = q_L, cases = cases, alpha = alpha, N_t0 = N_t0, gamma = gamma, sigma=sigma, psi_S=psi_S, psi_E=psi_E, psi_L=psi_L, psi_T=psi_T, nu=nu)
 
 # number of MCMC steps
-niter <- 1
+niter <- 10000
 
-# parameter initialization for rstan
+# parameter initialization for rstan for debugging
 init_fun <- function() {
   list(beta = 0.1, phi_beta = 0.1, epsilon=0.1, rho=20.94, eta_H_init=0.1, phi_eta=0.1, omega=0.451, mu=239.5, kappa_D=0.1, beta_nu=0.8)
 }
@@ -85,20 +85,20 @@ init_fun <- function() {
 model <- stan_model("syphilis_fixed_transmission_parameters.stan")
 fit_syphilis_negbin <- sampling(model,
                                 data = data_syphilis,
-                                algorithm = "Fixed_param",
+                                # algorithm = "Fixed_param",
                                 iter = niter,
-                                chains = 1, 
+                                chains = 4, 
                                 seed = 42,
-                                verbose=TRUE,
-                                init=init_fun,
-                                diagnostic_file = "diagnostics.csv")
+                                # init=init_fun,
+                                # diagnostic_file = "diagnostics.csv"
+                                verbose=TRUE)
 
 # print the mcmc results
 pars=c('beta', 'phi_beta', 'epsilon')
 print(fit_syphilis_negbin, pars = pars)
 
 # trace plots to assess mixing of a chain
-traceplot(fit_sir_negbin, pars = pars)
+traceplot(fit_syphilis_negbin, pars = pars)
 
 # marginal posterior densities
-stan_dens(fit_sir_negbin, pars = pars, separate_chains = TRUE)
+stan_dens(fit_syphilis_negbin, pars = pars, separate_chains = TRUE)

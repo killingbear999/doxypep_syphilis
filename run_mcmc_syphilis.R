@@ -59,7 +59,8 @@ E_N_L = 0.3 * temp * q_L;
 L_N_L = 0.1 * temp * q_L;
 T_N_L = 0.05 * temp * q_L;
 R_N_L = 0.05 * temp * q_L;
-y0 = c(U_N_H, I_N_H, P_N_H, S_N_H, E_N_H, L_N_H, T_N_H, R_N_H, U_N_L, I_N_L, P_N_L, S_N_L, E_N_L, L_N_L, T_N_L, R_N_L)
+y0 = c(U_N_H=U_N_H, I_N_H=I_N_H, P_N_H=P_N_H, S_N_H=S_N_H, E_N_H=E_N_H, L_N_H=L_N_H, T_N_H=T_N_H, R_N_H=R_N_H,
+       U_N_L=U_N_L, I_N_L=I_N_L, P_N_L=P_N_L, S_N_L=S_N_L, E_N_L=E_N_L, L_N_L=L_N_L, T_N_L=T_N_L, R_N_L=R_N_L)
 
 # data for Stan
 data_syphilis <- list(n_years = n_years, y0 = y0, ts = t, t_0 = t_0, q_H = q_H, c_H = c_H, c_L = c_L, q_L = q_L, cases = cases, alpha = alpha, N_t0 = N_t0, gamma = gamma)
@@ -76,20 +77,20 @@ niter <- 10000
 model <- stan_model("syphilis.stan")
 fit_syphilis_negbin <- sampling(model,
                            data = data_syphilis,
-                           algorithm = "Fixed_param",
+                           # algorithm = "Fixed_param",
                            iter = niter,
                            chains = 4, 
                            seed = 42,
-                           verbose=TRUE,
                            # init=init_fun,
-                           diagnostic_file = "diagnostics.csv")
+                           # diagnostic_file = "diagnostics.csv"
+                           verbose=TRUE)
 
 # print the mcmc results
 pars=c('beta', 'phi_beta', 'epsilon')
 print(fit_syphilis_negbin, pars = pars)
 
 # trace plots to assess mixing of a chain
-traceplot(fit_sir_negbin, pars = pars)
+traceplot(fit_syphilis_negbin, pars = pars)
 
 # marginal posterior densities
-stan_dens(fit_sir_negbin, pars = pars, separate_chains = TRUE)
+stan_dens(fit_syphilis_negbin, pars = pars, separate_chains = TRUE)

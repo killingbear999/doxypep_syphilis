@@ -68,30 +68,30 @@ functions {
       real kappa_D = theta[9]; # Shape parameter of communicable disease surveillance data
       real beta_nu = theta[10]; # Probability of death at tertiary stage
       
-      print("t:", t);
-      // print("mu:", mu);
-      print("psi_S:", psi_S);
-      print("psi_E:", psi_E);
-      print("psi_L:", psi_L);
-      print("psi_T:", psi_T);
-      // print("rho:", rho);
-      print("U:", U_N_H);
-      print("I:", I_N_H);
-      print("P:", P_N_H);
-      print("S:", S_N_H);
-      print("E:", E_N_H);
-      print("L:", L_N_H);
-      print("T:", T_N_H);
-      print("R:", R_N_H);
-      
-      print("U:", U_N_L);
-      print("I:", I_N_L);
-      print("P:", P_N_L);
-      print("S:", S_N_L);
-      print("E:", E_N_L);
-      print("L:", L_N_L);
-      print("T:", T_N_L);
-      print("R:", R_N_L);
+      // print("t:", t);
+      // // print("mu:", mu);
+      // print("psi_S:", psi_S);
+      // print("psi_E:", psi_E);
+      // print("psi_L:", psi_L);
+      // print("psi_T:", psi_T);
+      // // print("rho:", rho);
+      // print("U:", U_N_H);
+      // print("I:", I_N_H);
+      // print("P:", P_N_H);
+      // print("S:", S_N_H);
+      // print("E:", E_N_H);
+      // print("L:", L_N_H);
+      // print("T:", T_N_H);
+      // print("R:", R_N_H);
+      // 
+      // print("U:", U_N_L);
+      // print("I:", I_N_L);
+      // print("P:", P_N_L);
+      // print("S:", S_N_L);
+      // print("E:", E_N_L);
+      // print("L:", L_N_L);
+      // print("T:", T_N_L);
+      // print("R:", R_N_L);
       
       # time-dependent variables
       real C_H = get_C(I_N_H, P_N_H, S_N_H, E_N_H); # Number of infectious individuals in group H
@@ -105,13 +105,13 @@ functions {
       real eta_L = omega * eta_H; # Rate of screening in the absence of symptoms in group L
       real lambda_L = get_lambda(t, t_0, c_L, beta, phi_beta, epsilon, C_L, N_L, pi_L, C_H, N_H, pi_H); # Force of infection in group L
       
-      print("lambda_H:", lambda_H);
-      print("lambda_L:", lambda_L);
-      print("eta_H:", eta_H);
-      print("eta_L:", eta_L);
-      print("C_H:", C_H);
-      print("C_L:", C_L);
-      print("total population:", N_H+N_L);
+      // print("lambda_H:", lambda_H);
+      // print("lambda_L:", lambda_L);
+      // print("eta_H:", eta_H);
+      // print("eta_L:", eta_L);
+      // print("C_H:", C_H);
+      // print("C_L:", C_L);
+      // print("total population:", N_H+N_L);
       
       # ODEs
       # debug: 1. when setting alpha, gamma, nu values to be 0, i.e., no inflow and outflow, the total population remains unchanged --> the odes have no problem.
@@ -126,9 +126,9 @@ functions {
       real dT_N_H = psi_T * L_N_H - (mu + beta_nu * nu + 1/gamma) * T_N_H;
       real dR_N_H = mu * (P_N_H + S_N_H + T_N_H) + eta_H * (E_N_H + L_N_H) - (rho + 1/gamma) * R_N_H;
 
-      print("inflow:", psi_L * E_N_H);
-      print("outflow:", (eta_H + psi_T + 1/gamma) * L_N_H);
-      print("dL_N_H:", dL_N_H);
+      // print("inflow:", psi_L * E_N_H);
+      // print("outflow:", (eta_H + psi_T + 1/gamma) * L_N_H);
+      // print("dL_N_H:", dL_N_H);
 
       # low-risk group
       # non-doxy-pep (N)
@@ -217,15 +217,15 @@ transformed parameters{
   theta[9] = kappa_D;
   theta[10] = beta_nu;
   
-  print(theta);
+  // print(theta);
 
   y = integrate_ode_rk45(syphilis_model, y0, t_0, ts, theta, x_r, x_i);
   for (t in 1:(n_years - 1)) {
     // Trapezoidal rule: (f(a) + f(b)) / 2 * (b - a)
     incidence[t] = 0.5 * rho * (y[t, 8] + y[t + 1, 8] + y[t, 16] + y[t + 1, 16]);
-    print(y[t]);
+    // print(y[t]);
   }
-  print("predicted_cases: ", incidence);
+  // print("predicted_cases: ", incidence);
 }
 model {
   # priors
