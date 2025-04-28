@@ -241,9 +241,10 @@ model {
   beta_nu ~ uniform(0.08,0.56);
   
   # sampling distribution
-  cases[1:(n_years-1)] ~ neg_binomial_2(incidence, kappa_D);
+  cases[1:(n_years-1)] ~ neg_binomial_2(fmax(1e-8, incidence), kappa_D);
 }
 generated quantities {
   real pred_cases[n_years-1];
-  pred_cases = neg_binomial_2_rng(incidence, kappa_D);
+  pred_cases = neg_binomial_2_rng(fmax(1e-8, incidence), kappa_D);
+  # print(pred_cases);
 }
