@@ -84,8 +84,8 @@ model <- stan_model("syphilis_fixed_transition_rate.stan")
 fit_syphilis_negbin <- sampling(model,
                                 data = data_syphilis,
                                 # algorithm = "Fixed_param", # for debugging
-                                iter = 20,
-                                warmup = 10,
+                                iter = 2000,
+                                warmup = 1000,
                                 control = list(adapt_delta = 0.995, max_treedepth = 20),
                                 chains = 6,
                                 cores = 6,
