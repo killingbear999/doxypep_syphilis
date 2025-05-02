@@ -50,6 +50,7 @@ functions {
       real psi_L = x_r[9]; # Rate of leaving early latent stage
       real psi_T = x_r[10]; # Rate of leaving late latent stage
       real nu = x_r[11]; # Mortality rate at tertiary stage
+      real beta_nu = x_r[12]; # Probability of death at tertiary stage
       
       # fixed integer parameters
       int alpha = x_i[1]; # Annual MSM population entrants (at age 15)
@@ -66,7 +67,7 @@ functions {
       real omega = theta[7]; # Ratio of screening rate in group L vs group H
       real mu = theta[8]; # Rate of seeking treatment due to symptoms 
       real kappa_D = theta[9]; # Shape parameter of communicable disease surveillance data
-      real beta_nu = theta[10]; # Probability of death at tertiary stage
+      # real beta_nu = theta[10]; # Probability of death at tertiary stage
       
       # time-dependent variables
       real C_H = get_C(I_N_H, P_N_H, S_N_H, E_N_H); # Number of infectious individuals in group H
@@ -82,6 +83,11 @@ functions {
       
       # ODEs
       # debug: 1. when setting alpha, gamma, nu values to be 0, i.e., no inflow and outflow, the total population remains unchanged --> the odes have no problem.
+      #        2. adding an additional parameter for underreporting is not working (this parameter p_reported has very low n_eff and high rhat)
+      #        3. treating transition rates as parameter is not working (run into negative values)
+      #        4. using integrate_ode_bdf --> results not much different but run much faster
+      #.       5. setting initial states as parameters instead of using fixed number (gets better credible interval but results not much different)
+      #        6. setting probability of death at tertiary stage (beta_nu) as a constant --> 
       # high-risk group
       # non-doxy-pep (N)
       real dU_N_H = q_H * alpha - (lambda_H + 1/gamma) * U_N_H + rho * R_N_H;
@@ -125,9 +131,10 @@ data {
   real psi_L;
   real psi_T;
   real nu;
+  real beta_nu;
 }
 transformed data {
-  real x_r[11];
+  real x_r[12];
   int x_i[3];
   
   # assign values to x_r
@@ -142,6 +149,7 @@ transformed data {
   x_r[9] = psi_L;
   x_r[10] = psi_T;
   x_r[11] = nu;
+  x_r[12] = beta_nu;
   
   # assign values to x_i
   x_i[1] = alpha;
@@ -158,8 +166,7 @@ parameters {
   real<lower=0.1, upper=0.9> omega;
   real<lower=50, upper=600> mu;
   real<lower=0, upper=1> kappa_D;
-  real<lower=0, upper=1> beta_nu;
-  real<lower=0, upper=1> p_reported;
+  # real<lower=0, upper=1> beta_nu;
   # assuming stage distribution is the same in both group H and group L
   simplex[7] p_stage; # Percentage for each stage
   real<lower=0.001, upper=0.007> prop_inf; # Percentage of incidence among whole population
@@ -167,7 +174,7 @@ parameters {
 transformed parameters{
   real y[n_years, 16];
   real incidence[n_years - 1];
-  real theta[10];
+  real theta[9];
   theta[1] = beta;
   theta[2] = phi_beta;
   theta[3] = epsilon;
@@ -177,7 +184,7 @@ transformed parameters{
   theta[7] = omega;
   theta[8] = mu;
   theta[9] = kappa_D;
-  theta[10] = beta_nu;
+  # theta[10] = beta_nu;
   
   # percentage for each stage
   real p_I = p_stage[1];
@@ -232,10 +239,10 @@ transformed parameters{
   y0[15] = T_N_L;
   y0[16] = R_N_L;
 
-  y = integrate_ode_rk45(syphilis_model, y0, t_0, ts, theta, x_r, x_i);
+  y = integrate_ode_bdf(syphilis_model, y0, t_0, ts, theta, x_r, x_i, 1e-8, 1e-10, 1e8);
   for (t in 1:(n_years - 1)) {
     # Trapezoidal rule: (f(a) + f(b)) / 2 * (b - a)
-    incidence[t] = 0.5 * rho * (y[t, 8] + y[t + 1, 8] + y[t, 16] + y[t + 1, 16]) * p_reported;
+    incidence[t] = 0.5 * rho * (y[t, 8] + y[t + 1, 8] + y[t, 16] + y[t + 1, 16]);
   }
 }
 model {
@@ -262,8 +269,7 @@ model {
   omega ~ lognormal(-0.87,0.39); # 0.451 (0.22, 0.80)
   mu ~ lognormal(log(200), 0.6); # 239.5 (74.6, 535.9)
   kappa_D ~ uniform(0,1);
-  beta_nu ~ uniform(0.08,0.56);
-  p_reported ~ beta(1,2);
+  # beta_nu ~ uniform(0.08,0.56);
   
   # sampling distribution
   cases[1:(n_years-1)] ~ neg_binomial_2(incidence, kappa_D);
