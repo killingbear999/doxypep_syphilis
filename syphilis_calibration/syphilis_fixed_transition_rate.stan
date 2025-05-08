@@ -50,6 +50,7 @@ functions {
       real psi_L = x_r[9]; # Rate of leaving early latent stage
       real psi_T = x_r[10]; # Rate of leaving late latent stage
       real nu = x_r[11]; # Mortality rate at tertiary stage
+      real beta_nu = x_r[12]; # Probability of death at tertiary stage
       
       # fixed integer parameters
       int alpha = x_i[1]; # Annual MSM population entrants (at age 15)
@@ -66,7 +67,6 @@ functions {
       real omega = theta[7]; # Ratio of screening rate in group L vs group H
       real mu = theta[8]; # Rate of seeking treatment due to symptoms 
       real kappa_D = theta[9]; # Shape parameter of communicable disease surveillance data
-      real beta_nu = theta[10]; # Probability of death at tertiary stage
       
       # time-dependent variables
       real C_H = get_C(I_N_H, P_N_H, S_N_H, E_N_H); # Number of infectious individuals in group H
@@ -82,6 +82,12 @@ functions {
       
       # ODEs
       # debug: 1. when setting alpha, gamma, nu values to be 0, i.e., no inflow and outflow, the total population remains unchanged --> the odes have no problem.
+      #        2. treating transition rates as parameter is not working (run into negative values)
+      #        3. adding an additional parameter for underreporting is not working (this parameter p_reported has very low n_eff and high rhat)
+      #        4. using integrate_ode_bdf --> results slightly better and run much faster
+      #        5. setting initial states as parameters instead of using fixed number (gets better credible interval but results not much different)
+      #        6. setting all hyperparameters as the best ((1e-8, 1e-10, 1e8) for integrate_ode_bdf, adapt_delta = 0.999, max_treedepth = 20) --> good results but with warning of divergent transitions after warnmup
+      #        7. setting probability of death at tertiary stage (beta_nu) as a constant, with all hyperparameters as the best, i.e, (1e-8, 1e-10, 1e8) for integrate_ode_bdf, adapt_delta = 0.999, max_treedepth = 20 --> no divergence warning, results very good
       # high-risk group
       # non-doxy-pep (N)
       real dU_N_H = q_H * alpha - (lambda_H + 1/gamma) * U_N_H + rho * R_N_H;
@@ -103,17 +109,12 @@ functions {
       real dL_N_L = psi_L * E_N_L - (eta_L + psi_T + 1/gamma) * L_N_L;
       real dT_N_L = psi_T * L_N_L - (mu + beta_nu * nu + 1/gamma) * T_N_L;
       real dR_N_L = mu * (P_N_L + S_N_L + T_N_L) + eta_L * (E_N_L + L_N_L) - (rho + 1/gamma) * R_N_L;
-
-      // if (L_N_H < 0) {
-      //   reject("L_N_H must not be negative; found L_N_H=", L_N_H);
-      // }
       
       return {dU_N_H, dI_N_H, dP_N_H, dS_N_H, dE_N_H, dL_N_H, dT_N_H, dR_N_H, dU_N_L, dI_N_L, dP_N_L, dS_N_L, dE_N_L, dL_N_L, dT_N_L, dR_N_L};
   }
 }
 data {
   int<lower=1> n_years; # Number of years modelling
-  real<lower=0> y0[16]; # Initial conditions for all compartments
   real ts[n_years]; # Sequences of time steps
   real t_0;
   real q_H;
@@ -130,9 +131,10 @@ data {
   real psi_L;
   real psi_T;
   real nu;
+  real beta_nu;
 }
 transformed data {
-  real x_r[11];
+  real x_r[12];
   int x_i[3];
   
   # assign values to x_r
@@ -147,6 +149,7 @@ transformed data {
   x_r[9] = psi_L;
   x_r[10] = psi_T;
   x_r[11] = nu;
+  x_r[12] = beta_nu;
   
   # assign values to x_i
   x_i[1] = alpha;
@@ -163,13 +166,14 @@ parameters {
   real<lower=0.1, upper=0.9> omega;
   real<lower=50, upper=600> mu;
   real<lower=0, upper=1> kappa_D;
-  real<lower=0, upper=1> beta_nu;
-  real<lower=0, upper=1> p_reported;
+  # assuming stage distribution is the same in both group H and group L
+  simplex[7] p_stage; # Percentage for each stage
+  real<lower=0.001, upper=0.007> prop_inf; # Percentage of incidence among whole population
 }
 transformed parameters{
   real y[n_years, 16];
   real incidence[n_years - 1];
-  real theta[10];
+  real theta[9];
   theta[1] = beta;
   theta[2] = phi_beta;
   theta[3] = epsilon;
@@ -179,15 +183,80 @@ transformed parameters{
   theta[7] = omega;
   theta[8] = mu;
   theta[9] = kappa_D;
-  theta[10] = beta_nu;
+  
+  # percentage for each stage
+  real p_I = p_stage[1];
+  real p_P = p_stage[2];
+  real p_S = p_stage[3];
+  real p_E = p_stage[4];
+  real p_L = p_stage[5];
+  real p_T = p_stage[6];
+  real p_R = p_stage[7];
+  
+  # compute the total number of individuals in each group
+  real N_H = q_H * N_t0;
+  real N_L = q_L * N_t0;
+  real prop_sus = 1 - prop_inf;
+  
+  # calculate the number of individuals in each compartment for Group H using the percentages
+  real I_N_H = p_I * prop_inf * N_H;
+  real P_N_H = p_P * prop_inf * N_H;
+  real S_N_H = p_S * prop_inf *  N_H;
+  real E_N_H = p_E * prop_inf * N_H;
+  real L_N_H = p_L * prop_inf * N_H;
+  real T_N_H = p_T * prop_inf * N_H;
+  real R_N_H = p_R * prop_inf * N_H;
+  real U_N_H = prop_sus * N_H;
+  
+  # calculate the number of individuals in each compartment for Group L using the same percentages
+  real I_N_L = p_I * prop_inf * N_L;
+  real P_N_L = p_P * prop_inf * N_L;
+  real S_N_L = p_S * prop_inf *  N_L;
+  real E_N_L = p_E * prop_inf * N_L;
+  real L_N_L = p_L * prop_inf * N_L;
+  real T_N_L = p_T * prop_inf * N_L;
+  real R_N_L = p_R * prop_inf * N_L;
+  real U_N_L = prop_sus * N_L;
+  
+  # set the initial conditions y0 for all compartments
+  real y0[16];
+  y0[1]  = U_N_H;
+  y0[2]  = I_N_H;
+  y0[3]  = P_N_H;
+  y0[4]  = S_N_H;
+  y0[5]  = E_N_H;
+  y0[6]  = L_N_H;
+  y0[7]  = T_N_H;
+  y0[8]  = R_N_H;
+  y0[9]  = U_N_L;
+  y0[10] = I_N_L;
+  y0[11] = P_N_L;
+  y0[12] = S_N_L;
+  y0[13] = E_N_L;
+  y0[14] = L_N_L;
+  y0[15] = T_N_L;
+  y0[16] = R_N_L;
 
-  y = integrate_ode_rk45(syphilis_model, y0, t_0, ts, theta, x_r, x_i);
+  y = integrate_ode_bdf(syphilis_model, y0, t_0, ts, theta, x_r, x_i, 1e-8, 1e-10, 1e8);
   for (t in 1:(n_years - 1)) {
     # Trapezoidal rule: (f(a) + f(b)) / 2 * (b - a)
-    incidence[t] = 0.5 * rho * (y[t, 8] + y[t + 1, 8] + y[t, 16] + y[t + 1, 16]) * p_reported;
+    incidence[t] = 0.5 * rho * (y[t, 8] + y[t + 1, 8] + y[t, 16] + y[t + 1, 16]);
   }
 }
 model {
+  # priors for the percentage parameters
+  # assume that for each group j
+  # 10% of incidences at incubation
+  # 20% of incidences at primary stage
+  # 25% of incidences at secondary stage
+  # 30% of incidences at early latent stage
+  # 10% of incidences at late latent stage
+  # 5% of incidences at teritary stage
+  # 5% of incidences at recovery stage
+  vector[7] temp_p_stage = 7 * to_vector({0.10, 0.20, 0.25, 0.30, 0.10, 0.05, 0.05}); # low confidence
+  p_stage ~ dirichlet(temp_p_stage);
+  prop_inf ~ uniform(0.001, 0.007);
+  
   # priors
   beta ~ uniform(0,1);
   phi_beta ~ uniform(0,1);
@@ -198,8 +267,6 @@ model {
   omega ~ lognormal(-0.87,0.39); # 0.451 (0.22, 0.80)
   mu ~ lognormal(log(200), 0.6); # 239.5 (74.6, 535.9)
   kappa_D ~ uniform(0,1);
-  beta_nu ~ uniform(0.08,0.56);
-  p_reported ~ beta(1,2);
   
   # sampling distribution
   cases[1:(n_years-1)] ~ neg_binomial_2(incidence, kappa_D);

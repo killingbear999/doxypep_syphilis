@@ -7,7 +7,9 @@ rstan_options (auto_write = TRUE)
 options(mc.cores = parallel::detectCores(logical = FALSE)) # use all available cores by default when sampling
 
 # time series of MSM syphilis cases
-cases <- c(324, 365, 488, 346, 305, 197, 159, 187, 318, 308, 525, 496, 623, 573, 605, 381, 317)
+# cases <- c(324, 365, 488, 346, 305, 197, 159, 187, 318, 308, 525, 496, 623, 573, 605, 381, 317) # main scenario (male incidence minus female incidence)
+# cases <- c(518, 632, 840, 564, 599, 532, 407, 536, 875, 801, 935, 832, 894, 804, 863, 515, 365) # upper bound (all male incidence)
+cases <- c(31, 38, 51, 34, 36, 32, 24, 32, 53, 48, 56, 50, 54, 49, 52, 31, 22) # lower bound (percentage of MSM among male population, assuming syphilis incidence rate is the same among MSM and MSF)
 
 # Initial population size of MSM in 2004
 N_t0 <- 97189
@@ -29,10 +31,11 @@ gamma <- 50
 # transition rate
 sigma <- 365/23 # 23 days (Incubation to Primary)
 psi_S <- 365/42 # 6 weeks (Primary to Secondary)
-psi_E <- 365/168 # 6 months (Secondary to Early latent)
-psi_L <- 365/280 # 10 weeks (Early latent to Late latent)
+psi_E <- 365/(365/2) # 6 months (Secondary to Early latent)
+psi_L <- 1 # 1 year (Early latent to Late latent)
 psi_T <- 1/20 # 20 years (Late latent to Tertiary)
 nu <- 1/40 # 40 years (Death)
+beta_nu <- 128/399 # Probability of death at tertiary stage
 
 # times
 n_years <- length(cases) 
@@ -41,7 +44,7 @@ t_0 = 0
 t <- t[-1]
 
 # initial syphilis incidence guess
-temp = 324
+# temp = 324
 
 # initial conditions
 # assume that for each group j
@@ -52,27 +55,27 @@ temp = 324
 # 10% of incidences at late latent stage
 # 5% of incidences at teritary stage
 # 5% of incidences at recovery stage
-U_N_H = (N_t0 - temp) * q_H;
-I_N_H = 0.1 * temp * q_H;
-P_N_H = 0.15 * temp * q_H;
-S_N_H = 0.25 * temp * q_H;
-E_N_H = 0.3 * temp * q_H;
-L_N_H = 0.1 * temp * q_H;
-T_N_H = 0.05 * temp * q_H;
-R_N_H = 0.05 * temp * q_H;
-U_N_L = (N_t0 - temp) * q_L;
-I_N_L = 0.1 * temp * q_L;
-P_N_L = 0.15 * temp * q_L;
-S_N_L = 0.25 * temp * q_L;
-E_N_L = 0.3 * temp * q_L;
-L_N_L = 0.1 * temp * q_L;
-T_N_L = 0.05 * temp * q_L;
-R_N_L = 0.05 * temp * q_L;
-y0 = c(U_N_H=U_N_H, I_N_H=I_N_H, P_N_H=P_N_H, S_N_H=S_N_H, E_N_H=E_N_H, L_N_H=L_N_H, T_N_H=T_N_H, R_N_H=R_N_H,
-       U_N_L=U_N_L, I_N_L=I_N_L, P_N_L=P_N_L, S_N_L=S_N_L, E_N_L=E_N_L, L_N_L=L_N_L, T_N_L=T_N_L, R_N_L=R_N_L)
+# U_N_H = (N_t0 - temp) * q_H;
+# I_N_H = 0.1 * temp * q_H;
+# P_N_H = 0.15 * temp * q_H;
+# S_N_H = 0.25 * temp * q_H;
+# E_N_H = 0.3 * temp * q_H;
+# L_N_H = 0.1 * temp * q_H;
+# T_N_H = 0.05 * temp * q_H;
+# R_N_H = 0.05 * temp * q_H;
+# U_N_L = (N_t0 - temp) * q_L;
+# I_N_L = 0.1 * temp * q_L;
+# P_N_L = 0.15 * temp * q_L;
+# S_N_L = 0.25 * temp * q_L;
+# E_N_L = 0.3 * temp * q_L;
+# L_N_L = 0.1 * temp * q_L;
+# T_N_L = 0.05 * temp * q_L;
+# R_N_L = 0.05 * temp * q_L;
+# y0 = c(U_N_H=U_N_H, I_N_H=I_N_H, P_N_H=P_N_H, S_N_H=S_N_H, E_N_H=E_N_H, L_N_H=L_N_H, T_N_H=T_N_H, R_N_H=R_N_H,
+#        U_N_L=U_N_L, I_N_L=I_N_L, P_N_L=P_N_L, S_N_L=S_N_L, E_N_L=E_N_L, L_N_L=L_N_L, T_N_L=T_N_L, R_N_L=R_N_L)
 
 # data for Stan
-data_syphilis <- list(n_years = n_years, y0 = y0, ts = t, t_0 = t_0, q_H = q_H, c_H = c_H, c_L = c_L, q_L = q_L, cases = cases, alpha = alpha, N_t0 = N_t0, gamma = gamma, sigma=sigma, psi_S=psi_S, psi_E=psi_E, psi_L=psi_L, psi_T=psi_T, nu=nu)
+data_syphilis <- list(n_years = n_years, ts = t, t_0 = t_0, q_H = q_H, c_H = c_H, c_L = c_L, q_L = q_L, cases = cases, alpha = alpha, N_t0 = N_t0, gamma = gamma, sigma=sigma, psi_S=psi_S, psi_E=psi_E, psi_L=psi_L, psi_T=psi_T, nu=nu, beta_nu=beta_nu)
 
 # parameter initialization for rstan for debugging
 init_fun <- function() {
@@ -84,22 +87,31 @@ model <- stan_model("syphilis_fixed_transition_rate.stan")
 fit_syphilis_negbin <- sampling(model,
                                 data = data_syphilis,
                                 # algorithm = "Fixed_param", # for debugging
-                                iter = 2000,
-                                warmup = 1000,
-                                control = list(adapt_delta = 0.995, max_treedepth = 20),
-                                chains = 4,
-                                cores = 4,
+                                iter = 4000,
+                                warmup = 2000,
+                                control = list(adapt_delta = 0.999, max_treedepth = 20),
+                                chains = 6,
+                                cores = 6,
                                 seed = 42,
                                 # init=init_fun, # for debugging
                                 # diagnostic_file = "diagnostics.csv" # for debugging
                                 verbose=TRUE)
 
-saveRDS(fit_syphilis_negbin, file = "fit_results_fixed.rds")
-fit_syphilis_negbin <- readRDS("fit_results_fixed.rds")
+saveRDS(fit_syphilis_negbin, file = "fit_results_lower.rds")
+# fit_syphilis_negbin <- readRDS("fit_results_lower.rds")
+
+# print the data
+# sink("output_main.txt")
+# print(fit_syphilis_negbin)
+# sink()
 
 # print the mcmc results
-pars=c('beta', 'phi_beta', 'epsilon', 'rho', 'eta_H_init', 'phi_eta', 'omega', 'mu', 'kappa_D', 'beta_nu')
+pars=c('beta', 'phi_beta', 'epsilon', 'rho', 'eta_H_init', 'phi_eta', 'omega', 'mu', 'kappa_D')
 print(fit_syphilis_negbin, pars = pars)
+
+# get the parameter value
+phi_beta_samples <- rstan::extract(fit_syphilis_negbin, pars = "phi_beta")$phi_beta
+mean(phi_beta_samples)
 
 # trace plots to assess mixing of a chain
 traceplot(fit_syphilis_negbin, pars = pars)
@@ -109,15 +121,15 @@ stan_dens(fit_syphilis_negbin, pars = pars, separate_chains = TRUE)
 
 # posterior predictive check on number of cases
 smr_pred <- cbind(as.data.frame(summary(
-  fit_syphilis_negbin, pars = "pred_cases", probs = c(0.05, 0.5, 0.95))$summary), t[1:(n_years-1)], cases[1:(n_years-1)])
+  fit_syphilis_negbin, pars = "pred_cases", probs = c(0.025, 0.5, 0.975))$summary), t[1:(n_years-1)], cases[1:(n_years-1)])
 colnames(smr_pred) <- make.names(colnames(smr_pred)) # to remove % in the col names
 
 main_data <- data.frame(
-  Year = 2004:2017,
-  Median = smr_pred$X50.[1:(n_years-1)],
-  Lower = smr_pred$X5.[1:(n_years-1)],
-  Upper = smr_pred$X95.[1:(n_years-1)],
-  Observation = cases[1:(n_years-1)]
+  Year = 2004:2018,
+  Median = smr_pred$X50.[1:(n_years-2)],
+  Lower = smr_pred$X2.5.[1:(n_years-2)],
+  Upper = smr_pred$X97.5.[1:(n_years-2)],
+  Observation = cases[1:(n_years-2)]
 )
 
 plot_data <- main_data |>
