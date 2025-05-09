@@ -88,6 +88,7 @@ functions {
       #        5. setting initial states as parameters instead of using fixed number (gets better credible interval but results not much different)
       #        6. setting all hyperparameters as the best ((1e-8, 1e-10, 1e8) for integrate_ode_bdf, adapt_delta = 0.999, max_treedepth = 20) --> good results but with warning of divergent transitions after warnmup
       #        7. setting probability of death at tertiary stage (beta_nu) as a constant, with all hyperparameters as the best, i.e, (1e-8, 1e-10, 1e8) for integrate_ode_bdf, adapt_delta = 0.999, max_treedepth = 20 --> no divergence warning, results very good
+      #        8. Adjust the range of prop_inf for initialization for lower bound scenario, i.e., (0.001, 0.007) for upper bound and main scenarios, (0.0001, 0.0007) for lower bound scenario --> chains do not converge if not adjusted
       # high-risk group
       # non-doxy-pep (N)
       real dU_N_H = q_H * alpha - (lambda_H + 1/gamma) * U_N_H + rho * R_N_H;
@@ -168,7 +169,7 @@ parameters {
   real<lower=0, upper=1> kappa_D;
   # assuming stage distribution is the same in both group H and group L
   simplex[7] p_stage; # Percentage for each stage
-  real<lower=0.001, upper=0.007> prop_inf; # Percentage of incidence among whole population
+  real<lower=0.0001, upper=0.0007> prop_inf; # Percentage of incidence among whole population
 }
 transformed parameters{
   real y[n_years, 16];
@@ -255,7 +256,7 @@ model {
   # 5% of incidences at recovery stage
   vector[7] temp_p_stage = 7 * to_vector({0.10, 0.20, 0.25, 0.30, 0.10, 0.05, 0.05}); # low confidence
   p_stage ~ dirichlet(temp_p_stage);
-  prop_inf ~ uniform(0.001, 0.007);
+  prop_inf ~ uniform(0.0001, 0.0007);
   
   # priors
   beta ~ uniform(0,1);

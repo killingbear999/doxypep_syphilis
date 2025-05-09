@@ -12,10 +12,10 @@ options(mc.cores = parallel::detectCores(logical = FALSE)) # use all available c
 cases <- c(31, 38, 51, 34, 36, 32, 24, 32, 53, 48, 56, 50, 54, 49, 52, 31, 22) # lower bound (percentage of MSM among male population, assuming syphilis incidence rate is the same among MSM and MSF)
 
 # Initial population size of MSM in 2004
-N_t0 <- 97189
+N_t0 <- 97189 # applied the percentage of MSM among male in 2019 to male population in 2004
 
 # Annual MSM population entrants (at age 15)
-alpha <- 2524
+alpha <- 2524 # applied the percentage of MSM among male in 2019 to male population entrants (at age 15) from 2004 to 2018 and took the average
 
 # Proportion of the MSM population in group j
 q_H <- 0.207
