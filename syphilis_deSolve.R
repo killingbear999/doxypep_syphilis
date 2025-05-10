@@ -69,14 +69,11 @@ syphilis_model <- function(t, y, parms) {
   })
 }
 
-# time series of MSM syphilis cases
-cases <- c(324, 365, 488, 346, 305, 197, 159, 187, 318, 308, 525, 496, 623, 573, 605)
-
-# Initial population size of MSM in 2004
-N_t0 <- 100000
+# Initial population size of MSM in 2018
+N_t0 <- 135000
 
 # Annual MSM population entrants (at age 15)
-alpha <- 2000
+alpha <- 2524
 
 # Proportion of the MSM population in group j
 q_H <- 0.207
@@ -89,40 +86,38 @@ c_L <- 1.989
 # Years spent in the sexually-active population
 gamma <- 50
 
-# transmission rate
-sigma <- 16 # 23 days
-psi_S <- 13 # 4 weeks
-psi_E <- 2 # 6 months
-psi_L <- 0.5 # 2 years
-psi_T <- 0.05 # 20 years
-nu <- 0.025 # 40 years
+# transition rate
+sigma <- 365/23 # 23 days (Incubation to Primary)
+psi_S <- 365/42 # 6 weeks (Primary to Secondary)
+psi_E <- 365/(365/2) # 6 months (Secondary to Early latent)
+psi_L <- 1 # 1 year (Early latent to Late latent)
+psi_T <- 1/20 # 20 years (Late latent to Tertiary)
+nu <- 1/40 # 40 years (Death)
+beta_nu <- 128/399 # Probability of death at tertiary stage
 
 # times
-n_years <- length(cases) 
-t <- seq(0, 100, by = 1)
+n_years <- 21
+t <- seq(0, n_years, by = 1)
 t_0 = 0 
 t <- t[-1]
 
-# initial syphilis incidence guess
-temp = 300
-
-# Initial conditions (example)
-U_N_H = (N_t0 - temp) * q_H;
-I_N_H = 0.1 * temp * q_H;
-P_N_H = 0.15 * temp * q_H;
-S_N_H = 0.25 * temp * q_H;
-E_N_H = 0.3 * temp * q_H;
-L_N_H = 0.1 * temp * q_H;
-T_N_H = 0.05 * temp * q_H;
-R_N_H = 0.05 * temp * q_H;
-U_N_L = (N_t0 - temp) * q_L;
-I_N_L = 0.1 * temp * q_L;
-P_N_L = 0.15 * temp * q_L;
-S_N_L = 0.25 * temp * q_L;
-E_N_L = 0.3 * temp * q_L;
-L_N_L = 0.1 * temp * q_L;
-T_N_L = 0.05 * temp * q_L;
-R_N_L = 0.05 * temp * q_L;
+# initial conditions
+U_N_H = 27838.87
+I_N_H = 59.43
+P_N_H = 7.59
+S_N_H = 0.67
+E_N_H = 0.18
+L_N_H = 0.22
+T_N_H = 0.00
+R_N_H = 48.18
+U_N_L = 107086.05
+I_N_L = 3.56
+P_N_L = 0.56
+S_N_L = 0.06
+E_N_L = 0.03
+L_N_L = 0.74
+T_N_L = 0.00
+R_N_L = 2.86
 y0 = c(U_N_H=U_N_H, I_N_H=I_N_H, P_N_H=P_N_H, S_N_H=S_N_H, E_N_H=E_N_H, L_N_H=L_N_H, T_N_H=T_N_H, R_N_H=R_N_H,
        U_N_L=U_N_L, I_N_L=I_N_L, P_N_L=P_N_L, S_N_L=S_N_L, E_N_L=E_N_L, L_N_L=L_N_L, T_N_L=T_N_L, R_N_L=R_N_L)
 
@@ -131,8 +126,8 @@ params <- list(
   q_H = q_H, c_H = c_H, c_L = c_L, q_L = q_L,
   t_0 = 0, alpha = alpha, gamma = gamma,
   sigma = sigma, psi_S = psi_S, psi_E = psi_E, psi_L = psi_L, psi_T = psi_T,
-  nu = nu, beta = 0.1, phi_beta = 0.1, epsilon=0.1, rho=20.94, eta_H_init=0.1, 
-  phi_eta=0.1, omega=0.451, mu=239.5, beta_nu=0.8
+  nu = nu, beta = 0.9625903, phi_beta = 0.003486564, epsilon=0.8932742, rho=19.83683, eta_H_init=2.070594, 
+  phi_eta=0.4828739, omega=0.4151082, mu=118.45, beta_nu=beta_nu
 )
 
 # Solve the system
@@ -141,3 +136,15 @@ out <- ode(y = y0, times = c(t_0, t), func = syphilis_model, parms = params)
 # View output
 out <- as.data.frame(out)
 print(out)
+
+incidence <- numeric(n_years - 1)
+
+for (t in 1:(n_years - 1)) {
+  # Trapezoidal rule: (f(a) + f(b)) / 2 * (b - a)
+  incidence[t] = 0.5 * params$rho * (out[t, 9] + out[t + 1, 9] + out[t, 17] + out[t + 1, 17]);
+}
+print(incidence)
+
+kappa_D <- 0.91899
+cases <- rnbinom(n = length(incidence), size = kappa_D, mu = incidence)
+print(cases)
