@@ -161,7 +161,6 @@ for (i in 1:n_iter) {
   # apply negative binomial distribution to obtain case
   kappa_D <- posterior_df$kappa_D[i]
   cases[i,] <- rnbinom(n = length(incidence), size = kappa_D, mu = incidence)
-  print(cases[i,])
 }
 
 # compute quantiles for each row
@@ -190,7 +189,8 @@ ggplot(df, aes(x = group, ymin = lower, lower = lower, middle = middle, upper = 
   theme(
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
-    legend.position = c(0.85, 0.85),
+    legend.position = "inside",
+    legend.position.inside = c(0.85, 0.85),
     legend.justification = c("right", "top"),
     legend.background = element_rect(fill = alpha("white", 0.6), color = NA),
     legend.box.background = element_rect(color = "black"),
