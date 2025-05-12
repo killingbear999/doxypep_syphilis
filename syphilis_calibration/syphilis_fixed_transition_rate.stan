@@ -254,7 +254,7 @@ model {
   # 10% of incidences at late latent stage
   # 5% of incidences at teritary stage
   # 5% of incidences at recovery stage
-  vector[7] temp_p_stage = 7 * to_vector({0.10, 0.20, 0.25, 0.30, 0.10, 0.05, 0.05}); # low confidence
+  vector[7] temp_p_stage = 7 * to_vector({0.10, 0.15, 0.25, 0.30, 0.10, 0.05, 0.05}); # low confidence
   p_stage ~ dirichlet(temp_p_stage);
   prop_inf ~ uniform(0.0001, 0.0007);
   

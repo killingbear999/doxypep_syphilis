@@ -83,8 +83,8 @@ pars=c('beta', 'phi_beta', 'epsilon', 'rho', 'eta_H_init', 'phi_eta', 'omega', '
 print(fit_syphilis_negbin, pars = pars)
 
 # get the parameter value
-phi_beta_samples <- rstan::extract(fit_syphilis_negbin, pars = "phi_beta")$phi_beta
-mean(phi_beta_samples)
+samples <- rstan::extract(fit_syphilis_negbin, pars = "mu")$mu
+median(samples)
 
 # trace plots to assess mixing of a chain, output size (10, 5)
 traceplot(fit_syphilis_negbin, pars = pars)
@@ -100,11 +100,11 @@ colnames(smr_pred) <- make.names(colnames(smr_pred)) # to remove % in the col na
 # box plot, output size (8, 6)
 df <- data.frame(
   group = factor(2004:2018),
-  ymin = smr_pred$X2.5.[1:(n_years-2)],    # minimum
+  ymin = smr_pred$X2.5.[1:(n_years-2)],  # minimum
   lower = smr_pred$X25.[1:(n_years-2)],  # Q1
   middle = smr_pred$X50.[1:(n_years-2)], # median
   upper = smr_pred$X75.[1:(n_years-2)],  # Q3
-  ymax = smr_pred$X97.5.[1:(n_years-2)],  # maximum
+  ymax = smr_pred$X97.5.[1:(n_years-2)], # maximum
   observation = cases[1:(n_years-2)],    # observed
   year = 2004:2018                       # year
 )
