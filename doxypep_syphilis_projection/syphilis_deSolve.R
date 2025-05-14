@@ -27,6 +27,8 @@ get_eta <- function(t, t_0, eta_H_init, phi_eta) {
 # ODE system
 syphilis_model <- function(t, y, parms) {
   with(as.list(c(y, parms)), {
+    # two baselines: 1. the inferred trends in the time-varying behavioural parameters stabilise (t=2018 and t0=2004)
+    #                2. the trends continue until the end of the modelled period (do not fix t and t_0)
     
     # Population sizes
     C_H <- get_C(I_N_H, P_N_H, S_N_H, E_N_H)
@@ -37,11 +39,11 @@ syphilis_model <- function(t, y, parms) {
     # Mixing
     pi_H <- get_pi(c_H, N_H, c_L, N_L)
     pi_L <- get_pi(c_L, N_L, c_H, N_H)
-    lambda_H <- get_lambda(t, t_0, c_H, beta, phi_beta, epsilon, C_H, N_H, pi_H, C_L, N_L, pi_L)
-    lambda_L <- get_lambda(t, t_0, c_L, beta, phi_beta, epsilon, C_L, N_L, pi_L, C_H, N_H, pi_H)
+    lambda_H <- get_lambda(2018, 2004, c_H, beta, phi_beta, epsilon, C_H, N_H, pi_H, C_L, N_L, pi_L)
+    lambda_L <- get_lambda(2018, 2004, c_L, beta, phi_beta, epsilon, C_L, N_L, pi_L, C_H, N_H, pi_H)
     
     # Screening
-    eta_H <- get_eta(t, t_0, eta_H_init, phi_eta)
+    eta_H <- get_eta(2018, 2004, eta_H_init, phi_eta)
     eta_L <- omega * eta_H
     
     # ODEs - High risk
@@ -105,9 +107,10 @@ posterior_df <- as.data.frame(posterior_samples)
 
 # run forward simulations
 set.seed(42) # for reproducibility
-n_iter <- 1000
+n_iter <- 2000
 random_integers <- sample(1:12000, size = n_iter, replace = FALSE) # draw random integers without replacement
-n_years <- 21
+print(random_integers)
+n_years <- 16
 cases <- matrix(NA, nrow = n_iter, ncol = n_years-1)
 for (i in 1:n_iter) {
   # times
@@ -169,28 +172,28 @@ smr_pred <- t(apply(cases, 2, quantile, probs = probs, na.rm = TRUE))
 colnames(smr_pred) <- c("X2.5.", "X25.", "X50.", "X75.", "X97.5.")
 smr_pred <- as.data.frame(smr_pred)
 
-# box plot, output size (10, 6)
+# box plot, output size (8, 6)
 df <- data.frame(
-  group = factor(2024:2043),
-  ymin = smr_pred$X2.5.,  # minimum
-  lower = smr_pred$X25.,  # Q1
-  middle = smr_pred$X50., # median
-  upper = smr_pred$X75.,  # Q3
-  ymax = smr_pred$X97.5., # maximum
-  year = 2024:2043        # year
+  group = factor(2026:2040),
+  ymin = smr_pred$X2.5.[1:15],  # minimum
+  lower = smr_pred$X25.[1:15],  # Q1
+  middle = smr_pred$X50.[1:15], # median
+  upper = smr_pred$X75.[1:15],  # Q3
+  ymax = smr_pred$X97.5.[1:15], # maximum
+  year = 2026:2040              # year
 )
 
-ggplot(df, aes(x = group, ymin = lower, lower = lower, middle = middle, upper = upper, ymax = upper, color = 'Predicted')) +
+ggplot(df, aes(x = group, ymin = lower, lower = lower, middle = middle, upper = upper, ymax = upper, color = 'Baseline')) +
   geom_boxplot(stat = "identity", fill = "salmon") +
   labs(x = "Year", y = "Annual Incidence of Diagnosed") +
-  scale_color_manual(name = NULL, values = c("Predicted" = "darkred")) +
+  scale_color_manual(name = NULL, values = c("Baseline" = "darkred")) +
   theme_minimal(base_size = 13) +
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, NA)) +
   theme(
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
     legend.position = "inside",
-    legend.position.inside = c(0.85, 0.85),
+    legend.position.inside = c(0.15, 0.85),
     legend.justification = c("right", "top"),
     legend.background = element_rect(fill = alpha("white", 0.6), color = NA),
     legend.box.background = element_rect(color = "black"),
