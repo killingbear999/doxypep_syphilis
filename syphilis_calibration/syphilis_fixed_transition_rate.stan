@@ -170,7 +170,7 @@ parameters {
   real<lower=0, upper=1> kappa_D;
   # assuming stage distribution is the same in both group H and group L
   simplex[7] p_stage; # Percentage for each stage
-  real<lower=0.0001, upper=0.0007> prop_inf; # Percentage of incidence among whole population
+  real<lower=0.001, upper=0.007> prop_inf; # Percentage of incidence among whole population
 }
 transformed parameters{
   real y[n_years, 16];
@@ -257,7 +257,7 @@ model {
   # 5% of incidences at recovery stage
   vector[7] temp_p_stage = 7 * to_vector({0.10, 0.15, 0.25, 0.30, 0.10, 0.05, 0.05}); # low confidence
   p_stage ~ dirichlet(temp_p_stage);
-  prop_inf ~ uniform(0.0001, 0.0007);
+  prop_inf ~ uniform(0.001, 0.007);
   
   # priors
   beta ~ uniform(0,1);
