@@ -74,17 +74,38 @@ fit_syphilis_negbin <- readRDS("fit_results_main.rds")
 
 # print the data
 options(max.print = 1000000)
-sink("output_main.txt")
+# sink("output_main.txt")
 print(fit_syphilis_negbin)
 sink()
 
 # print the mcmc results
-pars=c('beta', 'phi_beta', 'epsilon', 'rho', 'eta_H_init', 'phi_eta', 'omega', 'mu', 'kappa_D')
+pars=c('beta', 'phi_beta', 'epsilon', 'rho', 'eta_H_init', 'phi_eta', 'omega', 'mu', 'kappa_D', 
+       'p_stage[1]', 'p_stage[2]', 'p_stage[3]', 'p_stage[4]', 'p_stage[5]', 'p_stage[6]', 'p_stage[7]', 'prop_inf')
 print(fit_syphilis_negbin, pars = pars)
 
-# get the parameter value
-samples <- rstan::extract(fit_syphilis_negbin, pars = "mu")$mu
-median(samples)
+# get the parameter median and 95% CI
+samples <- rstan::extract(fit_syphilis_negbin, pars = "prop_inf")$prop_inf
+posterior_median <- median(samples)
+ci_lower <- quantile(samples, 0.025)
+ci_upper <- quantile(samples, 0.975)
+cat(sprintf("Posterior median: %.5f\n95%% credible interval: [%.5f, %.5f]\n",
+            posterior_median, ci_lower, ci_upper))
+
+# get the simplex variables median and 95% CI
+samples <- rstan::extract(fit_syphilis_negbin, pars = "p_stage")$p_stage
+medians <- apply(samples, 2, median)
+ci_lower <- apply(samples, 2, quantile, probs = 0.025)
+ci_upper <- apply(samples, 2, quantile, probs = 0.975)
+medians_3dp <- round(medians, 3)
+ci_lower_3dp <- round(ci_lower, 3)
+ci_upper_3dp <- round(ci_upper, 3)
+summary_df <- data.frame(
+  Stage = paste0("p_stage[", 1:7, "]"),
+  Median = medians_3dp,
+  CI_lower = ci_lower_3dp,
+  CI_upper = ci_upper_3dp
+)
+print(summary_df)
 
 # trace plots to assess mixing of a chain, output size (10, 5)
 traceplot(fit_syphilis_negbin, pars = pars)
