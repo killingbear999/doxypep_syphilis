@@ -89,7 +89,7 @@ functions {
       #        6. setting all hyperparameters as the best ((1e-8, 1e-10, 1e8) for integrate_ode_bdf, adapt_delta = 0.999, max_treedepth = 20) --> good results but with warning of divergent transitions after warnmup
       #        7. setting probability of death at tertiary stage (beta_nu) as a constant, with all hyperparameters as the best, i.e, (1e-8, 1e-10, 1e8) for integrate_ode_bdf, adapt_delta = 0.999, max_treedepth = 20 --> no divergence warning, results very good
       #        8. Adjust the range of prop_inf for initialization for lower bound scenario, i.e., (0.001, 0.007) for upper bound and main scenarios, (0.0001, 0.0007) for lower bound scenario --> chains do not converge if not adjusted
-      #        9. fix asymptomatic screening rate --> no difference in results
+      #        9. static asymptomatic screening rate instead of time-varying --> no difference in results
       # high-risk group
       # non-doxy-pep (N)
       real dU_N_H = q_H * alpha - (lambda_H + 1/gamma) * U_N_H + rho * R_N_H;
