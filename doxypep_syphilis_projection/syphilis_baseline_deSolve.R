@@ -15,18 +15,24 @@ get_pi <- function(c_target, N_target, c_remain, N_remain) {
 }
 
 get_lambda <- function(t, t_0, c, beta, phi_beta, epsilon, C_target, N_target, pi_target, C_remain, N_remain, pi_remain, isFixed) {
-  if (isFixed && t > 14) {
-    t <- 14
+  if (isFixed && t > 20) {
+    t <- 20
   }
   return(c * beta * (1 + phi_beta * (t - t_0)) * (epsilon * C_target / N_target + (1 - epsilon) *
        (pi_target * C_target / N_target + pi_remain * C_remain / N_remain)))
 }
 
 get_eta <- function(t, t_0, eta_H_init, phi_eta, isFixed) {
-  if (isFixed && t > 14) {
-    t <- 14
+  if (isFixed && t > 20) {
+    t <- 20
   }
   return(eta_H_init * (1 + phi_eta * (t - t_0)))
+}
+
+# Enforce non-negativity via events
+non_negative <- function(time, state, parms) {
+  state[state < 0] <- 0
+  return(state)
 }
 
 # ODE system
@@ -60,7 +66,7 @@ syphilis_model <- function(t, y, parms) {
     dS_N_H <- psi_S * P_N_H - (mu + psi_E + 1/gamma) * S_N_H
     dE_N_H <- psi_E * S_N_H - (eta_H + psi_L + 1/gamma) * E_N_H
     dL_N_H <- psi_L * E_N_H - (eta_H + psi_T + 1/gamma) * L_N_H
-    dT_N_H <- psi_T * L_N_H - (mu + beta_nu * nu + 1/gamma) * T_N_H
+    dT_N_H <- psi_T * L_N_H - (mu + nu + 1/gamma) * T_N_H
     dR_N_H <- mu * (P_N_H + S_N_H + T_N_H) + eta_H * (E_N_H + L_N_H) - (rho + 1/gamma) * R_N_H
     
     # ODEs - Low risk
@@ -70,7 +76,7 @@ syphilis_model <- function(t, y, parms) {
     dS_N_L <- psi_S * P_N_L - (mu + psi_E + 1/gamma) * S_N_L
     dE_N_L <- psi_E * S_N_L - (eta_L + psi_L + 1/gamma) * E_N_L
     dL_N_L <- psi_L * E_N_L - (eta_L + psi_T + 1/gamma) * L_N_L
-    dT_N_L <- psi_T * L_N_L - (mu + beta_nu * nu + 1/gamma) * T_N_L
+    dT_N_L <- psi_T * L_N_L - (mu + nu + 1/gamma) * T_N_L
     dR_N_L <- mu * (P_N_L + S_N_L + T_N_L) + eta_L * (E_N_L + L_N_L) - (rho + 1/gamma) * R_N_L
     
     # Return as list
@@ -93,20 +99,15 @@ c_L <- 1.989
 # Years spent in the sexually-active population
 gamma <- 50
 
-# transition rate
-sigma <- 365/23 # 23 days (Incubation to Primary)
-psi_S <- 365/42 # 6 weeks (Primary to Secondary)
-psi_E <- 365/(365/2) # 6 months (Secondary to Early latent)
-psi_L <- 1 # 1 year (Early latent to Late latent)
+# Transition rate
 psi_T <- 1/20 # 20 years (Late latent to Tertiary)
-nu <- 1/40 # 40 years (Death)
-beta_nu <- 128/399 # Probability of death at tertiary stage
+nu <- -log(1-128/399)/40 # 40 years (Death) with around 30% probability of death at tertiary stage
 
 # load calibrated parameters
-fit_syphilis_negbin <- readRDS("fit_results_main.rds")
+fit_syphilis_negbin <- readRDS("fit_results_fixedinitialstate_burntin_upper.rds")
 
 # extract all posterior samples for these parameters as a list (permuted = TRUE merges chains)
-pars=c('beta', 'phi_beta', 'epsilon', 'rho', 'eta_H_init', 'phi_eta', 'omega', 'mu', 'kappa_D')
+pars=c('beta', 'phi_beta', 'epsilon', 'rho', 'eta_H_init', 'phi_eta', 'omega', 'sigma', 'mu', 'psi_S', 'psi_E', 'psi_L', 'kappa_D')
 posterior_samples <- rstan::extract(fit_syphilis_negbin, pars = pars, permuted = TRUE)
 
 # convert the list of arrays to a data frame where each row is a posterior draw
@@ -114,56 +115,56 @@ posterior_df <- as.data.frame(posterior_samples)
 
 # run forward simulations
 set.seed(42) # for reproducibility
-n_iter <- 2000
-random_integers <- sample(1:12000, size = n_iter, replace = FALSE) # draw random integers without replacement
+n_iter <- 1000
+random_integers <- sample(1:2000, size = n_iter, replace = FALSE) # draw random integers without replacement
 # print(random_integers)
-n_years <- 30
-cases <- matrix(NA, nrow = n_iter, ncol = n_years-1)
+n_years <- 15
+cases <- matrix(NA, nrow = n_iter, ncol = n_years)
 for (i in 1:n_iter) {
   # times
-  t <- seq(0, n_years, by = 1)
+  t <- seq(20, 20+n_years+1, by = 1)
   t_0 = 0 
-  t <- t[-1]
+  t <- t[-1] # start with t = 21
   
   # get index for posterior sample 
   idx <- random_integers[i]
   
   # initial conditions
   samples_y <- rstan::extract(fit_syphilis_negbin, pars = "y", permuted = TRUE)
-  U_N_H <- median(samples_y$y[, 1, 1])
-  I_N_H = median(samples_y$y[, 1, 2])
-  P_N_H = median(samples_y$y[, 1, 3])
-  S_N_H = median(samples_y$y[, 1, 4])
-  E_N_H = median(samples_y$y[, 1, 5])
-  L_N_H = median(samples_y$y[, 1, 6])
-  T_N_H = median(samples_y$y[, 1, 7])
-  R_N_H = median(samples_y$y[, 1, 8])
-  U_N_L = median(samples_y$y[, 1, 9])
-  I_N_L = median(samples_y$y[, 1, 10])
-  P_N_L = median(samples_y$y[, 1, 11])
-  S_N_L = median(samples_y$y[, 1, 12])
-  E_N_L = median(samples_y$y[, 1, 13])
-  L_N_L = median(samples_y$y[, 1, 14])
-  T_N_L = median(samples_y$y[, 1, 15])
-  R_N_L = median(samples_y$y[, 1, 16])
+  U_N_H = median(samples_y$y[, 20, 1])
+  I_N_H = median(samples_y$y[, 20, 2])
+  P_N_H = median(samples_y$y[, 20, 3])
+  S_N_H = median(samples_y$y[, 20, 4])
+  E_N_H = median(samples_y$y[, 20, 5])
+  L_N_H = median(samples_y$y[, 20, 6])
+  T_N_H = median(samples_y$y[, 20, 7])
+  R_N_H = median(samples_y$y[, 20, 8])
+  U_N_L = median(samples_y$y[, 20, 9])
+  I_N_L = median(samples_y$y[, 20, 10])
+  P_N_L = median(samples_y$y[, 20, 11])
+  S_N_L = median(samples_y$y[, 20, 12])
+  E_N_L = median(samples_y$y[, 20, 13])
+  L_N_L = median(samples_y$y[, 20, 14])
+  T_N_L = median(samples_y$y[, 20, 15])
+  R_N_L = median(samples_y$y[, 20, 16])
   y0 = c(U_N_H=U_N_H, I_N_H=I_N_H, P_N_H=P_N_H, S_N_H=S_N_H, E_N_H=E_N_H, L_N_H=L_N_H, T_N_H=T_N_H, R_N_H=R_N_H,
          U_N_L=U_N_L, I_N_L=I_N_L, P_N_L=P_N_L, S_N_L=S_N_L, E_N_L=E_N_L, L_N_L=L_N_L, T_N_L=T_N_L, R_N_L=R_N_L)
   
   params <- list(
     q_H = q_H, c_H = c_H, c_L = c_L, q_L = q_L,
-    t_0 = 0, alpha = alpha, gamma = gamma,
-    sigma = sigma, psi_S = psi_S, psi_E = psi_E, psi_L = psi_L, psi_T = psi_T,
-    nu = nu, beta = posterior_df$beta[idx], phi_beta = posterior_df$phi_beta[idx], epsilon=posterior_df$epsilon[idx], rho=posterior_df$rho[idx], 
-    eta_H_init=posterior_df$eta_H_init[idx], phi_eta=posterior_df$phi_eta[idx], omega=posterior_df$omega[idx], mu=posterior_df$mu[idx], beta_nu=beta_nu
+    t_0 = t_0, alpha = alpha, gamma = gamma,
+    sigma = posterior_df$sigma[idx], psi_S = posterior_df$psi_S[idx], psi_E = posterior_df$psi_E[idx], psi_L = posterior_df$psi_L[idx], 
+    psi_T = psi_T, nu = nu, beta = posterior_df$beta[idx], phi_beta = posterior_df$phi_beta[idx], epsilon=posterior_df$epsilon[idx], rho=posterior_df$rho[idx], 
+    eta_H_init=posterior_df$eta_H_init[idx], phi_eta=posterior_df$phi_eta[idx], omega=posterior_df$omega[idx], mu=posterior_df$mu[idx]
   )
   
   # solve the system
-  out <- ode(y = y0, times = c(t_0, t), func = syphilis_model, parms = params)
+  out <- ode(y = y0, times = t, func = syphilis_model, parms = params)
   out <- as.data.frame(out)
   
   # compute incidences
-  incidence <- numeric(n_years - 1)
-  for (t in 1:(n_years - 1)) {
+  incidence <- numeric(n_years)
+  for (t in 1:(n_years)) {
     # Trapezoidal rule: (f(a) + f(b)) / 2 * (b - a)
     incidence[t] = 0.5 * params$rho * (out[t, 9] + out[t + 1, 9] + out[t, 17] + out[t + 1, 17]);
   }
@@ -182,13 +183,16 @@ smr_pred <- as.data.frame(smr_pred)
 # box plot, output size (8, 6)
 df <- data.frame(
   group = factor(2026:2040),
-  ymin = smr_pred$X2.5.[15:29],  # minimum
-  lower = smr_pred$X25.[15:29],  # Q1
-  middle = smr_pred$X50.[15:29], # median
-  upper = smr_pred$X75.[15:29],  # Q3
-  ymax = smr_pred$X97.5.[15:29], # maximum
+  ymin = smr_pred$X2.5.[1:15],  # minimum
+  lower = smr_pred$X25.[1:15],  # Q1
+  middle = smr_pred$X50.[1:15], # median
+  upper = smr_pred$X75.[1:15],  # Q3
+  ymax = smr_pred$X97.5.[1:15], # maximum
   year = 2026:2040              # year
 )
+
+# saveRDS(df,file="data_baseline_timevarying.Rda")
+# df_baseline <- readRDS(file="data_baseline_timevarying.Rda")
 
 ggplot(df, aes(x = group, ymin = lower, lower = lower, middle = middle, upper = upper, ymax = upper, color = 'Baseline')) +
   geom_boxplot(stat = "identity", fill = "salmon") +
