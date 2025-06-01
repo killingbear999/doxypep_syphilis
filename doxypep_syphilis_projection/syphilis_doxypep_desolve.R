@@ -17,18 +17,27 @@ get_pi <- function(c_target, N_target, c_remain, N_remain) {
   return((c_target * N_target) / (c_target * N_target + c_remain * N_remain))
 }
 
-get_lambda <- function(t, t_0, c, beta, phi_beta, epsilon, C_target, N_target, pi_target, C_remain, N_remain, pi_remain) {
+get_lambda <- function(t, t_0, c, beta, phi_beta, epsilon, C_target, N_target, pi_target, C_remain, N_remain, pi_remain, isFixed) {
+  if (isFixed && t > 20) {
+    t <- 20
+  }
   return(c * beta * (1 + phi_beta * (t - t_0)) * (epsilon * C_target / N_target + (1 - epsilon) * 
         (pi_target * C_target / N_target + pi_remain * C_remain / N_remain)))
 }
 
-get_eta <- function(t, t_0, eta_H_init, phi_eta) {
+get_eta <- function(t, t_0, eta_H_init, phi_eta, isFixed) {
+  if (isFixed && t > 20) {
+    t <- 20
+  }
   return(eta_H_init * (1 + phi_eta * (t - t_0)))
 }
 
 # ODE system
 doxypep_model <- function(t, y, parameters) {
   with(as.list(c(y, parameters)), {
+    # two cases: 1. the inferred trends in the time-varying behavioural parameters stabilise
+    #                2. the trends continue until the end of the modelled period
+    isFixed <- TRUE
     
     C_H <- get_C(I_N_H, P_N_H, S_N_H, E_N_H, I_X_H, P_X_H, S_X_H, E_X_H, I_D_H, P_D_H, S_D_H, E_D_H, I_M_H, P_M_H, S_M_H, E_M_H)
     C_L <- get_C(I_N_L, P_N_L, S_N_L, E_N_L, I_X_L, P_X_L, S_X_L, E_X_L, I_D_L, P_D_L, S_D_L, E_D_L, I_M_L, P_M_L, S_M_L, E_M_L)
@@ -39,10 +48,10 @@ doxypep_model <- function(t, y, parameters) {
     
     pi_H <- get_pi(c_H, N_H, c_L, N_L)
     pi_L <- get_pi(c_L, N_L, c_H, N_H)
-    lambda_H <- get_lambda(t, t_0, c_H, beta, phi_beta, epsilon, C_H, N_H, pi_H, C_L, N_L, pi_L)
-    lambda_L <- get_lambda(t, t_0, c_L, beta, phi_beta, epsilon, C_L, N_L, pi_L, C_H, N_H, pi_H)
+    lambda_H <- get_lambda(t, t_0, c_H, beta, phi_beta, epsilon, C_H, N_H, pi_H, C_L, N_L, pi_L, isFixed)
+    lambda_L <- get_lambda(t, t_0, c_L, beta, phi_beta, epsilon, C_L, N_L, pi_L, C_H, N_H, pi_H, isFixed)
     
-    eta_H <- get_eta(t, t_0, eta_H_init, phi_eta)
+    eta_H <- get_eta(t, t_0, eta_H_init, phi_eta, isFixed)
     eta_L <- omega * eta_H
     
     # ODEs
@@ -178,7 +187,7 @@ xi_X <- 0.420
 p_DbE <- 0
 
 # Probability of uptake of doxycycline on diagnosis
-p_DoD <- 0.33
+p_DoD <- 0
 
 # Probability of uptake of doxycycline on screening with negative results in group H
 p_DoS_H <- 0
@@ -187,7 +196,7 @@ p_DoS_H <- 0
 p_DoS_L <- 0
 
 # load calibrated parameters
-fit_syphilis_negbin <- readRDS("fit_results_fixedinitialstate_burntin_upper.rds")
+fit_syphilis_negbin <- readRDS("fit_results_fixedinitialstate_burntin_main.rds")
 
 # extract all posterior samples for these parameters as a list (permuted = TRUE merges chains)
 pars=c('beta', 'phi_beta', 'epsilon', 'rho', 'eta_H_init', 'phi_eta', 'omega', 'sigma', 'mu', 'psi_S', 'psi_E', 'psi_L', 'kappa_D')
@@ -199,7 +208,7 @@ posterior_df <- as.data.frame(posterior_samples)
 # run forward simulations
 set.seed(42) # for reproducibility
 n_iter <- 1000
-random_integers <- sample(1:2000, size = n_iter, replace = FALSE) # draw random integers without replacement
+random_integers <- sample(1:6000, size = n_iter, replace = FALSE) # draw random integers without replacement
 # print(random_integers)
 n_years <- 15
 cases <- matrix(NA, nrow = n_iter, ncol = n_years)
@@ -341,7 +350,7 @@ df <- data.frame(
 )
 
 # load baseline statistics
-df_baseline <- readRDS(file="data_baseline_timevarying.Rda")
+df_baseline <- readRDS(file="data_baseline_fixed_main.Rda")
 
 df$scenario <- "DoD"
 df_baseline$scenario <- "Baseline"

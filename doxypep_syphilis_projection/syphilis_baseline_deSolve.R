@@ -41,7 +41,7 @@ syphilis_model <- function(t, y, parms) {
     # two baselines: 1. the inferred trends in the time-varying behavioural parameters stabilise
     #                2. the trends continue until the end of the modelled period
     
-    isFixed <- FALSE
+    isFixed <- TRUE
     
     # Population sizes
     C_H <- get_C(I_N_H, P_N_H, S_N_H, E_N_H)
@@ -104,7 +104,7 @@ psi_T <- 1/20 # 20 years (Late latent to Tertiary)
 nu <- -log(1-128/399)/40 # 40 years (Death) with around 30% probability of death at tertiary stage
 
 # load calibrated parameters
-fit_syphilis_negbin <- readRDS("fit_results_fixedinitialstate_burntin_upper.rds")
+fit_syphilis_negbin <- readRDS("fit_results_fixedinitialstate_burntin_lower.rds")
 
 # extract all posterior samples for these parameters as a list (permuted = TRUE merges chains)
 pars=c('beta', 'phi_beta', 'epsilon', 'rho', 'eta_H_init', 'phi_eta', 'omega', 'sigma', 'mu', 'psi_S', 'psi_E', 'psi_L', 'kappa_D')
@@ -116,7 +116,7 @@ posterior_df <- as.data.frame(posterior_samples)
 # run forward simulations
 set.seed(42) # for reproducibility
 n_iter <- 1000
-random_integers <- sample(1:2000, size = n_iter, replace = FALSE) # draw random integers without replacement
+random_integers <- sample(1:6000, size = n_iter, replace = FALSE) # draw random integers without replacement
 # print(random_integers)
 n_years <- 15
 cases <- matrix(NA, nrow = n_iter, ncol = n_years)
@@ -191,8 +191,7 @@ df <- data.frame(
   year = 2026:2040              # year
 )
 
-# saveRDS(df,file="data_baseline_timevarying.Rda")
-# df_baseline <- readRDS(file="data_baseline_timevarying.Rda")
+saveRDS(df,file="data_baseline_fixed_lower.Rda")
 
 ggplot(df, aes(x = group, ymin = lower, lower = lower, middle = middle, upper = upper, ymax = upper, color = 'Baseline')) +
   geom_boxplot(stat = "identity", fill = "salmon") +
@@ -204,7 +203,7 @@ ggplot(df, aes(x = group, ymin = lower, lower = lower, middle = middle, upper = 
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
     legend.position = "inside",
-    legend.position.inside = c(0.15, 0.85),
+    legend.position.inside = c(0.20, 0.85),
     legend.justification = c("right", "top"),
     legend.background = element_rect(fill = alpha("white", 0.6), color = NA),
     legend.box.background = element_rect(color = "black"),
