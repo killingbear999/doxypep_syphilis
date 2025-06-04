@@ -41,7 +41,7 @@ syphilis_model <- function(t, y, parms) {
     # two baselines: 1. the inferred trends in the time-varying behavioural parameters stabilise
     #                2. the trends continue until the end of the modelled period
     
-    isFixed <- TRUE
+    isFixed <- FALSE
     
     # Population sizes
     C_H <- get_C(I_N_H, P_N_H, S_N_H, E_N_H)
@@ -117,7 +117,7 @@ posterior_df <- as.data.frame(posterior_samples)
 set.seed(42) # for reproducibility
 n_iter <- 1000
 random_integers <- sample(1:6000, size = n_iter, replace = FALSE) # draw random integers without replacement
-# print(random_integers)
+print(random_integers)
 n_years <- 15
 cases <- matrix(NA, nrow = n_iter, ncol = n_years)
 for (i in 1:n_iter) {
@@ -170,9 +170,12 @@ for (i in 1:n_iter) {
   }
   
   # apply negative binomial distribution to obtain case
-  kappa_D <- posterior_df$kappa_D[i]
-  cases[i,] <- rnbinom(n = length(incidence), size = kappa_D, mu = incidence)
+  # kappa_D <- posterior_df$kappa_D[i]
+  # cases[i,] <- rnbinom(n = length(incidence), size = kappa_D, mu = incidence)
+  cases[i,] <- incidence
 }
+
+saveRDS(cases,file="cases_baseline_timevarying_lower.Rda")
 
 # compute quantiles for each row
 probs <- c(0.025, 0.25, 0.5, 0.75, 0.975)
@@ -191,11 +194,11 @@ df <- data.frame(
   year = 2026:2040              # year
 )
 
-saveRDS(df,file="data_baseline_fixed_lower.Rda")
+saveRDS(df,file="data_baseline_timevarying_lower.Rda")
 
-ggplot(df, aes(x = group, ymin = lower, lower = lower, middle = middle, upper = upper, ymax = upper, color = 'Baseline')) +
+ggplot(df, aes(x = group, ymin = ymin, lower = ymin, middle = middle, upper = ymax, ymax = ymax, color = 'Baseline')) +
   geom_boxplot(stat = "identity", fill = "salmon") +
-  labs(x = "Year", y = "Annual Incidence of Diagnosed Cases") +
+  labs(x = "Year", y = "Annual Number of Diagnosed Cases") +
   scale_color_manual(name = NULL, values = c("Baseline" = "darkred")) +
   theme_minimal(base_size = 13) +
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, NA)) +
@@ -216,5 +219,5 @@ ggplot(df, aes(x = group, ymin = lower, lower = lower, middle = middle, upper = 
     axis.text.y = element_text(size = 13),
     legend.title = element_text(size = 13),
     legend.text = element_text(size = 13),
-    plot.margin = margin(t = 0, r = 0, b = 0, l = 0)
+    plot.margin = margin(t = 5, r = 0, b = 0, l = 0)
   )

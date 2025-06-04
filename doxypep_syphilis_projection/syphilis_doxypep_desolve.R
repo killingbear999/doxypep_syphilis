@@ -36,7 +36,7 @@ get_eta <- function(t, t_0, eta_H_init, phi_eta, isFixed) {
 doxypep_model <- function(t, y, parameters) {
   with(as.list(c(y, parameters)), {
     # two cases: 1. the inferred trends in the time-varying behavioural parameters stabilise
-    #                2. the trends continue until the end of the modelled period
+    #            2. the trends continue until the end of the modelled period
     isFixed <- TRUE
     
     C_H <- get_C(I_N_H, P_N_H, S_N_H, E_N_H, I_X_H, P_X_H, S_X_H, E_X_H, I_D_H, P_D_H, S_D_H, E_D_H, I_M_H, P_M_H, S_M_H, E_M_H)
@@ -57,7 +57,7 @@ doxypep_model <- function(t, y, parameters) {
     # ODEs
     # high-risk group
     # non-doxy-pep (N)
-    dU_N_H = q_H * alpha * (1 - p_DbE) - (lambda_H + p_DoS_H * eta_H + 1/gamma) * U_N_H + (1 - p_DoD) * rho * R_N_H + xi_N * U_D_H
+    dU_N_H = q_H * alpha * (1 - p_DbE) - (lambda_H + p_DoS_H * eta_H + 1/gamma) * U_N_H + (1 - p_DoD_H) * rho * R_N_H + xi_N * U_D_H
     dI_N_H = lambda_H * U_N_H - (sigma + 1/gamma) * I_N_H + xi_N * I_D_H
     dP_N_H = sigma * I_N_H - (mu + psi_S + 1/gamma) * P_N_H + xi_N * P_D_H
     dS_N_H = psi_S * P_N_H - (mu + psi_E + 1/gamma) * S_N_H + xi_N * S_D_H
@@ -77,7 +77,7 @@ doxypep_model <- function(t, y, parameters) {
     dR_X_H = xi_X * R_D_H + mu * (P_X_H + S_X_H + T_X_H) + eta_H * (E_X_H + L_X_H) - (rho + 1/gamma) * R_X_H
     
     # doxy-pep (D)
-    dU_D_H = q_H * alpha * p_DbE + (p_DoS_H * eta_H) * U_N_H + p_DoD * rho * R_N_H + rho * R_D_H - ((1 - e_d) * lambda_H + 1/gamma + xi_X + xi_N + xi_M) * U_D_H
+    dU_D_H = q_H * alpha * p_DbE + (p_DoS_H * eta_H) * U_N_H + p_DoD_H * rho * R_N_H + rho * R_D_H - ((1 - e_d) * lambda_H + 1/gamma + xi_X + xi_N + xi_M) * U_D_H
     dI_D_H = (1 - e_d) * lambda_H * U_D_H - (sigma + 1/gamma + xi_X + xi_N + xi_M) * I_D_H
     dP_D_H = sigma * I_D_H - (mu + psi_S + 1/gamma + xi_X + xi_N + xi_M) * P_D_H
     dS_D_H = psi_S * P_D_H - (mu + psi_E + 1/gamma + xi_X + xi_N + xi_M) * S_D_H
@@ -98,7 +98,7 @@ doxypep_model <- function(t, y, parameters) {
     
     # low-risk group
     # non-doxy-pep (N)
-    dU_N_L = q_L * alpha * (1 - p_DbE) - (lambda_L + p_DoS_L * eta_L + 1/gamma) * U_N_L + (1 - p_DoD) * rho * R_N_L + xi_N * U_D_L
+    dU_N_L = q_L * alpha * (1 - p_DbE) - (lambda_L + p_DoS_L * eta_L + 1/gamma) * U_N_L + (1 - p_DoD_L) * rho * R_N_L + xi_N * U_D_L
     dI_N_L = lambda_L * U_N_L - (sigma + 1/gamma) * I_N_L + xi_N * I_D_L
     dP_N_L = sigma * I_N_L - (mu + psi_S + 1/gamma) * P_N_L + xi_N * P_D_L
     dS_N_L = psi_S * P_N_L - (mu + psi_E + 1/gamma) * S_N_L + xi_N * S_D_L
@@ -118,7 +118,7 @@ doxypep_model <- function(t, y, parameters) {
     dR_X_L = xi_X * R_D_L + mu * (P_X_L + S_X_L + T_X_L) + eta_L * (E_X_L + L_X_L) - (rho + 1/gamma) * R_X_L
     
     # doxy-pep (D)
-    dU_D_L = q_L * alpha * p_DbE + (p_DoS_L * eta_L) * U_N_L + p_DoD * rho * R_N_L + rho * R_D_L - ((1 - e_d) * lambda_L + 1/gamma + xi_X + xi_N + xi_M) * U_D_L
+    dU_D_L = q_L * alpha * p_DbE + (p_DoS_L * eta_L) * U_N_L + p_DoD_L * rho * R_N_L + rho * R_D_L - ((1 - e_d) * lambda_L + 1/gamma + xi_X + xi_N + xi_M) * U_D_L
     dI_D_L = (1 - e_d) * lambda_L * U_D_L - (sigma + 1/gamma + xi_X + xi_N + xi_M) * I_D_L
     dP_D_L = sigma * I_D_L - (mu + psi_S + 1/gamma + xi_X + xi_N + xi_M) * P_D_L
     dS_D_L = psi_S * P_D_L - (mu + psi_E + 1/gamma + xi_X + xi_N + xi_M) * S_D_L
@@ -186,8 +186,11 @@ xi_X <- 0.420
 # Probability of uptake of doxycycline before entry into the sexually-active population
 p_DbE <- 0
 
-# Probability of uptake of doxycycline on diagnosis
-p_DoD <- 0
+# Probability of uptake of doxycycline on diagnosis in group H
+p_DoD_H <- 0.1
+
+# Probability of uptake of doxycycline on diagnosis in group L
+p_DoD_L <- 0
 
 # Probability of uptake of doxycycline on screening with negative results in group H
 p_DoS_H <- 0
@@ -209,9 +212,10 @@ posterior_df <- as.data.frame(posterior_samples)
 set.seed(42) # for reproducibility
 n_iter <- 1000
 random_integers <- sample(1:6000, size = n_iter, replace = FALSE) # draw random integers without replacement
-# print(random_integers)
+print(random_integers)
 n_years <- 15
 cases <- matrix(NA, nrow = n_iter, ncol = n_years)
+prescriptions <- matrix(NA, nrow = n_iter, ncol = n_years)
 for (i in 1:n_iter) {
   # times
   t <- seq(20, 20+n_years+1, by = 1)
@@ -312,25 +316,64 @@ for (i in 1:n_iter) {
     sigma = posterior_df$sigma[idx], psi_S = posterior_df$psi_S[idx], psi_E = posterior_df$psi_E[idx], psi_L = posterior_df$psi_L[idx], 
     psi_T = psi_T, nu = nu, beta = posterior_df$beta[idx], phi_beta = posterior_df$phi_beta[idx], epsilon=posterior_df$epsilon[idx], rho=posterior_df$rho[idx], 
     eta_H_init=posterior_df$eta_H_init[idx], phi_eta=posterior_df$phi_eta[idx], omega=posterior_df$omega[idx], mu=posterior_df$mu[idx],
-    e_d = e_d, zeta = zeta, xi_M = xi_M, xi_N = xi_N, xi_X = xi_X, p_DbE = p_DbE, p_DoD = p_DoD, p_DoS_H = p_DoS_H, p_DoS_L = p_DoS_L
+    e_d = e_d, zeta = zeta, xi_M = xi_M, xi_N = xi_N, xi_X = xi_X, p_DbE = p_DbE, p_DoD_H = p_DoD_H, p_DoD_L = p_DoD_L,p_DoS_H = p_DoS_H, p_DoS_L = p_DoS_L
   )
   
   # solve the system
   out <- ode(y = y0, times = t, func = doxypep_model, parms = params)
   out <- as.data.frame(out)
   
-  # compute incidences
+  # compute incidences and prescriptions
   incidence <- numeric(n_years)
+  presctiption <- numeric(n_years)
+  
   for (t in 1:(n_years)) {
+    isFixed = TRUE
+    
     # Trapezoidal rule: (f(a) + f(b)) / 2 * (b - a)
     incidence[t] = 0.5 * params$rho * (out[t, 9] + out[t + 1, 9] + out[t, 17] + out[t + 1, 17] + out[t, 25] + out[t + 1, 25] + out[t, 33] + out[t + 1, 33] + 
                                          out[t, 41] + out[t + 1, 41] + out[t, 49] + out[t + 1, 49] + out[t, 57] + out[t + 1, 57] + out[t, 65] + out[t + 1, 65]);
+    
+    eta_H_t <- get_eta(t+20, t_0, params$eta_H_init, params$phi_eta, isFixed)
+    eta_H_t1 <- get_eta(t+20+1, t_0, params$eta_H_init, params$phi_eta, isFixed)
+    Y_U_N_H <- 0.5 * (eta_H_t * out[t, 2] + eta_H_t1 * out[t + 1, 2])
+    Y_D_N_H <- 0.5 * params$rho * (out[t, 9] + out[t + 1, 9])
+    
+    eta_L_t <- params$omega * eta_H_t
+    eta_L_t1 <- params$omega * eta_H_t1
+    Y_U_N_L <- 0.5 * (eta_L_t * out[t, 34] + eta_L_t1 * out[t + 1, 34])
+    Y_D_N_L <- 0.5 * params$rho * (out[t, 41] + out[t + 1, 41])
+    
+    presctiption[t] = alpha * p_DbE + p_DoS_H * Y_U_N_H + p_DoS_L * Y_U_N_L + p_DoD_H * Y_D_N_H + p_DoD_L * Y_D_N_L
   }
   
-  # apply negative binomial distribution to obtain case
-  kappa_D <- posterior_df$kappa_D[i]
-  cases[i,] <- rnbinom(n = length(incidence), size = kappa_D, mu = incidence)
+  cases[i,] <- incidence
+  prescriptions[i,] <- presctiption
 }
+
+# load baseline cases
+cases_baseline <- readRDS(file="cases_baseline_fixed_main.Rda")
+
+# compute total number of averted cases
+averted_cases = cases_baseline - cases
+total_averted_cases = rowSums(averted_cases)
+smr_averted = as.data.frame(t(quantile(total_averted_cases, probs = c(0.025, 0.25, 0.5, 0.75, 0.975), na.rm = TRUE)))
+colnames(smr_averted) <- c("X2.5.", "X25.", "X50.", "X75.", "X97.5.")
+
+# compute total number of averted cases in percentage
+total_averted_cases_percentage = total_averted_cases / rowSums(cases_baseline) * 100
+smr_averted_percentage = as.data.frame(t(quantile(total_averted_cases_percentage, probs = c(0.025, 0.25, 0.5, 0.75, 0.975), na.rm = TRUE)))
+colnames(smr_averted_percentage) <- c("X2.5.", "X25.", "X50.", "X75.", "X97.5.")
+
+# compute total number of prescriptions
+total_prescriptions = rowSums(prescriptions)
+smr_prescriptions = as.data.frame(t(quantile(total_prescriptions, probs = c(0.025, 0.25, 0.5, 0.75, 0.975), na.rm = TRUE)))
+colnames(smr_prescriptions) <- c("X2.5.", "X25.", "X50.", "X75.", "X97.5.")
+
+# compute number of averted cases per prescription
+acerted_per_prescription = total_averted_cases / total_prescriptions
+acerted_per_prescription = as.data.frame(t(quantile(acerted_per_prescription, probs = c(0.025, 0.25, 0.5, 0.75, 0.975), na.rm = TRUE)))
+colnames(acerted_per_prescription) <- c("X2.5.", "X25.", "X50.", "X75.", "X97.5.")
 
 # compute quantiles for each row
 probs <- c(0.025, 0.25, 0.5, 0.75, 0.975)
@@ -352,30 +395,30 @@ df <- data.frame(
 # load baseline statistics
 df_baseline <- readRDS(file="data_baseline_fixed_main.Rda")
 
-df$scenario <- "DoD"
+df$scenario <- "Intervention"
 df_baseline$scenario <- "Baseline"
 
 df_combined <- rbind(df, df_baseline)
 
 ggplot(df_combined, aes(
   x = group,
-  ymin = lower,
-  lower = lower,
+  ymin = ymin,
+  lower = ymin,
   middle = middle,
-  upper = upper,
-  ymax = upper,
+  upper = ymax,
+  ymax = ymax,
   color = scenario,
   fill = scenario
 )) +
   geom_boxplot(stat = "identity", position = position_dodge(width = 0.8), width = 0.6) +
-  labs(x = "Year", y = "Annual Incidence of Diagnosed Cases") +
+  labs(x = "Year", y = "Annual Number of Diagnosed Cases") +
   scale_color_manual(
     name = NULL,
-    values = c("Baseline" = "darkred", "DoD" = "steelblue")
+    values = c("Baseline" = "darkred", "Intervention" = "steelblue")
   ) +
   scale_fill_manual(
     name = NULL,
-    values = c("Baseline" = "salmon", "DoD" = "lightblue")
+    values = c("Baseline" = "salmon", "Intervention" = "lightblue")
   ) +
   theme_minimal(base_size = 13) +
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, NA)) +
