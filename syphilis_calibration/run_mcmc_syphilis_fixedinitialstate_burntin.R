@@ -8,8 +8,8 @@ options(mc.cores = parallel::detectCores(logical = FALSE)) # use all available c
 
 # time series of MSM syphilis cases
 # cases <- c(324, 365, 488, 346, 305, 197, 159, 187, 318, 308, 525, 496, 623, 573, 605) # main scenario (male incidence minus female incidence)
-# cases <- c(518, 632, 840, 564, 599, 532, 407, 536, 875, 801, 935, 832, 894, 804, 863) # upper bound (all male incidence)
-cases <- c(31, 38, 51, 34, 36, 32, 24, 32, 53, 48, 56, 50, 54, 49, 52) # lower bound (percentage of MSM among male population, assuming syphilis incidence rate is the same among MSM and MSF)
+cases <- c(518, 632, 840, 564, 599, 532, 407, 536, 875, 801, 935, 832, 894, 804, 863) # upper bound (all male incidence)
+# cases <- c(31, 38, 51, 34, 36, 32, 24, 32, 53, 48, 56, 50, 54, 49, 52) # lower bound (percentage of MSM among male population, assuming syphilis incidence rate is the same among MSM and MSF)
 # cases <- c(324, 435, 548, 646, 755, 877, 959, 1087, 1168, 1298, 1325, 1496, 1523, 1673, 1705, 1805) # dummy data for testing
 
 # Initial population size of MSM in 2004
@@ -88,7 +88,7 @@ fit_syphilis_negbin <- sampling(model,
                                 verbose=TRUE)
 
 # saveRDS(fit_syphilis_negbin, file = "fit_results_fixedinitialstate_burntin_lower.rds")
-fit_syphilis_negbin <- readRDS("fit_results_fixedinitialstate_burntin_lower.rds")
+fit_syphilis_negbin <- readRDS("fit_results_fixedinitialstate_burntin_upper.rds")
 
 # print the data
 # options(max.print = 1000000)
@@ -134,7 +134,7 @@ df <- data.frame(
 ggplot(df, aes(x = group, ymin = lower, lower = lower, middle = middle, upper = upper, ymax = upper, color = 'Predicted')) +
   geom_boxplot(stat = "identity", fill = "salmon") +
   geom_point(data = df, aes(x = group, y = observation, color = "Observed"), shape = 18, size = 4) +
-  labs(x = "Year", y = "Annual Incidence of Diagnosed Cases") +
+  labs(x = "Year", y = "Annual Number of Diagnosed Cases") +
   scale_color_manual(name = NULL, values = c("Predicted" = "darkred", "Observed" = "deepskyblue4")) +
   theme_minimal(base_size = 13) +
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, NA)) +
