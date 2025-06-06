@@ -57,27 +57,27 @@ doxypep_model <- function(t, y, parameters) {
     # ODEs
     # high-risk group
     # non-doxy-pep (N)
-    dU_N_H = q_H * alpha * (1 - p_DbE) - (lambda_H + p_DoS_H * eta_H + 1/gamma) * U_N_H + (1 - p_DoD_H) * rho * R_N_H + xi_N * U_D_H
-    dI_N_H = lambda_H * U_N_H - (sigma + 1/gamma) * I_N_H + xi_N * I_D_H
-    dP_N_H = sigma * I_N_H - (mu + psi_S + 1/gamma) * P_N_H + xi_N * P_D_H
-    dS_N_H = psi_S * P_N_H - (mu + psi_E + 1/gamma) * S_N_H + xi_N * S_D_H
-    dE_N_H = psi_E * S_N_H - (eta_H + psi_L + 1/gamma) * E_N_H + xi_N * E_D_H
-    dL_N_H = psi_L * E_N_H - (eta_H + psi_T + 1/gamma) * L_N_H + xi_N * L_D_H
-    dT_N_H = psi_T * L_N_H - (mu + nu + 1/gamma) * T_N_H + xi_N * T_D_H
-    dR_N_H = mu * (P_N_H + S_N_H + T_N_H) + eta_H * (E_N_H + L_N_H) - (rho + 1/gamma) * R_N_H + xi_N * R_D_H
+    dU_N_H = q_H * alpha * (1 - p_DbE) - (lambda_H + p_DoS_H * eta_H + 1/gamma) * U_N_H + (1 - p_DoD_H) * rho * R_N_H + xi_N * U_D_H + xi_XN * U_X_H
+    dI_N_H = lambda_H * U_N_H - (sigma + 1/gamma) * I_N_H + xi_N * I_D_H  + xi_XN * I_X_H
+    dP_N_H = sigma * I_N_H - (mu + psi_S + 1/gamma) * P_N_H + xi_N * P_D_H + xi_XN * P_X_H
+    dS_N_H = psi_S * P_N_H - (mu + psi_E + 1/gamma) * S_N_H + xi_N * S_D_H + xi_XN * S_X_H
+    dE_N_H = psi_E * S_N_H - (eta_H + psi_L + 1/gamma) * E_N_H + xi_N * E_D_H + xi_XN * E_X_H
+    dL_N_H = psi_L * E_N_H - (eta_H + psi_T + 1/gamma) * L_N_H + xi_N * L_D_H + xi_XN * L_X_H
+    dT_N_H = psi_T * L_N_H - (mu + nu + 1/gamma) * T_N_H + xi_N * T_D_H + xi_XN * T_X_H
+    dR_N_H = mu * (P_N_H + S_N_H + T_N_H) + eta_H * (E_N_H + L_N_H) - (rho + 1/gamma) * R_N_H + xi_N * R_D_H + xi_XN * R_X_H
     
     # doxy-inconsistent (X)
-    dU_X_H = xi_X * U_D_H + rho * R_X_H - ((1 - zeta * e_d) * lambda_H + 1/gamma) * U_X_H
-    dI_X_H = xi_X * I_D_H + (1 - zeta * e_d) * lambda_H * U_X_H - (sigma + 1/gamma) * I_X_H
-    dP_X_H = xi_X * P_D_H + sigma * I_X_H - (mu + psi_S + 1/gamma) * P_X_H
-    dS_X_H = xi_X * S_D_H + psi_S * P_X_H - (mu + psi_E + 1/gamma) * S_X_H
-    dE_X_H = xi_X * E_D_H + psi_E * S_X_H - (eta_H + psi_L + 1/gamma) * E_X_H
-    dL_X_H = xi_X * L_D_H + psi_L * E_X_H - (eta_H + psi_T + 1/gamma) * L_X_H
-    dT_X_H = xi_X * T_D_H + psi_T * L_X_H - (mu + nu + 1/gamma) * T_X_H
-    dR_X_H = xi_X * R_D_H + mu * (P_X_H + S_X_H + T_X_H) + eta_H * (E_X_H + L_X_H) - (rho + 1/gamma) * R_X_H
+    dU_X_H = xi_X * U_D_H - ((1 - zeta * e_d) * lambda_H + 1/gamma + xi_XN + p_DoS_H * eta_H) * U_X_H + (1 - p_DoD_H) * rho * R_X_H
+    dI_X_H = xi_X * I_D_H + (1 - zeta * e_d) * lambda_H * U_X_H - (sigma + 1/gamma + xi_XN) * I_X_H
+    dP_X_H = xi_X * P_D_H + sigma * I_X_H - (mu + psi_S + 1/gamma + xi_XN) * P_X_H
+    dS_X_H = xi_X * S_D_H + psi_S * P_X_H - (mu + psi_E + 1/gamma + xi_XN) * S_X_H
+    dE_X_H = xi_X * E_D_H + psi_E * S_X_H - (eta_H + psi_L + 1/gamma + xi_XN) * E_X_H
+    dL_X_H = xi_X * L_D_H + psi_L * E_X_H - (eta_H + psi_T + 1/gamma + xi_XN) * L_X_H
+    dT_X_H = xi_X * T_D_H + psi_T * L_X_H - (mu + nu + 1/gamma + xi_XN) * T_X_H
+    dR_X_H = xi_X * R_D_H + mu * (P_X_H + S_X_H + T_X_H) + eta_H * (E_X_H + L_X_H) - (rho + 1/gamma + xi_XN) * R_X_H
     
     # doxy-pep (D)
-    dU_D_H = q_H * alpha * p_DbE + (p_DoS_H * eta_H) * U_N_H + p_DoD_H * rho * R_N_H + rho * R_D_H - ((1 - e_d) * lambda_H + 1/gamma + xi_X + xi_N + xi_M) * U_D_H
+    dU_D_H = q_H * alpha * p_DbE + (p_DoS_H * eta_H) * (U_N_H + U_X_H) + p_DoD_H * rho * (R_N_H + R_X_H) + rho * R_D_H - ((1 - e_d) * lambda_H + 1/gamma + xi_X + xi_N + xi_M) * U_D_H
     dI_D_H = (1 - e_d) * lambda_H * U_D_H - (sigma + 1/gamma + xi_X + xi_N + xi_M) * I_D_H
     dP_D_H = sigma * I_D_H - (mu + psi_S + 1/gamma + xi_X + xi_N + xi_M) * P_D_H
     dS_D_H = psi_S * P_D_H - (mu + psi_E + 1/gamma + xi_X + xi_N + xi_M) * S_D_H
@@ -98,27 +98,27 @@ doxypep_model <- function(t, y, parameters) {
     
     # low-risk group
     # non-doxy-pep (N)
-    dU_N_L = q_L * alpha * (1 - p_DbE) - (lambda_L + p_DoS_L * eta_L + 1/gamma) * U_N_L + (1 - p_DoD_L) * rho * R_N_L + xi_N * U_D_L
-    dI_N_L = lambda_L * U_N_L - (sigma + 1/gamma) * I_N_L + xi_N * I_D_L
-    dP_N_L = sigma * I_N_L - (mu + psi_S + 1/gamma) * P_N_L + xi_N * P_D_L
-    dS_N_L = psi_S * P_N_L - (mu + psi_E + 1/gamma) * S_N_L + xi_N * S_D_L
-    dE_N_L = psi_E * S_N_L - (eta_L + psi_L + 1/gamma) * E_N_L + xi_N * E_D_L
-    dL_N_L = psi_L * E_N_L - (eta_L + psi_T + 1/gamma) * L_N_L + xi_N * L_D_L
-    dT_N_L = psi_T * L_N_L - (mu + nu + 1/gamma) * T_N_L + xi_N * T_D_L
-    dR_N_L = mu * (P_N_L + S_N_L + T_N_L) + eta_L * (E_N_L + L_N_L) - (rho + 1/gamma) * R_N_L + xi_N * R_D_L
+    dU_N_L = q_L * alpha * (1 - p_DbE) - (lambda_L + p_DoS_L * eta_L + 1/gamma) * U_N_L + (1 - p_DoD_L) * rho * R_N_L + xi_N * U_D_L + xi_XN * U_X_L
+    dI_N_L = lambda_L * U_N_L - (sigma + 1/gamma) * I_N_L + xi_N * I_D_L + xi_XN * I_X_L
+    dP_N_L = sigma * I_N_L - (mu + psi_S + 1/gamma) * P_N_L + xi_N * P_D_L + xi_XN * P_X_L
+    dS_N_L = psi_S * P_N_L - (mu + psi_E + 1/gamma) * S_N_L + xi_N * S_D_L + xi_XN * S_X_L
+    dE_N_L = psi_E * S_N_L - (eta_L + psi_L + 1/gamma) * E_N_L + xi_N * E_D_L + xi_XN * E_X_L
+    dL_N_L = psi_L * E_N_L - (eta_L + psi_T + 1/gamma) * L_N_L + xi_N * L_D_L + xi_XN * L_X_L
+    dT_N_L = psi_T * L_N_L - (mu + nu + 1/gamma) * T_N_L + xi_N * T_D_L + xi_XN * T_X_L
+    dR_N_L = mu * (P_N_L + S_N_L + T_N_L) + eta_L * (E_N_L + L_N_L) - (rho + 1/gamma) * R_N_L + xi_N * R_D_L + xi_XN * R_X_L
     
     # doxy-inconsistent (X)
-    dU_X_L = xi_X * U_D_L + rho * R_X_L - ((1 - zeta * e_d) * lambda_L + 1/gamma) * U_X_L
-    dI_X_L = xi_X * I_D_L + (1 - zeta * e_d) * lambda_L * U_X_L - (sigma + 1/gamma) * I_X_L
-    dP_X_L = xi_X * P_D_L + sigma * I_X_L - (mu + psi_S + 1/gamma) * P_X_L
-    dS_X_L = xi_X * S_D_L + psi_S * P_X_L - (mu + psi_E + 1/gamma) * S_X_L
-    dE_X_L = xi_X * E_D_L + psi_E * S_X_L - (eta_L + psi_L + 1/gamma) * E_X_L
-    dL_X_L = xi_X * L_D_L + psi_L * E_X_L - (eta_L + psi_T + 1/gamma) * L_X_L
-    dT_X_L = xi_X * T_D_L + psi_T * L_X_L - (mu + nu + 1/gamma) * T_X_L
-    dR_X_L = xi_X * R_D_L + mu * (P_X_L + S_X_L + T_X_L) + eta_L * (E_X_L + L_X_L) - (rho + 1/gamma) * R_X_L
+    dU_X_L = xi_X * U_D_L - ((1 - zeta * e_d) * lambda_L + 1/gamma + xi_XN + p_DoS_H * eta_H) * U_X_L + (1 - p_DoD_H) * rho * R_X_L
+    dI_X_L = xi_X * I_D_L + (1 - zeta * e_d) * lambda_L * U_X_L - (sigma + 1/gamma + xi_XN) * I_X_L
+    dP_X_L = xi_X * P_D_L + sigma * I_X_L - (mu + psi_S + 1/gamma + xi_XN) * P_X_L
+    dS_X_L = xi_X * S_D_L + psi_S * P_X_L - (mu + psi_E + 1/gamma + xi_XN) * S_X_L
+    dE_X_L = xi_X * E_D_L + psi_E * S_X_L - (eta_L + psi_L + 1/gamma + xi_XN) * E_X_L
+    dL_X_L = xi_X * L_D_L + psi_L * E_X_L - (eta_L + psi_T + 1/gamma + xi_XN) * L_X_L
+    dT_X_L = xi_X * T_D_L + psi_T * L_X_L - (mu + nu + 1/gamma + xi_XN) * T_X_L
+    dR_X_L = xi_X * R_D_L + mu * (P_X_L + S_X_L + T_X_L) + eta_L * (E_X_L + L_X_L) - (rho + 1/gamma + xi_XN) * R_X_L
     
     # doxy-pep (D)
-    dU_D_L = q_L * alpha * p_DbE + (p_DoS_L * eta_L) * U_N_L + p_DoD_L * rho * R_N_L + rho * R_D_L - ((1 - e_d) * lambda_L + 1/gamma + xi_X + xi_N + xi_M) * U_D_L
+    dU_D_L = q_L * alpha * p_DbE + (p_DoS_L * eta_L) * (U_N_L + U_X_L) + p_DoD_L * rho * (R_N_L + R_X_L) + rho * R_D_L - ((1 - e_d) * lambda_L + 1/gamma + xi_X + xi_N + xi_M) * U_D_L
     dI_D_L = (1 - e_d) * lambda_L * U_D_L - (sigma + 1/gamma + xi_X + xi_N + xi_M) * I_D_L
     dP_D_L = sigma * I_D_L - (mu + psi_S + 1/gamma + xi_X + xi_N + xi_M) * P_D_L
     dS_D_L = psi_S * P_D_L - (mu + psi_E + 1/gamma + xi_X + xi_N + xi_M) * S_D_L
@@ -175,22 +175,25 @@ e_d <- 0.83
 zeta <- 0.33
 
 # Intolerance rate of doxycycline
-xi_M <- 0.0135
+xi_M <- -log(1-0.02)/1.5
 
 # Discontinuation rate of doxy-PEP
-xi_N <- 0.362
+xi_N <- -log(1-0.304)/1
 
 # Suboptimal adherence rate of doxy-PEP
-xi_X <- 0.420
+xi_X <- -log(1-0.343)/1
+
+# Discontinuation rate of doxy-PEP for strata X
+xi_XN <- -log(1-0.608)/1
 
 # Probability of uptake of doxycycline before entry into the sexually-active population
 p_DbE <- 0
 
 # Probability of uptake of doxycycline on diagnosis in group H
-p_DoD_H <- 0.1
+p_DoD_H <- 0.33
 
 # Probability of uptake of doxycycline on diagnosis in group L
-p_DoD_L <- 0
+p_DoD_L <- 0.33
 
 # Probability of uptake of doxycycline on screening with negative results in group H
 p_DoS_H <- 0
@@ -216,6 +219,10 @@ print(random_integers)
 n_years <- 15
 cases <- matrix(NA, nrow = n_iter, ncol = n_years)
 prescriptions <- matrix(NA, nrow = n_iter, ncol = n_years)
+nondoxy_U <- matrix(NA, nrow = n_iter, ncol = n_years)
+inconsistentdoxy_U <- matrix(NA, nrow = n_iter, ncol = n_years)
+doxy_U <- matrix(NA, nrow = n_iter, ncol = n_years)
+intolerantdoxy_U <- matrix(NA, nrow = n_iter, ncol = n_years)
 for (i in 1:n_iter) {
   # times
   t <- seq(20, 20+n_years+1, by = 1)
@@ -316,7 +323,7 @@ for (i in 1:n_iter) {
     sigma = posterior_df$sigma[idx], psi_S = posterior_df$psi_S[idx], psi_E = posterior_df$psi_E[idx], psi_L = posterior_df$psi_L[idx], 
     psi_T = psi_T, nu = nu, beta = posterior_df$beta[idx], phi_beta = posterior_df$phi_beta[idx], epsilon=posterior_df$epsilon[idx], rho=posterior_df$rho[idx], 
     eta_H_init=posterior_df$eta_H_init[idx], phi_eta=posterior_df$phi_eta[idx], omega=posterior_df$omega[idx], mu=posterior_df$mu[idx],
-    e_d = e_d, zeta = zeta, xi_M = xi_M, xi_N = xi_N, xi_X = xi_X, p_DbE = p_DbE, p_DoD_H = p_DoD_H, p_DoD_L = p_DoD_L,p_DoS_H = p_DoS_H, p_DoS_L = p_DoS_L
+    e_d = e_d, zeta = zeta, xi_M = xi_M, xi_N = xi_N, xi_X = xi_X, p_DbE = p_DbE, p_DoD_H = p_DoD_H, p_DoD_L = p_DoD_L,p_DoS_H = p_DoS_H, p_DoS_L = p_DoS_L, xi_XN = xi_XN
   )
   
   # solve the system
@@ -326,9 +333,18 @@ for (i in 1:n_iter) {
   # compute incidences and prescriptions
   incidence <- numeric(n_years)
   presctiption <- numeric(n_years)
+  nondoxy_U_H <- numeric(n_years)
+  inconsistentdoxy_U_H <- numeric(n_years)
+  doxy_U_H <- numeric(n_years)
+  intolerantdoxy_U_H <- numeric(n_years)
   
   for (t in 1:(n_years)) {
     isFixed = TRUE
+    
+    nondoxy_U_H[t] = out[t, 2]
+    inconsistentdoxy_U_H[t] = out[t,10]
+    doxy_U_H[t] = out[t, 18]
+    intolerantdoxy_U_H[t] = out[t, 26]
     
     # Trapezoidal rule: (f(a) + f(b)) / 2 * (b - a)
     incidence[t] = 0.5 * params$rho * (out[t, 9] + out[t + 1, 9] + out[t, 17] + out[t + 1, 17] + out[t, 25] + out[t + 1, 25] + out[t, 33] + out[t + 1, 33] + 
@@ -337,18 +353,24 @@ for (i in 1:n_iter) {
     eta_H_t <- get_eta(t+20, t_0, params$eta_H_init, params$phi_eta, isFixed)
     eta_H_t1 <- get_eta(t+20+1, t_0, params$eta_H_init, params$phi_eta, isFixed)
     Y_U_N_H <- 0.5 * (eta_H_t * out[t, 2] + eta_H_t1 * out[t + 1, 2])
+    Y_U_X_H <- 0.5 * (eta_H_t * out[t, 10] + eta_H_t1 * out[t + 1, 10])
     Y_D_N_H <- 0.5 * params$rho * (out[t, 9] + out[t + 1, 9])
     
     eta_L_t <- params$omega * eta_H_t
     eta_L_t1 <- params$omega * eta_H_t1
     Y_U_N_L <- 0.5 * (eta_L_t * out[t, 34] + eta_L_t1 * out[t + 1, 34])
+    Y_U_X_L <- 0.5 * (eta_L_t * out[t, 42] + eta_L_t1 * out[t + 1, 42])
     Y_D_N_L <- 0.5 * params$rho * (out[t, 41] + out[t + 1, 41])
     
-    presctiption[t] = alpha * p_DbE + p_DoS_H * Y_U_N_H + p_DoS_L * Y_U_N_L + p_DoD_H * Y_D_N_H + p_DoD_L * Y_D_N_L
+    presctiption[t] = alpha * p_DbE + p_DoS_H * (Y_U_N_H + Y_U_X_H) + p_DoS_L * (Y_U_N_L + Y_U_X_L) + p_DoD_H * Y_D_N_H + p_DoD_L * Y_D_N_L
   }
   
   cases[i,] <- incidence
   prescriptions[i,] <- presctiption
+  nondoxy_U[i,] = nondoxy_U_H
+  inconsistentdoxy_U[i,] = inconsistentdoxy_U_H
+  doxy_U[i,] = doxy_U_H
+  intolerantdoxy_U[i,] = intolerantdoxy_U_H
 }
 
 # load baseline cases
@@ -375,7 +397,8 @@ acerted_per_prescription = total_averted_cases / total_prescriptions
 acerted_per_prescription = as.data.frame(t(quantile(acerted_per_prescription, probs = c(0.025, 0.25, 0.5, 0.75, 0.975), na.rm = TRUE)))
 colnames(acerted_per_prescription) <- c("X2.5.", "X25.", "X50.", "X75.", "X97.5.")
 
-# compute quantiles for each row
+# plot intervention vs. baseline for annual cases
+# compute quantiles for each row for cases
 probs <- c(0.025, 0.25, 0.5, 0.75, 0.975)
 smr_pred <- t(apply(cases, 2, quantile, probs = probs, na.rm = TRUE))
 colnames(smr_pred) <- c("X2.5.", "X25.", "X50.", "X75.", "X97.5.")
@@ -384,11 +407,11 @@ smr_pred <- as.data.frame(smr_pred)
 # box plot, output size (8, 6)
 df <- data.frame(
   group = factor(2026:2040),
-  ymin = smr_pred$X2.5.[1:15],  # minimum
-  lower = smr_pred$X25.[1:15],  # Q1
-  middle = smr_pred$X50.[1:15], # median
-  upper = smr_pred$X75.[1:15],  # Q3
-  ymax = smr_pred$X97.5.[1:15], # maximum
+  ymin = pmax(smr_pred$X2.5.[1:15], 0),  # minimum
+  lower = pmax(smr_pred$X25.[1:15], 0),  # Q1
+  middle = pmax(smr_pred$X50.[1:15], 0), # median
+  upper = pmax(smr_pred$X75.[1:15], 0),  # Q3
+  ymax = pmax(smr_pred$X97.5.[1:15], 0), # maximum
   year = 2026:2040              # year
 )
 
@@ -427,6 +450,107 @@ ggplot(df_combined, aes(
     panel.grid.minor = element_blank(),
     legend.position = "inside",
     legend.position.inside = c(0.20, 0.85),
+    legend.justification = c("right", "top"),
+    legend.background = element_rect(fill = alpha("white", 0.6), color = NA),
+    legend.box.background = element_rect(color = "black"),
+    legend.margin = margin(0, 0, 0, 0),
+    legend.box.margin = margin(0, 0, 0, 0),
+    plot.title = element_text(hjust = 0.5, margin = margin(b = 0)),
+    axis.title.x = element_text(size = 13),
+    axis.title.y = element_text(size = 13),
+    axis.text.x = element_text(size = 13),
+    axis.text.y = element_text(size = 13),
+    legend.title = element_text(size = 13),
+    legend.text = element_text(size = 13),
+    plot.margin = margin(5, 0, 0, 0)
+  )
+
+# plot annual susceptible MSM at high-risk in each strata
+# compute quantiles for each row for nondoxy U
+probs <- c(0.025, 0.25, 0.5, 0.75, 0.975)
+smr_pred_nondoxyU <- t(apply(nondoxy_U, 2, quantile, probs = probs, na.rm = TRUE))
+colnames(smr_pred_nondoxyU) <- c("X2.5.", "X25.", "X50.", "X75.", "X97.5.")
+smr_pred_nondoxyU <- as.data.frame(smr_pred_nondoxyU)
+
+df_nondoxyU <- data.frame(
+  group = factor(2027:2040),
+  ymin = pmax(smr_pred_nondoxyU$X2.5.[2:15], 0),  # minimum
+  lower = pmax(smr_pred_nondoxyU$X25.[2:15], 0),  # Q1
+  middle = pmax(smr_pred_nondoxyU$X50.[2:15], 0), # median
+  upper = pmax(smr_pred_nondoxyU$X75.[2:15], 0),  # Q3
+  ymax = pmax(smr_pred_nondoxyU$X97.5.[2:15], 0), # maximum
+  year = 2027:2040              # year
+)
+
+# compute quantiles for each row for inconsistentdoxy U
+probs <- c(0.025, 0.25, 0.5, 0.75, 0.975)
+smr_pred_inconsistentdoxyU <- t(apply(inconsistentdoxy_U, 2, quantile, probs = probs, na.rm = TRUE))
+colnames(smr_pred_inconsistentdoxyU) <- c("X2.5.", "X25.", "X50.", "X75.", "X97.5.")
+smr_pred_inconsistentdoxyU <- as.data.frame(smr_pred_inconsistentdoxyU)
+
+df_inconsistentdoxyU <- data.frame(
+  group = factor(2027:2040),
+  ymin = pmax(smr_pred_inconsistentdoxyU$X2.5.[2:15], 0),  # minimum
+  lower = pmax(smr_pred_inconsistentdoxyU$X25.[2:15], 0),  # Q1
+  middle = pmax(smr_pred_inconsistentdoxyU$X50.[2:15], 0), # median
+  upper = pmax(smr_pred_inconsistentdoxyU$X75.[2:15], 0),  # Q3
+  ymax = pmax(smr_pred_inconsistentdoxyU$X97.5.[2:15], 0), # maximum
+  year = 2027:2040              # year
+)
+
+# compute quantiles for each row for doxy U
+probs <- c(0.025, 0.25, 0.5, 0.75, 0.975)
+smr_pred_doxyU <- t(apply(doxy_U, 2, quantile, probs = probs, na.rm = TRUE))
+colnames(smr_pred_doxyU) <- c("X2.5.", "X25.", "X50.", "X75.", "X97.5.")
+smr_pred_doxyU <- as.data.frame(smr_pred_doxyU)
+
+df_doxyU <- data.frame(
+  group = factor(2027:2040),
+  ymin = pmax(smr_pred_doxyU$X2.5.[2:15], 0),  # minimum
+  lower = pmax(smr_pred_doxyU$X25.[2:15], 0),  # Q1
+  middle = pmax(smr_pred_doxyU$X50.[2:15], 0), # median
+  upper = pmax(smr_pred_doxyU$X75.[2:15], 0),  # Q3
+  ymax = pmax(smr_pred_doxyU$X97.5.[2:15], 0), # maximum
+  year = 2027:2040              # year
+)
+
+df_nondoxyU$scenario <- "Non-Doxy-PEP"
+df_inconsistentdoxyU$scenario <- "Doxy-Inconsistent"
+df_doxyU$scenario <- "Doxy-PEP"
+
+df_combined <- rbind(df_nondoxyU, df_inconsistentdoxyU, df_doxyU)
+df_combined$scenario <- factor(
+  df_combined$scenario,
+  levels = c("Doxy-PEP", "Non-Doxy-PEP", "Doxy-Inconsistent")
+)
+
+ggplot(df_combined, aes(
+  x = group,
+  ymin = lower,
+  lower = lower,
+  middle = middle,
+  upper = upper,
+  ymax = upper,
+  color = scenario,
+  fill = scenario
+)) +
+  geom_boxplot(stat = "identity", position = position_dodge(width = 0.8), width = 0.6) +
+  labs(x = "Year", y = "Annual Number of Susceptible MSM at High-Risk") +
+  scale_color_manual(
+    name = NULL,
+    values = c("Non-Doxy-PEP" = "#073E7F", "Doxy-Inconsistent" = "#F49600", "Doxy-PEP" = "#BE0E23")
+  ) +
+  scale_fill_manual(
+    name = NULL,
+    values = c("Non-Doxy-PEP" = "#83A0BE", "Doxy-Inconsistent" = "#F9CB80", "Doxy-PEP" = "#E18791")
+  ) +
+  theme_minimal(base_size = 13) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, NA)) +
+  theme(
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    legend.position = "inside",
+    legend.position.inside = c(0.99, 0.99),
     legend.justification = c("right", "top"),
     legend.background = element_rect(fill = alpha("white", 0.6), color = NA),
     legend.box.background = element_rect(color = "black"),
