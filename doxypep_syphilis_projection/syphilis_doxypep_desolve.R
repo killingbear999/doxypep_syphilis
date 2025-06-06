@@ -108,7 +108,7 @@ doxypep_model <- function(t, y, parameters) {
     dR_N_L = mu * (P_N_L + S_N_L + T_N_L) + eta_L * (E_N_L + L_N_L) - (rho + 1/gamma) * R_N_L + xi_N * R_D_L + xi_XN * R_X_L
     
     # doxy-inconsistent (X)
-    dU_X_L = xi_X * U_D_L - ((1 - zeta * e_d) * lambda_L + 1/gamma + xi_XN + p_DoS_H * eta_H) * U_X_L + (1 - p_DoD_H) * rho * R_X_L
+    dU_X_L = xi_X * U_D_L - ((1 - zeta * e_d) * lambda_L + 1/gamma + xi_XN + p_DoS_L * eta_L) * U_X_L + (1 - p_DoD_L) * rho * R_X_L
     dI_X_L = xi_X * I_D_L + (1 - zeta * e_d) * lambda_L * U_X_L - (sigma + 1/gamma + xi_XN) * I_X_L
     dP_X_L = xi_X * P_D_L + sigma * I_X_L - (mu + psi_S + 1/gamma + xi_XN) * P_X_L
     dS_X_L = xi_X * S_D_L + psi_S * P_X_L - (mu + psi_E + 1/gamma + xi_XN) * S_X_L
@@ -190,10 +190,10 @@ xi_XN <- -log(1-0.608)/1
 p_DbE <- 0
 
 # Probability of uptake of doxycycline on diagnosis in group H
-p_DoD_H <- 0.33
+p_DoD_H <- 0.1
 
 # Probability of uptake of doxycycline on diagnosis in group L
-p_DoD_L <- 0.33
+p_DoD_L <- 0.1
 
 # Probability of uptake of doxycycline on screening with negative results in group H
 p_DoS_H <- 0
@@ -550,7 +550,7 @@ ggplot(df_combined, aes(
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
     legend.position = "inside",
-    legend.position.inside = c(0.99, 0.99),
+    legend.position.inside = c(0.99, 0.5),
     legend.justification = c("right", "top"),
     legend.background = element_rect(fill = alpha("white", 0.6), color = NA),
     legend.box.background = element_rect(color = "black"),
