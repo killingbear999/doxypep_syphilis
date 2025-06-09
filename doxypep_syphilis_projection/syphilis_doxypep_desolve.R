@@ -51,7 +51,7 @@ doxypep_model <- function(t, y, parameters) {
     lambda_H <- get_lambda(t, t_0, c_H, beta, phi_beta, epsilon, C_H, N_H, pi_H, C_L, N_L, pi_L, isFixed)
     lambda_L <- get_lambda(t, t_0, c_L, beta, phi_beta, epsilon, C_L, N_L, pi_L, C_H, N_H, pi_H, isFixed)
     
-    eta_H <- get_eta(t, t_0, eta_H_init, phi_eta, isFixed)
+    eta_H <- 0.17 # get_eta(t, t_0, eta_H_init, phi_eta, isFixed)
     eta_L <- omega * eta_H
     
     # ODEs
@@ -193,10 +193,10 @@ p_DbE <- 0
 p_DoD_H <- 0.1
 
 # Probability of uptake of doxycycline on diagnosis in group L
-p_DoD_L <- 0.1
+p_DoD_L <- 0
 
 # Probability of uptake of doxycycline on screening with negative results in group H
-p_DoS_H <- 0
+p_DoS_H <- 0.1
 
 # Probability of uptake of doxycycline on screening with negative results in group L
 p_DoS_L <- 0
@@ -350,19 +350,21 @@ for (i in 1:n_iter) {
     incidence[t] = 0.5 * params$rho * (out[t, 9] + out[t + 1, 9] + out[t, 17] + out[t + 1, 17] + out[t, 25] + out[t + 1, 25] + out[t, 33] + out[t + 1, 33] + 
                                          out[t, 41] + out[t + 1, 41] + out[t, 49] + out[t + 1, 49] + out[t, 57] + out[t + 1, 57] + out[t, 65] + out[t + 1, 65]);
     
-    eta_H_t <- get_eta(t+20, t_0, params$eta_H_init, params$phi_eta, isFixed)
-    eta_H_t1 <- get_eta(t+20+1, t_0, params$eta_H_init, params$phi_eta, isFixed)
+    eta_H_t <- 0.17 # get_eta(t+20, t_0, params$eta_H_init, params$phi_eta, isFixed)
+    eta_H_t1 <- 0.17 # get_eta(t+20+1, t_0, params$eta_H_init, params$phi_eta, isFixed)
     Y_U_N_H <- 0.5 * (eta_H_t * out[t, 2] + eta_H_t1 * out[t + 1, 2])
     Y_U_X_H <- 0.5 * (eta_H_t * out[t, 10] + eta_H_t1 * out[t + 1, 10])
     Y_D_N_H <- 0.5 * params$rho * (out[t, 9] + out[t + 1, 9])
+    Y_D_X_H <- 0.5 * params$rho * (out[t, 17] + out[t + 1, 17])
     
     eta_L_t <- params$omega * eta_H_t
     eta_L_t1 <- params$omega * eta_H_t1
     Y_U_N_L <- 0.5 * (eta_L_t * out[t, 34] + eta_L_t1 * out[t + 1, 34])
     Y_U_X_L <- 0.5 * (eta_L_t * out[t, 42] + eta_L_t1 * out[t + 1, 42])
     Y_D_N_L <- 0.5 * params$rho * (out[t, 41] + out[t + 1, 41])
+    Y_D_X_L <- 0.5 * params$rho * (out[t, 49] + out[t + 1, 49])
     
-    presctiption[t] = alpha * p_DbE + p_DoS_H * (Y_U_N_H + Y_U_X_H) + p_DoS_L * (Y_U_N_L + Y_U_X_L) + p_DoD_H * Y_D_N_H + p_DoD_L * Y_D_N_L
+    presctiption[t] = alpha * p_DbE + p_DoS_H * (Y_U_N_H + Y_U_X_H) + p_DoS_L * (Y_U_N_L + Y_U_X_L) + p_DoD_H * (Y_D_N_H + Y_D_X_H) + p_DoD_L * (Y_D_N_L + Y_D_X_L)
   }
   
   cases[i,] <- incidence
@@ -374,7 +376,7 @@ for (i in 1:n_iter) {
 }
 
 # load baseline cases
-cases_baseline <- readRDS(file="cases_baseline_fixed_main.Rda")
+cases_baseline <- readRDS(file="cases_baseline_lowscreeningrate_fixed_main.Rda")
 
 # compute total number of averted cases
 averted_cases = cases_baseline - cases
@@ -393,9 +395,9 @@ smr_prescriptions = as.data.frame(t(quantile(total_prescriptions, probs = c(0.02
 colnames(smr_prescriptions) <- c("X2.5.", "X25.", "X50.", "X75.", "X97.5.")
 
 # compute number of averted cases per prescription
-acerted_per_prescription = total_averted_cases / total_prescriptions
-acerted_per_prescription = as.data.frame(t(quantile(acerted_per_prescription, probs = c(0.025, 0.25, 0.5, 0.75, 0.975), na.rm = TRUE)))
-colnames(acerted_per_prescription) <- c("X2.5.", "X25.", "X50.", "X75.", "X97.5.")
+averted_per_prescription = total_averted_cases / total_prescriptions
+averted_per_prescription = as.data.frame(t(quantile(averted_per_prescription, probs = c(0.025, 0.25, 0.5, 0.75, 0.975), na.rm = TRUE)))
+colnames(averted_per_prescription) <- c("X2.5.", "X25.", "X50.", "X75.", "X97.5.")
 
 # plot intervention vs. baseline for annual cases
 # compute quantiles for each row for cases
@@ -416,7 +418,7 @@ df <- data.frame(
 )
 
 # load baseline statistics
-df_baseline <- readRDS(file="data_baseline_fixed_main.Rda")
+df_baseline <- readRDS(file="data_baseline_lowscreeningrate_fixed_main.Rda")
 
 df$scenario <- "Intervention"
 df_baseline$scenario <- "Baseline"

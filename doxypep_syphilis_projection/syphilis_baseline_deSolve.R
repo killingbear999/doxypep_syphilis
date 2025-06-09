@@ -41,7 +41,7 @@ syphilis_model <- function(t, y, parms) {
     # two baselines: 1. the inferred trends in the time-varying behavioural parameters stabilise
     #                2. the trends continue until the end of the modelled period
     
-    isFixed <- FALSE
+    isFixed <- TRUE
     
     # Population sizes
     C_H <- get_C(I_N_H, P_N_H, S_N_H, E_N_H)
@@ -56,7 +56,7 @@ syphilis_model <- function(t, y, parms) {
     lambda_L <- get_lambda(t, t_0, c_L, beta, phi_beta, epsilon, C_L, N_L, pi_L, C_H, N_H, pi_H, isFixed)
     
     # Screening
-    eta_H <- get_eta(t, t_0, eta_H_init, phi_eta, isFixed)
+    eta_H <- 0.17 # get_eta(t, t_0, eta_H_init, phi_eta, isFixed)
     eta_L <- omega * eta_H
     
     # ODEs - High risk
@@ -104,7 +104,7 @@ psi_T <- 1/20 # 20 years (Late latent to Tertiary)
 nu <- -log(1-128/399)/40 # 40 years (Death) with around 30% probability of death at tertiary stage
 
 # load calibrated parameters
-fit_syphilis_negbin <- readRDS("fit_results_fixedinitialstate_burntin_lower.rds")
+fit_syphilis_negbin <- readRDS("fit_results_fixedinitialstate_burntin_main.rds")
 
 # extract all posterior samples for these parameters as a list (permuted = TRUE merges chains)
 pars=c('beta', 'phi_beta', 'epsilon', 'rho', 'eta_H_init', 'phi_eta', 'omega', 'sigma', 'mu', 'psi_S', 'psi_E', 'psi_L', 'kappa_D')
@@ -175,7 +175,7 @@ for (i in 1:n_iter) {
   cases[i,] <- incidence
 }
 
-saveRDS(cases,file="cases_baseline_timevarying_lower.Rda")
+saveRDS(cases,file="cases_baseline_lowscreeningrate_fixed_main.Rda")
 
 # compute quantiles for each row
 probs <- c(0.025, 0.25, 0.5, 0.75, 0.975)
@@ -194,7 +194,7 @@ df <- data.frame(
   year = 2026:2040              # year
 )
 
-saveRDS(df,file="data_baseline_timevarying_lower.Rda")
+saveRDS(df,file="data_baseline_lowscreeningrate_fixed_main.Rda")
 
 ggplot(df, aes(x = group, ymin = ymin, lower = ymin, middle = middle, upper = ymax, ymax = ymax, color = 'Baseline')) +
   geom_boxplot(stat = "identity", fill = "salmon") +
