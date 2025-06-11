@@ -190,13 +190,13 @@ xi_XN <- -log(1-0.608)/1
 p_DbE <- 0
 
 # Probability of uptake of doxycycline on diagnosis in group H
-p_DoD_H <- 0.1
+p_DoD_H <- 0.33
 
 # Probability of uptake of doxycycline on diagnosis in group L
 p_DoD_L <- 0
 
 # Probability of uptake of doxycycline on screening with negative results in group H
-p_DoS_H <- 0.1
+p_DoS_H <- 0
 
 # Probability of uptake of doxycycline on screening with negative results in group L
 p_DoS_L <- 0
@@ -315,7 +315,7 @@ for (i in 1:n_iter) {
          U_N_L=U_N_L, I_N_L=I_N_L, P_N_L=P_N_L, S_N_L=S_N_L, E_N_L=E_N_L, L_N_L=L_N_L, T_N_L=T_N_L, R_N_L=R_N_L,
          U_X_L=U_X_L, I_X_L=I_X_L, P_X_L=P_X_L, S_X_L=S_X_L, E_X_L=E_X_L, L_X_L=L_X_L, T_X_L=T_X_L, R_X_L=R_X_L,
          U_D_L=U_D_L, I_D_L=I_D_L, P_D_L=P_D_L, S_D_L=S_D_L, E_D_L=E_D_L, L_D_L=L_D_L, T_D_L=T_D_L, R_D_L=R_D_L,
-         U_M_L=U_M_L, I_M_L=I_M_L, P_N_L=P_M_L, S_M_L=S_M_L, E_M_L=E_M_L, L_M_L=L_M_L, T_M_L=T_M_L, R_M_L=R_M_L)
+         U_M_L=U_M_L, I_M_L=I_M_L, P_M_L=P_M_L, S_M_L=S_M_L, E_M_L=E_M_L, L_M_L=L_M_L, T_M_L=T_M_L, R_M_L=R_M_L)
   
   params <- list(
     q_H = q_H, c_H = c_H, c_L = c_L, q_L = q_L,

@@ -1,5 +1,7 @@
 library(ggplot2)
+library(patchwork)
 
+size = 35
 ############################ uptake rate of 0.1 ############################
 # plot averted cases
 averted_lowscreeningrate_0.1 <- data.frame(
@@ -22,7 +24,7 @@ averted_highscreeningrate_0.1$scenario <- "High Screening Rate"
 df_combined <- rbind(averted_lowscreeningrate_0.1, averted_highscreeningrate_0.1)
 df_combined$group <- factor(df_combined$group, levels = c('DbE', 'DoD(H)', 'DoD', 'DoA(H)', 'DoA', 'DaR'))
 
-ggplot(df_combined, aes(
+p1 <- ggplot(df_combined, aes(
   x = group,
   ymin = ymin,
   lower = ymin,
@@ -33,7 +35,7 @@ ggplot(df_combined, aes(
   fill = scenario
 )) +
   geom_boxplot(stat = "identity", position = position_dodge(width = 0.8), width = 0.6) +
-  labs(x = "Doxy-PEP Strategy", y = "Number of Averted Cases") +
+  labs(title = "A: Uptake Rate of 10.0%") +
   scale_color_manual(
     name = NULL,
     values = c("Low Screening Rate" = "purple", "High Screening Rate" = "darkorange")
@@ -42,26 +44,31 @@ ggplot(df_combined, aes(
     name = NULL,
     values = c("Low Screening Rate" = "plum", "High Screening Rate" = "moccasin")
   ) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, 150000)) +
   theme_minimal(base_size = 13) +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, NA)) +
   theme(
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
     legend.position = "inside",
-    legend.position.inside = c(0.3, 0.85),
+    legend.position.inside = c(0.20, 0.85),
     legend.justification = c("right", "top"),
     legend.background = element_rect(fill = alpha("white", 0.6), color = NA),
     legend.box.background = element_rect(color = "black"),
     legend.margin = margin(0, 0, 0, 0),
     legend.box.margin = margin(0, 0, 0, 0),
-    plot.title = element_text(hjust = 0.5, margin = margin(b = 0)),
-    axis.title.x = element_text(size = 13),
-    axis.title.y = element_text(size = 13),
-    axis.text.x = element_text(size = 13),
-    axis.text.y = element_text(size = 13),
-    legend.title = element_text(size = 13),
-    legend.text = element_text(size = 13),
-    plot.margin = margin(5, 0, 0, 0)
+    plot.title = element_text(hjust = 0.5, margin = margin(b = 0), size = size),
+    axis.title.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.text.y = element_text(size = size),
+    axis.title.y = element_text(size = size),
+    axis.line.x = element_line(color = "black", size = 0.5),
+    axis.line.y = element_line(color = "black", size = 0.5)
+  )
+p1 <- p1 +
+  labs(tag = "(1)") +
+  theme(
+    plot.tag.position = c(0, 0.95),
+    plot.tag = element_text(size = size+10, hjust = 0, vjust = 0)
   )
 
 # plot averted cases per prescription
@@ -85,7 +92,7 @@ averted_highscreeningrate_0.1$scenario <- "High Screening Rate"
 df_combined <- rbind(averted_lowscreeningrate_0.1, averted_highscreeningrate_0.1)
 df_combined$group <- factor(df_combined$group, levels = c('DbE', 'DoD(H)', 'DoD', 'DoA(H)', 'DoA', 'DaR'))
 
-ggplot(df_combined, aes(
+p4 <- ggplot(df_combined, aes(
   x = group,
   ymin = ymin,
   lower = ymin,
@@ -96,7 +103,6 @@ ggplot(df_combined, aes(
   fill = scenario
 )) +
   geom_boxplot(stat = "identity", position = position_dodge(width = 0.8), width = 0.6) +
-  labs(x = "Doxy-PEP Strategy", y = "Number of Averted Cases per Prescription") +
   scale_color_manual(
     name = NULL,
     values = c("Low Screening Rate" = "purple", "High Screening Rate" = "darkorange")
@@ -111,20 +117,25 @@ ggplot(df_combined, aes(
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
     legend.position = "inside",
-    legend.position.inside = c(0.99, 0.99),
+    legend.position.inside = c(0.20, 0.85),
     legend.justification = c("right", "top"),
     legend.background = element_rect(fill = alpha("white", 0.6), color = NA),
     legend.box.background = element_rect(color = "black"),
     legend.margin = margin(0, 0, 0, 0),
     legend.box.margin = margin(0, 0, 0, 0),
-    plot.title = element_text(hjust = 0.5, margin = margin(b = 0)),
-    axis.title.x = element_text(size = 13),
-    axis.title.y = element_text(size = 13),
-    axis.text.x = element_text(size = 13),
-    axis.text.y = element_text(size = 13),
-    legend.title = element_text(size = 13),
-    legend.text = element_text(size = 13),
-    plot.margin = margin(5, 0, 0, 0)
+    plot.title = element_text(hjust = 0.5, margin = margin(b = 0), size = size),
+    axis.title.x = element_blank(),
+    axis.text.x = element_text(size = size),
+    axis.text.y = element_text(size = size),
+    axis.title.y = element_text(size = size),
+    axis.line.x = element_line(color = "black", size = 0.5),
+    axis.line.y = element_line(color = "black", size = 0.5)
+  )
+p4 <- p4 +
+  labs(tag = "(2)") +
+  theme(
+    plot.tag.position = c(0, 0.95),
+    plot.tag = element_text(size = size+10, hjust = 0, vjust = 0)
   )
 
 ############################ uptake rate of 0.33 ############################
@@ -149,7 +160,7 @@ averted_highscreeningrate_0.33$scenario <- "High Screening Rate"
 df_combined <- rbind(averted_lowscreeningrate_0.33, averted_highscreeningrate_0.33)
 df_combined$group <- factor(df_combined$group, levels = c('DbE', 'DoD(H)', 'DoD', 'DoA(H)', 'DoA', 'DaR'))
 
-ggplot(df_combined, aes(
+p2 <- ggplot(df_combined, aes(
   x = group,
   ymin = ymin,
   lower = ymin,
@@ -160,7 +171,7 @@ ggplot(df_combined, aes(
   fill = scenario
 )) +
   geom_boxplot(stat = "identity", position = position_dodge(width = 0.8), width = 0.6) +
-  labs(x = "Doxy-PEP Strategy", y = "Number of Averted Cases") +
+  labs(title = "B: Uptake Rate of 33.0%") +
   scale_color_manual(
     name = NULL,
     values = c("Low Screening Rate" = "purple", "High Screening Rate" = "darkorange")
@@ -170,25 +181,25 @@ ggplot(df_combined, aes(
     values = c("Low Screening Rate" = "plum", "High Screening Rate" = "moccasin")
   ) +
   theme_minimal(base_size = 13) +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, NA), labels = function(x) format(x, scientific = FALSE, big.mark = "", trim = TRUE)) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, 150000), labels = function(x) format(x, scientific = FALSE, big.mark = "", trim = TRUE)) +
   theme(
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
     legend.position = "inside",
-    legend.position.inside = c(0.3, 0.85),
+    legend.position.inside = c(0.20, 0.85),
     legend.justification = c("right", "top"),
     legend.background = element_rect(fill = alpha("white", 0.6), color = NA),
     legend.box.background = element_rect(color = "black"),
     legend.margin = margin(0, 0, 0, 0),
     legend.box.margin = margin(0, 0, 0, 0),
-    plot.title = element_text(hjust = 0.5, margin = margin(b = 0)),
-    axis.title.x = element_text(size = 13),
-    axis.title.y = element_text(size = 13),
-    axis.text.x = element_text(size = 13),
-    axis.text.y = element_text(size = 13),
-    legend.title = element_text(size = 13),
-    legend.text = element_text(size = 13),
-    plot.margin = margin(5, 0, 0, 0)
+    plot.title = element_text(hjust = 0.5, margin = margin(b = 0), size = size),
+    axis.title.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.title.y = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank(),
+    axis.line.x = element_line(color = "black", size = 0.5),
+    axis.line.y = element_line(color = "black", size = 0.5)
   )
 
 # plot averted cases per prescription
@@ -212,7 +223,7 @@ averted_highscreeningrate_0.33$scenario <- "High Screening Rate"
 df_combined <- rbind(averted_lowscreeningrate_0.33, averted_highscreeningrate_0.33)
 df_combined$group <- factor(df_combined$group, levels = c('DbE', 'DoD(H)', 'DoD', 'DoA(H)', 'DoA', 'DaR'))
 
-ggplot(df_combined, aes(
+p5 <- ggplot(df_combined, aes(
   x = group,
   ymin = ymin,
   lower = ymin,
@@ -223,7 +234,6 @@ ggplot(df_combined, aes(
   fill = scenario
 )) +
   geom_boxplot(stat = "identity", position = position_dodge(width = 0.8), width = 0.6) +
-  labs(x = "Doxy-PEP Strategy", y = "Number of Averted Cases per Prescription") +
   scale_color_manual(
     name = NULL,
     values = c("Low Screening Rate" = "purple", "High Screening Rate" = "darkorange")
@@ -238,20 +248,20 @@ ggplot(df_combined, aes(
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
     legend.position = "inside",
-    legend.position.inside = c(0.99, 0.99),
+    legend.position.inside = c(0.20, 0.85),
     legend.justification = c("right", "top"),
     legend.background = element_rect(fill = alpha("white", 0.6), color = NA),
     legend.box.background = element_rect(color = "black"),
     legend.margin = margin(0, 0, 0, 0),
     legend.box.margin = margin(0, 0, 0, 0),
-    plot.title = element_text(hjust = 0.5, margin = margin(b = 0)),
-    axis.title.x = element_text(size = 13),
-    axis.title.y = element_text(size = 13),
-    axis.text.x = element_text(size = 13),
-    axis.text.y = element_text(size = 13),
-    legend.title = element_text(size = 13),
-    legend.text = element_text(size = 13),
-    plot.margin = margin(5, 0, 0, 0)
+    plot.title = element_text(hjust = 0.5, margin = margin(b = 0), size = size),
+    axis.title.x = element_text(size = size),
+    axis.text.x = element_text(size = size),
+    axis.title.y = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank(),
+    axis.line.x = element_line(color = "black", size = 0.5),
+    axis.line.y = element_line(color = "black", size = 0.5)
   )
 
 ############################ uptake rate of 0.66 ############################
@@ -276,7 +286,7 @@ averted_highscreeningrate_0.66$scenario <- "High Screening Rate"
 df_combined <- rbind(averted_lowscreeningrate_0.66, averted_highscreeningrate_0.66)
 df_combined$group <- factor(df_combined$group, levels = c('DbE', 'DoD(H)', 'DoD', 'DoA(H)', 'DoA', 'DaR'))
 
-ggplot(df_combined, aes(
+p3 <- ggplot(df_combined, aes(
   x = group,
   ymin = ymin,
   lower = ymin,
@@ -287,7 +297,7 @@ ggplot(df_combined, aes(
   fill = scenario
 )) +
   geom_boxplot(stat = "identity", position = position_dodge(width = 0.8), width = 0.6) +
-  labs(x = "Doxy-PEP Strategy", y = "Number of Averted Cases") +
+  labs(title = "C: Uptake Rate of 66.0%") +
   scale_color_manual(
     name = NULL,
     values = c("Low Screening Rate" = "purple", "High Screening Rate" = "darkorange")
@@ -297,25 +307,25 @@ ggplot(df_combined, aes(
     values = c("Low Screening Rate" = "plum", "High Screening Rate" = "moccasin")
   ) +
   theme_minimal(base_size = 13) +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, NA)) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, 150000)) +
   theme(
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
     legend.position = "inside",
-    legend.position.inside = c(0.3, 0.85),
+    legend.position.inside = c(0.20, 0.85),
     legend.justification = c("right", "top"),
     legend.background = element_rect(fill = alpha("white", 0.6), color = NA),
     legend.box.background = element_rect(color = "black"),
     legend.margin = margin(0, 0, 0, 0),
     legend.box.margin = margin(0, 0, 0, 0),
-    plot.title = element_text(hjust = 0.5, margin = margin(b = 0)),
-    axis.title.x = element_text(size = 13),
-    axis.title.y = element_text(size = 13),
-    axis.text.x = element_text(size = 13),
-    axis.text.y = element_text(size = 13),
-    legend.title = element_text(size = 13),
-    legend.text = element_text(size = 13),
-    plot.margin = margin(5, 0, 0, 0)
+    plot.title = element_text(hjust = 0.5, margin = margin(b = 0), size = size),
+    axis.title.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.title.y = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank(),
+    axis.line.x = element_line(color = "black", size = 0.5),
+    axis.line.y = element_line(color = "black", size = 0.5)
   )
 
 # plot averted cases per prescription
@@ -339,7 +349,7 @@ averted_highscreeningrate_0.66$scenario <- "High Screening Rate"
 df_combined <- rbind(averted_lowscreeningrate_0.66, averted_highscreeningrate_0.66)
 df_combined$group <- factor(df_combined$group, levels = c('DbE', 'DoD(H)', 'DoD', 'DoA(H)', 'DoA', 'DaR'))
 
-ggplot(df_combined, aes(
+p6 <- ggplot(df_combined, aes(
   x = group,
   ymin = ymin,
   lower = ymin,
@@ -350,7 +360,6 @@ ggplot(df_combined, aes(
   fill = scenario
 )) +
   geom_boxplot(stat = "identity", position = position_dodge(width = 0.8), width = 0.6) +
-  labs(x = "Doxy-PEP Strategy", y = "Number of Averted Cases per Prescription") +
   scale_color_manual(
     name = NULL,
     values = c("Low Screening Rate" = "purple", "High Screening Rate" = "darkorange")
@@ -365,18 +374,50 @@ ggplot(df_combined, aes(
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
     legend.position = "inside",
-    legend.position.inside = c(0.99, 0.99),
+    legend.position.inside = c(0.20, 0.85),
     legend.justification = c("right", "top"),
     legend.background = element_rect(fill = alpha("white", 0.6), color = NA),
     legend.box.background = element_rect(color = "black"),
     legend.margin = margin(0, 0, 0, 0),
     legend.box.margin = margin(0, 0, 0, 0),
-    plot.title = element_text(hjust = 0.5, margin = margin(b = 0)),
-    axis.title.x = element_text(size = 13),
-    axis.title.y = element_text(size = 13),
-    axis.text.x = element_text(size = 13),
-    axis.text.y = element_text(size = 13),
-    legend.title = element_text(size = 13),
-    legend.text = element_text(size = 13),
-    plot.margin = margin(5, 0, 0, 0)
+    plot.title = element_text(hjust = 0.5, margin = margin(b = 0), size = size),
+    axis.title.x = element_blank(),
+    axis.text.x = element_text(size = size),
+    axis.title.y = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank(),
+    axis.line.x = element_line(color = "black", size = 0.5),
+    axis.line.y = element_line(color = "black", size = 0.5)
   )
+
+row_averted <- (p1 + p2 + p3 + plot_layout(ncol = 3, guides = "collect")) &
+  theme(legend.position = "right", legend.text = element_text(size = size)) &
+  plot_annotation(
+    title = NULL,
+    theme = theme(
+      axis.title.x = element_text(size = size, margin = margin(t = 10)),
+      axis.title.y = element_text(size = size, margin = margin(r = 10))
+    )
+  ) &
+  labs(
+    x = "Doxy-PEP Strategy",
+    y = "Total Number of \n Averted Diagnosed Cases"
+  )
+
+row_averted_per_prescription <- (p4 + p5 + p6 + plot_layout(ncol = 3, guides = "collect")) &
+  theme(legend.position = "right", legend.text = element_text(size = size)) &
+  plot_annotation(
+    title = NULL,
+    theme = theme(
+      axis.title.x = element_text(size = size, margin = margin(t = 10)),
+      axis.title.y = element_text(size = size, margin = margin(r = 10))
+    )
+  ) &
+  labs(
+    x = "Doxy-PEP Strategy",
+    y = "Number of Averted Diagnosed \n Cases per Prescription"
+  )
+
+# combine and plot
+final_plot <- row_averted / row_averted_per_prescription
+final_plot

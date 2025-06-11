@@ -56,7 +56,7 @@ syphilis_model <- function(t, y, parms) {
     lambda_L <- get_lambda(t, t_0, c_L, beta, phi_beta, epsilon, C_L, N_L, pi_L, C_H, N_H, pi_H, isFixed)
     
     # Screening
-    eta_H <- 0.17 # get_eta(t, t_0, eta_H_init, phi_eta, isFixed)
+    eta_H <- get_eta(t, t_0, eta_H_init, phi_eta, isFixed)
     eta_L <- omega * eta_H
     
     # ODEs - High risk
@@ -120,6 +120,11 @@ random_integers <- sample(1:6000, size = n_iter, replace = FALSE) # draw random 
 print(random_integers)
 n_years <- 15
 cases <- matrix(NA, nrow = n_iter, ncol = n_years)
+cases_low <- matrix(NA, nrow = n_iter, ncol = n_years)
+cases_high <- matrix(NA, nrow = n_iter, ncol = n_years)
+cases_primary <- matrix(NA, nrow = n_iter, ncol = n_years)
+cases_secondary <- matrix(NA, nrow = n_iter, ncol = n_years)
+cases_others <- matrix(NA, nrow = n_iter, ncol = n_years)
 for (i in 1:n_iter) {
   # times
   t <- seq(20, 20+n_years+1, by = 1)
@@ -164,18 +169,78 @@ for (i in 1:n_iter) {
   
   # compute incidences
   incidence <- numeric(n_years)
+  incidence_low <- numeric(n_years)
+  incidence_high <- numeric(n_years)
+  incidence_primary <- numeric(n_years)
+  incidence_secondary <- numeric(n_years)
+  incidence_others <- numeric(n_years)
   for (t in 1:(n_years)) {
     # Trapezoidal rule: (f(a) + f(b)) / 2 * (b - a)
-    incidence[t] = 0.5 * params$rho * (out[t, 9] + out[t + 1, 9] + out[t, 17] + out[t + 1, 17]);
+    incidence[t] = 0.5 * params$rho * (out[t, 9] + out[t + 1, 9] + out[t, 17] + out[t + 1, 17])
+    incidence_low[t] = 0.5 * params$rho * (out[t, 17] + out[t + 1, 17])
+    incidence_high[t] = 0.5 * params$rho * (out[t, 9] + out[t + 1, 9])
+    incidence_primary[t] = 0.5 * params$mu * (out[t, 4] + out[t + 1, 4] + out[t, 12] + out[t + 1, 12])
+    incidence_secondary[t] = 0.5 * params$mu * (out[t, 5] + out[t + 1, 5] + out[t, 13] + out[t + 1, 13])
+    
+    isFixed = TRUE
+    eta_H_t <- get_eta(t+20, t_0, params$eta_H_init, params$phi_eta, isFixed)
+    eta_H_t1 <- get_eta(t+20+1, t_0, params$eta_H_init, params$phi_eta, isFixed)
+    eta_L_t <- params$omega * eta_H_t
+    eta_L_t1 <- params$omega * eta_H_t1
+    incidence_others[t] = 0.5 * (eta_H_t * out[t, 6] + eta_L_t * out[t, 14] + eta_H_t1 * out[t + 1, 6] + eta_L_t1 * out[t + 1, 14] 
+                                 + params$mu * (out[t, 8] + out[t + 1, 8] + out[t, 16] + out[t + 1, 16]))
   }
   
-  # apply negative binomial distribution to obtain case
-  # kappa_D <- posterior_df$kappa_D[i]
-  # cases[i,] <- rnbinom(n = length(incidence), size = kappa_D, mu = incidence)
   cases[i,] <- incidence
+  cases_low[i,] <- incidence_low
+  cases_high[i,] <- incidence_high
+  cases_primary[i,] <- incidence_primary
+  cases_secondary[i,] <- incidence_secondary
+  cases_others[i,] <- incidence_others
 }
 
-saveRDS(cases,file="cases_baseline_lowscreeningrate_fixed_main.Rda")
+saveRDS(cases,file="cases_baseline_fixed_main.Rda")
+saveRDS(cases_primary,file="cases_baseline_primary_fixed_main.Rda")
+saveRDS(cases_secondary,file="cases_baseline_secondary_fixed_main.Rda")
+saveRDS(cases_others,file="cases_baseline_others_fixed_main.Rda")
+
+# compute quantiles for each row
+probs <- c(0.025, 0.25, 0.5, 0.75, 0.975)
+smr_pred <- t(apply(cases_low, 2, quantile, probs = probs, na.rm = TRUE))
+colnames(smr_pred) <- c("X2.5.", "X25.", "X50.", "X75.", "X97.5.")
+smr_pred <- as.data.frame(smr_pred)
+
+# box plot, output size (8, 6)
+df <- data.frame(
+  group = factor(2026:2040),
+  ymin = smr_pred$X2.5.[1:15],  # minimum
+  lower = smr_pred$X25.[1:15],  # Q1
+  middle = smr_pred$X50.[1:15], # median
+  upper = smr_pred$X75.[1:15],  # Q3
+  ymax = smr_pred$X97.5.[1:15], # maximum
+  year = 2026:2040              # year
+)
+
+saveRDS(df,file="data_baseline_lowrisk_fixed_main.Rda")
+
+# compute quantiles for each row
+probs <- c(0.025, 0.25, 0.5, 0.75, 0.975)
+smr_pred <- t(apply(cases_high, 2, quantile, probs = probs, na.rm = TRUE))
+colnames(smr_pred) <- c("X2.5.", "X25.", "X50.", "X75.", "X97.5.")
+smr_pred <- as.data.frame(smr_pred)
+
+# box plot, output size (8, 6)
+df <- data.frame(
+  group = factor(2026:2040),
+  ymin = smr_pred$X2.5.[1:15],  # minimum
+  lower = smr_pred$X25.[1:15],  # Q1
+  middle = smr_pred$X50.[1:15], # median
+  upper = smr_pred$X75.[1:15],  # Q3
+  ymax = smr_pred$X97.5.[1:15], # maximum
+  year = 2026:2040              # year
+)
+
+saveRDS(df,file="data_baseline_highrisk_fixed_main.Rda")
 
 # compute quantiles for each row
 probs <- c(0.025, 0.25, 0.5, 0.75, 0.975)
@@ -194,7 +259,7 @@ df <- data.frame(
   year = 2026:2040              # year
 )
 
-saveRDS(df,file="data_baseline_lowscreeningrate_fixed_main.Rda")
+saveRDS(df,file="data_baseline_fixed_main.Rda")
 
 ggplot(df, aes(x = group, ymin = ymin, lower = ymin, middle = middle, upper = ymax, ymax = ymax, color = 'Baseline')) +
   geom_boxplot(stat = "identity", fill = "salmon") +
