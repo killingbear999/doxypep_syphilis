@@ -705,6 +705,7 @@ df_combined_DaR_cases_high <- result_DaR$df_combined_cases_high
 df_combined_DaR_foi_high <- result_DaR$df_foi_high
 
 ############################################################## plot cases ##############################################################
+load("workspace_0.66_fixed_uk.RData")
 df_combined_DbE_cases$group <- factor(paste0("'", 26:40))
 df_combined_DoD_H_cases$group <- factor(paste0("'", 26:40))
 df_combined_DoD_cases$group <- factor(paste0("'", 26:40))
@@ -757,8 +758,8 @@ p25 <- ggplot(df_combined_DbE_cases, aes(
 p25 <- p25 +
   labs(tag = "(3) England") +
   theme(
-    plot.tag.position = c(0, 0.95),
-    plot.tag = element_text(size = size, hjust = 0, vjust = 0)
+    plot.tag.position = c(0, 1),
+    plot.tag = element_text(size = size, hjust = 0, vjust = 0, face = "bold")
   )
 
 p26 <- ggplot(df_combined_DoD_H_cases, aes(
@@ -1044,7 +1045,7 @@ p31 <- p31 +
   labs(tag = "(4) England") +
   theme(
     plot.tag.position = c(0, 1),
-    plot.tag = element_text(size = size, hjust = 0, vjust = 0)
+    plot.tag = element_text(size = size, hjust = 0, vjust = 0, face = "bold")
   )
 
 p32 <- ggplot(df_combined_DoD_H_susceptible, aes(
@@ -1364,11 +1365,11 @@ ggplot(df_combined_foi, aes(
     axis.line.y = element_line(color = "black", size = 0.5)
   )
 
-# save.image("workspace_0.66_fixed_uk.RData")
+save.image("workspace_0.66_fixed_uk.RData")
 
 load("workspace_0.66_fixed_uk.RData")
 load("workspace_0.66_fixed_main.RData")
 
 # combine and plot
-final_plot_uk <- row_cases / row_susceptible / row_cases_uk / row_susceptible_uk
+final_plot_uk <- plot_spacer() /row_cases / plot_spacer() /row_susceptible / plot_spacer() /row_cases_uk / plot_spacer() / row_susceptible_uk + plot_layout(ncol = 1, heights = c(0.08, 1, 0.08, 1, 0.08, 1, 0.08, 1))
 final_plot_uk

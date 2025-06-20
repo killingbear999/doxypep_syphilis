@@ -758,8 +758,8 @@ p1 <- ggplot(df_combined_DbE_cases, aes(
 p1 <- p1 +
   labs(tag = "(1) Singapore") +
   theme(
-    plot.tag.position = c(0, 0.95),
-    plot.tag = element_text(size = size, hjust = 0, vjust = 0)
+    plot.tag.position = c(0, 1),
+    plot.tag = element_text(size = size, hjust = 0, vjust = 0, face = 'bold')
   )
 
 p2 <- ggplot(df_combined_DoD_H_cases, aes(
@@ -1635,7 +1635,7 @@ p19 <- p19 +
   labs(tag = "(2) Singapore") +
   theme(
     plot.tag.position = c(0, 1),
-    plot.tag = element_text(size = size, hjust = 0, vjust = 0)
+    plot.tag = element_text(size = size, hjust = 0, vjust = 0, face = 'bold')
   )
 
 p20 <- ggplot(df_combined_DoD_H_susceptible, aes(
@@ -1985,4 +1985,4 @@ ggplot(df_combined_foi, aes(
     axis.line.y = element_line(color = "black", size = 0.5)
   )
 
-# save.image("workspace_0.66_fixed_main.RData")
+save.image("workspace_0.66_fixed_main.RData")
