@@ -29,12 +29,6 @@ get_eta <- function(t, t_0, eta_H_init, phi_eta, isFixed) {
   return(eta_H_init * (1 + phi_eta * (t - t_0)))
 }
 
-# Enforce non-negativity via events
-non_negative <- function(time, state, parms) {
-  state[state < 0] <- 0
-  return(state)
-}
-
 # ODE system
 syphilis_model <- function(t, y, parms) {
   with(as.list(c(y, parms)), {
@@ -125,6 +119,9 @@ cases_high <- matrix(NA, nrow = n_iter, ncol = n_years)
 cases_primary <- matrix(NA, nrow = n_iter, ncol = n_years)
 cases_secondary <- matrix(NA, nrow = n_iter, ncol = n_years)
 cases_others <- matrix(NA, nrow = n_iter, ncol = n_years)
+cases_diagnosed <- matrix(NA, nrow = n_iter, ncol = n_years)
+foi_high <- matrix(NA, nrow = n_iter, ncol = n_years)
+foi_low <- matrix(NA, nrow = n_iter, ncol = n_years)
 for (i in 1:n_iter) {
   # times
   t <- seq(20, 20+n_years+1, by = 1)
@@ -174,21 +171,43 @@ for (i in 1:n_iter) {
   incidence_primary <- numeric(n_years)
   incidence_secondary <- numeric(n_years)
   incidence_others <- numeric(n_years)
+  incidence_diagnosed <- numeric(n_years)
+  lambda_high <- numeric(n_years)
+  lambda_low <- numeric(n_years)
   for (t in 1:(n_years)) {
     # Trapezoidal rule: (f(a) + f(b)) / 2 * (b - a)
-    incidence[t] = 0.5 * params$rho * (out[t, 9] + out[t + 1, 9] + out[t, 17] + out[t + 1, 17])
-    incidence_low[t] = 0.5 * params$rho * (out[t, 17] + out[t + 1, 17])
-    incidence_high[t] = 0.5 * params$rho * (out[t, 9] + out[t + 1, 9])
-    incidence_primary[t] = 0.5 * params$mu * (out[t, 4] + out[t + 1, 4] + out[t, 12] + out[t + 1, 12])
-    incidence_secondary[t] = 0.5 * params$mu * (out[t, 5] + out[t + 1, 5] + out[t, 13] + out[t + 1, 13])
+    I = 0.5 * (params$sigma) * (out[t, 3] + out[t + 1, 3] + out[t, 11] + out[t + 1, 11])
+    incidence_diagnosed[t] = 0.5 * (params$rho) * (out[t, 9] + out[t + 1, 9] + out[t, 17] + out[t + 1, 17])
+    incidence_primary[t] = 0.5 * (params$mu + params$psi_S) * (out[t, 4] + out[t + 1, 4] + out[t, 12] + out[t + 1, 12])
+    incidence_secondary[t] = 0.5 * (params$mu + params$psi_E) * (out[t, 5] + out[t + 1, 5] + out[t, 13] + out[t + 1, 13])
     
     isFixed = TRUE
     eta_H_t <- get_eta(t+20, t_0, params$eta_H_init, params$phi_eta, isFixed)
     eta_H_t1 <- get_eta(t+20+1, t_0, params$eta_H_init, params$phi_eta, isFixed)
     eta_L_t <- params$omega * eta_H_t
     eta_L_t1 <- params$omega * eta_H_t1
-    incidence_others[t] = 0.5 * (eta_H_t * out[t, 6] + eta_L_t * out[t, 14] + eta_H_t1 * out[t + 1, 6] + eta_L_t1 * out[t + 1, 14] 
-                                 + params$mu * (out[t, 8] + out[t + 1, 8] + out[t, 16] + out[t + 1, 16]))
+    incidence_others[t] = 0.5 * ((eta_H_t + params$psi_L) * out[t, 6] + (eta_L_t + params$psi_L) * out[t, 14] 
+                                 + (eta_H_t1 + params$psi_L) * out[t + 1, 6] + (eta_L_t1 + params$psi_L) * out[t + 1, 14] 
+                                 + (eta_H_t + params$psi_T) * out[t, 7] + (eta_L_t + params$psi_T) * out[t, 15] 
+                                 + (eta_H_t1 + params$psi_T) * out[t + 1, 7] + (eta_L_t1 + params$psi_T) * out[t + 1, 15]
+                                 + (params$mu + params$nu) * (out[t, 8] + out[t + 1, 8] + out[t, 16] + out[t + 1, 16]))
+    
+    incidence[t] = I + incidence_primary[t] + incidence_secondary[t] + incidence_others[t] + incidence_diagnosed[t]
+    
+    # Population sizes
+    C_H_t <- get_C(out[t, 3], out[t, 4], out[t, 5], out[t, 6])
+    C_L_t <- get_C(out[t, 11], out[t, 12], out[t, 13], out[t, 14])
+    N_H_t <- get_N(out[t, 2], out[t, 3], out[t, 4], out[t, 5], out[t, 6], out[t, 7], out[t, 8], out[t, 9])
+    N_L_t <- get_N(out[t, 10], out[t, 11], out[t, 12], out[t, 13], out[t, 14], out[t, 15], out[t, 16], out[t, 17])
+    
+    # Mixing
+    pi_H_t <- get_pi(c_H, N_H_t, c_L, N_L_t)
+    pi_L_t <- get_pi(c_L, N_L_t, c_H, N_H_t)
+    lambda_H_t <- get_lambda(t+5, t_0, c_H, params$beta, params$phi_beta, params$epsilon, C_H_t, N_H_t, pi_H_t, C_L_t, N_L_t, pi_L_t, isFixed)
+    lambda_L_t <- get_lambda(t+5, t_0, c_L, params$beta, params$phi_beta, params$epsilon, C_L_t, N_L_t, pi_L_t, C_H_t, N_H_t, pi_H_t, isFixed)
+    
+    lambda_high[t] = lambda_H_t
+    lambda_low[t] = lambda_L_t
   }
   
   cases[i,] <- incidence
@@ -197,50 +216,92 @@ for (i in 1:n_iter) {
   cases_primary[i,] <- incidence_primary
   cases_secondary[i,] <- incidence_secondary
   cases_others[i,] <- incidence_others
+  cases_diagnosed[i,] <- incidence_diagnosed
+  foi_high[i,] <- lambda_high
+  foi_low[i,] <- lambda_low
 }
 
 saveRDS(cases,file="cases_baseline_fixed_main.Rda")
 saveRDS(cases_primary,file="cases_baseline_primary_fixed_main.Rda")
 saveRDS(cases_secondary,file="cases_baseline_secondary_fixed_main.Rda")
 saveRDS(cases_others,file="cases_baseline_others_fixed_main.Rda")
+saveRDS(cases_diagnosed,file="cases_baseline_diagnosed_fixed_main.Rda")
 
 # compute quantiles for each row
 probs <- c(0.025, 0.25, 0.5, 0.75, 0.975)
-smr_pred <- t(apply(cases_low, 2, quantile, probs = probs, na.rm = TRUE))
+smr_pred <- t(apply(foi_high, 2, quantile, probs = probs, na.rm = TRUE))
 colnames(smr_pred) <- c("X2.5.", "X25.", "X50.", "X75.", "X97.5.")
 smr_pred <- as.data.frame(smr_pred)
 
 # box plot, output size (8, 6)
-df <- data.frame(
-  group = factor(2026:2040),
+df_foi_high <- data.frame(
+  group = factor(2004:2018),
   ymin = smr_pred$X2.5.[1:15],  # minimum
   lower = smr_pred$X25.[1:15],  # Q1
   middle = smr_pred$X50.[1:15], # median
   upper = smr_pred$X75.[1:15],  # Q3
   ymax = smr_pred$X97.5.[1:15], # maximum
-  year = 2026:2040              # year
+  year = 2004:2018              # year
 )
 
-saveRDS(df,file="data_baseline_lowrisk_fixed_main.Rda")
+saveRDS(df_foi_high,file="foi_baseline_high_fixed_main.Rda")
 
 # compute quantiles for each row
 probs <- c(0.025, 0.25, 0.5, 0.75, 0.975)
-smr_pred <- t(apply(cases_high, 2, quantile, probs = probs, na.rm = TRUE))
+smr_pred <- t(apply(foi_low, 2, quantile, probs = probs, na.rm = TRUE))
 colnames(smr_pred) <- c("X2.5.", "X25.", "X50.", "X75.", "X97.5.")
 smr_pred <- as.data.frame(smr_pred)
 
 # box plot, output size (8, 6)
-df <- data.frame(
-  group = factor(2026:2040),
+df_foi_low <- data.frame(
+  group = factor(2004:2018),
   ymin = smr_pred$X2.5.[1:15],  # minimum
   lower = smr_pred$X25.[1:15],  # Q1
   middle = smr_pred$X50.[1:15], # median
   upper = smr_pred$X75.[1:15],  # Q3
   ymax = smr_pred$X97.5.[1:15], # maximum
-  year = 2026:2040              # year
+  year = 2004:2018              # year
 )
 
-saveRDS(df,file="data_baseline_highrisk_fixed_main.Rda")
+saveRDS(df_foi_low,file="foi_baseline_low_fixed_main.Rda")
+
+# # compute quantiles for each row
+# probs <- c(0.025, 0.25, 0.5, 0.75, 0.975)
+# smr_pred <- t(apply(cases_low, 2, quantile, probs = probs, na.rm = TRUE))
+# colnames(smr_pred) <- c("X2.5.", "X25.", "X50.", "X75.", "X97.5.")
+# smr_pred <- as.data.frame(smr_pred)
+# 
+# # box plot, output size (8, 6)
+# df <- data.frame(
+#   group = factor(2026:2040),
+#   ymin = smr_pred$X2.5.[1:15],  # minimum
+#   lower = smr_pred$X25.[1:15],  # Q1
+#   middle = smr_pred$X50.[1:15], # median
+#   upper = smr_pred$X75.[1:15],  # Q3
+#   ymax = smr_pred$X97.5.[1:15], # maximum
+#   year = 2026:2040              # year
+# )
+# 
+# saveRDS(df,file="data_baseline_lowrisk_fixed_main.Rda")
+# 
+# # compute quantiles for each row
+# probs <- c(0.025, 0.25, 0.5, 0.75, 0.975)
+# smr_pred <- t(apply(cases_high, 2, quantile, probs = probs, na.rm = TRUE))
+# colnames(smr_pred) <- c("X2.5.", "X25.", "X50.", "X75.", "X97.5.")
+# smr_pred <- as.data.frame(smr_pred)
+# 
+# # box plot, output size (8, 6)
+# df <- data.frame(
+#   group = factor(2026:2040),
+#   ymin = smr_pred$X2.5.[1:15],  # minimum
+#   lower = smr_pred$X25.[1:15],  # Q1
+#   middle = smr_pred$X50.[1:15], # median
+#   upper = smr_pred$X75.[1:15],  # Q3
+#   ymax = smr_pred$X97.5.[1:15], # maximum
+#   year = 2026:2040              # year
+# )
+# 
+# saveRDS(df,file="data_baseline_highrisk_fixed_main.Rda")
 
 # compute quantiles for each row
 probs <- c(0.025, 0.25, 0.5, 0.75, 0.975)
@@ -263,7 +324,7 @@ saveRDS(df,file="data_baseline_fixed_main.Rda")
 
 ggplot(df, aes(x = group, ymin = ymin, lower = ymin, middle = middle, upper = ymax, ymax = ymax, color = 'Baseline')) +
   geom_boxplot(stat = "identity", fill = "salmon") +
-  labs(x = "Year", y = "Annual Number of Diagnosed Cases") +
+  labs(x = "Year", y = "Annual Number of Cases") +
   scale_color_manual(name = NULL, values = c("Baseline" = "darkred")) +
   theme_minimal(base_size = 13) +
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, NA)) +

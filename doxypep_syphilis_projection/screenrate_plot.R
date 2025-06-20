@@ -6,16 +6,16 @@ size = 35
 # plot averted cases
 averted_lowscreeningrate_0.1 <- data.frame(
   group = c('DbE', 'DoD(H)', 'DoD', 'DoA(H)', 'DoA', 'DaR'),
-  ymin = c(644, 494, 496, 4276, 4335, 4277),
-  middle = c(3287, 7606, 7607, 23542, 23586, 23543),
-  ymax = c(6854, 51220, 51336, 86942, 87473, 87008)
+  ymin = c(1964, 1509, 1510, 13064, 13230, 13067),
+  middle = c(10090, 23278, 23286, 72051, 72507, 72059),
+  ymax = c(21394, 160771, 161128, 269009, 269353, 269025)
 )
 
 averted_highscreeningrate_0.1 <- data.frame(
   group = c('DbE', 'DoD(H)', 'DoD', 'DoA(H)', 'DoA', 'DaR'),
-  ymin = c(550, 395, 396, 6587, 6604, 6587),
-  middle = c(2478, 4410, 4414, 24290, 24338, 24290),
-  ymax = c(6087, 27684, 27750, 93185, 93243, 93185)
+  ymin = c(1702, 1222, 1226, 20117, 20120, 20117),
+  middle = c(7606, 13476, 13485, 74275, 74367, 74277),
+  ymax = c(18513, 84823, 85130, 283930, 283938, 283930)
 )
 
 averted_lowscreeningrate_0.1$scenario <- "Low Screening Rate"
@@ -26,25 +26,22 @@ df_combined$group <- factor(df_combined$group, levels = c('DbE', 'DoD(H)', 'DoD'
 
 p1 <- ggplot(df_combined, aes(
   x = group,
+  y = middle,
   ymin = ymin,
-  lower = ymin,
-  middle = middle,
-  upper = ymax,
   ymax = ymax,
-  color = scenario,
-  fill = scenario
-)) +
-  geom_boxplot(stat = "identity", position = position_dodge(width = 0.8), width = 0.6) +
+  color = scenario
+)) + 
+  geom_pointrange(position = position_dodge(width = 0.4), shape = 18, size = 3, linewidth = 2) +
   labs(title = "A: Uptake Rate of 10.0%") +
   scale_color_manual(
     name = NULL,
     values = c("Low Screening Rate" = "purple", "High Screening Rate" = "darkorange")
   ) +
-  scale_fill_manual(
-    name = NULL,
-    values = c("Low Screening Rate" = "plum", "High Screening Rate" = "moccasin")
-  ) +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, 150000)) +
+  # scale_fill_manual(
+  #   name = NULL,
+  #   values = c("Low Screening Rate" = "plum", "High Screening Rate" = "moccasin")
+  # ) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, 500000), labels = function(x) format(x, scientific = FALSE, big.mark = "", trim = TRUE)) +
   theme_minimal(base_size = 13) +
   theme(
     panel.grid.major = element_blank(),
@@ -56,6 +53,7 @@ p1 <- ggplot(df_combined, aes(
     legend.box.background = element_rect(color = "black"),
     legend.margin = margin(0, 0, 0, 0),
     legend.box.margin = margin(0, 0, 0, 0),
+    legend.key.height = unit(3, "lines"),
     plot.title = element_text(hjust = 0.5, margin = margin(b = 0), size = size),
     axis.title.x = element_blank(),
     axis.text.x = element_blank(),
@@ -65,25 +63,25 @@ p1 <- ggplot(df_combined, aes(
     axis.line.y = element_line(color = "black", size = 0.5)
   )
 p1 <- p1 +
-  labs(tag = "(1)") +
+  labs(tag = "(1) Singapore") +
   theme(
-    plot.tag.position = c(0, 0.95),
-    plot.tag = element_text(size = size+10, hjust = 0, vjust = 0)
+    plot.tag.position = c(0, 0.97),
+    plot.tag = element_text(size = size, hjust = 0, vjust = 0)
   )
 
 # plot averted cases per prescription
 averted_lowscreeningrate_0.1 <- data.frame(
   group = c('DbE', 'DoD(H)', 'DoD', 'DoA(H)', 'DoA', 'DaR'),
-  ymin = c(0.17, 0.78, 0.62, 0.54, 0.20, 0.53),
-  middle = c(0.87, 3.17, 2.56, 2.77, 1.12, 2.69),
-  ymax = c(1.81, 6.78, 5.49, 6.99, 3.51, 6.18)
+  ymin = c(0.52, 2.40, 1.88, 1.66, 0.61, 1.63),
+  middle = c(2.67, 9.76, 7.86, 8.45, 3.47, 8.25),
+  ymax = c(5.65, 21.00, 17.13, 21.83, 10.99, 19.44)
 )
 
 averted_highscreeningrate_0.1 <- data.frame(
   group = c('DbE', 'DoD(H)', 'DoD', 'DoA(H)', 'DoA', 'DaR'),
-  ymin = c(0.15, 0.69, 0.55, 0.025, 0.007, 0.025),
-  middle = c(0.65, 2.60, 2.18, 0.12, 0.034, 0.12),
-  ymax = c(1.61, 6.25, 5.05, 1.52, 0.58, 1.49)
+  ymin = c(0.45, 2.12, 1.70, 0.077, 0.020, 0.077),
+  middle = c(2.01, 8.05, 6.70, 0.37, 0.10, 0.37),
+  ymax = c(4.89, 19.19, 15.63, 4.67, 1.77, 4.69)
 )
 
 averted_lowscreeningrate_0.1$scenario <- "Low Screening Rate"
@@ -94,25 +92,23 @@ df_combined$group <- factor(df_combined$group, levels = c('DbE', 'DoD(H)', 'DoD'
 
 p4 <- ggplot(df_combined, aes(
   x = group,
+  y = middle,
   ymin = ymin,
-  lower = ymin,
-  middle = middle,
-  upper = ymax,
   ymax = ymax,
-  color = scenario,
-  fill = scenario
-)) +
-  geom_boxplot(stat = "identity", position = position_dodge(width = 0.8), width = 0.6) +
+  color = scenario
+)) + 
+  geom_pointrange(position = position_dodge(width = 0.4), shape = 18, size = 3, linewidth = 2) +
   scale_color_manual(
     name = NULL,
     values = c("Low Screening Rate" = "purple", "High Screening Rate" = "darkorange")
   ) +
-  scale_fill_manual(
-    name = NULL,
-    values = c("Low Screening Rate" = "plum", "High Screening Rate" = "moccasin")
-  ) +
+  # scale_fill_manual(
+  #   name = NULL,
+  #   values = c("Low Screening Rate" = "plum", "High Screening Rate" = "moccasin")
+  # ) +
+  labs(title = "") +
   theme_minimal(base_size = 13) +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, NA)) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, 22)) +
   theme(
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
@@ -123,6 +119,7 @@ p4 <- ggplot(df_combined, aes(
     legend.box.background = element_rect(color = "black"),
     legend.margin = margin(0, 0, 0, 0),
     legend.box.margin = margin(0, 0, 0, 0),
+    legend.key.height = unit(3, "lines"),
     plot.title = element_text(hjust = 0.5, margin = margin(b = 0), size = size),
     axis.title.x = element_blank(),
     axis.text.x = element_text(size = size),
@@ -132,26 +129,26 @@ p4 <- ggplot(df_combined, aes(
     axis.line.y = element_line(color = "black", size = 0.5)
   )
 p4 <- p4 +
-  labs(tag = "(2)") +
+  labs(tag = "(2) Singapore") +
   theme(
-    plot.tag.position = c(0, 0.95),
-    plot.tag = element_text(size = size+10, hjust = 0, vjust = 0)
+    plot.tag.position = c(0, 0.97),
+    plot.tag = element_text(size = size, hjust = 0, vjust = 0)
   )
 
 ############################ uptake rate of 0.33 ############################
 # plot averted cases
 averted_lowscreeningrate_0.33 <- data.frame(
   group = c('DbE', 'DoD(H)', 'DoD', 'DoA(H)', 'DoA', 'DaR'),
-  ymin = c(1911, 1404, 1404, 6791, 6798, 6791),
-  middle = c(9962, 16164, 16168, 32620, 32675, 32621),
-  ymax = c(22356, 93784, 93901, 139078, 139247, 139083)
+  ymin = c(5836, 4297, 4298, 20606, 20626, 20606),
+  middle = c(30547, 49461, 49508, 99568, 99664, 99572),
+  ymax = c(69478, 294407, 294776, 436027, 437446, 436028)
 )
 
 averted_highscreeningrate_0.33 <- data.frame(
   group = c('DbE', 'DoD(H)', 'DoD', 'DoA(H)', 'DoA', 'DaR'),
-  ymin = c(1615, 1140, 1142, 6833, 6835, 6833),
-  middle = c(7291, 9973, 9989, 24708, 24711, 24708),
-  ymax = c(19051, 53127, 53268, 93599, 93601, 93599)
+  ymin = c(4985, 3507, 3526, 20720, 20721, 20720),
+  middle = c(22386, 30652, 30705, 75471, 75484, 75471),
+  ymax = c(58439, 162306, 162368, 283872, 283976, 283972)
 )
 
 averted_lowscreeningrate_0.33$scenario <- "Low Screening Rate"
@@ -162,26 +159,23 @@ df_combined$group <- factor(df_combined$group, levels = c('DbE', 'DoD(H)', 'DoD'
 
 p2 <- ggplot(df_combined, aes(
   x = group,
+  y = middle,
   ymin = ymin,
-  lower = ymin,
-  middle = middle,
-  upper = ymax,
   ymax = ymax,
-  color = scenario,
-  fill = scenario
-)) +
-  geom_boxplot(stat = "identity", position = position_dodge(width = 0.8), width = 0.6) +
+  color = scenario
+)) + 
+  geom_pointrange(position = position_dodge(width = 0.4), shape = 18, size = 3, linewidth = 2) +
   labs(title = "B: Uptake Rate of 33.0%") +
   scale_color_manual(
     name = NULL,
     values = c("Low Screening Rate" = "purple", "High Screening Rate" = "darkorange")
   ) +
-  scale_fill_manual(
-    name = NULL,
-    values = c("Low Screening Rate" = "plum", "High Screening Rate" = "moccasin")
-  ) +
+  # scale_fill_manual(
+  #   name = NULL,
+  #   values = c("Low Screening Rate" = "plum", "High Screening Rate" = "moccasin")
+  # ) +
   theme_minimal(base_size = 13) +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, 150000), labels = function(x) format(x, scientific = FALSE, big.mark = "", trim = TRUE)) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, 500000), labels = function(x) format(x, scientific = FALSE, big.mark = "", trim = TRUE)) +
   theme(
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
@@ -192,6 +186,7 @@ p2 <- ggplot(df_combined, aes(
     legend.box.background = element_rect(color = "black"),
     legend.margin = margin(0, 0, 0, 0),
     legend.box.margin = margin(0, 0, 0, 0),
+    legend.key.height = unit(3, "lines"),
     plot.title = element_text(hjust = 0.5, margin = margin(b = 0), size = size),
     axis.title.x = element_blank(),
     axis.text.x = element_blank(),
@@ -205,16 +200,16 @@ p2 <- ggplot(df_combined, aes(
 # plot averted cases per prescription
 averted_lowscreeningrate_0.33 <- data.frame(
   group = c('DbE', 'DoD(H)', 'DoD', 'DoA(H)', 'DoA', 'DaR'),
-  ymin = c(0.15, 0.76, 0.60, 0.28, 0.099, 0.28),
-  middle = c(0.80, 3.02, 2.42, 1.33, 0.51, 1.31),
-  ymax = c(1.79, 6.56, 5.26, 5.23, 2.13, 5.00)
+  ymin = c(0.47, 2.31, 1.82, 0.85, 0.30, 0.85),
+  middle = c(2.44, 9.26, 7.41, 4.04, 1.56, 4.01),
+  ymax = c(5.56, 20.22, 16.34, 16.25, 6.61, 15.38)
 )
 
 averted_highscreeningrate_0.33 <- data.frame(
   group = c('DbE', 'DoD(H)', 'DoD', 'DoA(H)', 'DoA', 'DaR'),
-  ymin = c(0.13, 0.67, 0.54, 0.017, 0.004, 0.017),
-  middle = c(0.58, 2.46, 2.06, 0.075, 0.020, 0.075),
-  ymax = c(1.52, 5.89, 4.78, 0.62, 0.22, 0.62)
+  ymin = c(0.40, 2.06, 1.64, 0.051, 0.013, 0.05),
+  middle = c(1.79, 7.61, 6.33, 0.23, 0.062, 0.23),
+  ymax = c(4.68, 18.12, 14.89, 1.92, 0.69, 1.91)
 )
 
 averted_lowscreeningrate_0.33$scenario <- "Low Screening Rate"
@@ -225,25 +220,23 @@ df_combined$group <- factor(df_combined$group, levels = c('DbE', 'DoD(H)', 'DoD'
 
 p5 <- ggplot(df_combined, aes(
   x = group,
+  y = middle,
   ymin = ymin,
-  lower = ymin,
-  middle = middle,
-  upper = ymax,
   ymax = ymax,
-  color = scenario,
-  fill = scenario
-)) +
-  geom_boxplot(stat = "identity", position = position_dodge(width = 0.8), width = 0.6) +
+  color = scenario
+)) + 
+  geom_pointrange(position = position_dodge(width = 0.4), shape = 18, size = 3, linewidth = 2) +
   scale_color_manual(
     name = NULL,
     values = c("Low Screening Rate" = "purple", "High Screening Rate" = "darkorange")
   ) +
-  scale_fill_manual(
-    name = NULL,
-    values = c("Low Screening Rate" = "plum", "High Screening Rate" = "moccasin")
-  ) +
+  # scale_fill_manual(
+  #   name = NULL,
+  #   values = c("Low Screening Rate" = "plum", "High Screening Rate" = "moccasin")
+  # ) +
+  labs(title = "") +
   theme_minimal(base_size = 13) +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, NA)) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, 22)) +
   theme(
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
@@ -254,6 +247,7 @@ p5 <- ggplot(df_combined, aes(
     legend.box.background = element_rect(color = "black"),
     legend.margin = margin(0, 0, 0, 0),
     legend.box.margin = margin(0, 0, 0, 0),
+    legend.key.height = unit(3, "lines"),
     plot.title = element_text(hjust = 0.5, margin = margin(b = 0), size = size),
     axis.title.x = element_text(size = size),
     axis.text.x = element_text(size = size),
@@ -268,16 +262,16 @@ p5 <- ggplot(df_combined, aes(
 # plot averted cases
 averted_lowscreeningrate_0.66 <- data.frame(
   group = c('DbE', 'DoD(H)', 'DoD', 'DoA(H)', 'DoA', 'DaR'),
-  ymin = c(3306, 2357, 2358, 7383, 7389, 7383),
-  middle = c(17427, 21826, 21828, 34071, 34084, 34071),
-  ymax = c(43359, 114649, 114716, 149057, 149134, 149058)
+  ymin = c(10097, 7212, 7215, 22393, 22410, 22393),
+  middle = c(52963, 66988, 66989, 104403, 104526, 104405),
+  ymax = c(133516, 360697, 360695, 461768, 461822, 461768)
 )
 
 averted_highscreeningrate_0.66 <- data.frame(
   group = c('DbE', 'DoD(H)', 'DoD', 'DoA(H)', 'DoA', 'DaR'),
-  ymin = c(2765, 1937, 1946, 6869, 6869, 6869),
-  middle = c(12455, 13853, 13855, 24718, 24720, 24718),
-  ymax = c(35778, 67012, 67090, 93602, 93604, 93602)
+  ymin = c(8554, 5935, 5960, 21032, 21038, 21032),
+  middle = c(38143, 42739, 42799, 75761, 75764, 75761),
+  ymax = c(109313, 204607, 205162, 283973, 283977, 283973)
 )
 
 averted_lowscreeningrate_0.66$scenario <- "Low Screening Rate"
@@ -288,26 +282,23 @@ df_combined$group <- factor(df_combined$group, levels = c('DbE', 'DoD(H)', 'DoD'
 
 p3 <- ggplot(df_combined, aes(
   x = group,
+  y = middle,
   ymin = ymin,
-  lower = ymin,
-  middle = middle,
-  upper = ymax,
   ymax = ymax,
-  color = scenario,
-  fill = scenario
-)) +
-  geom_boxplot(stat = "identity", position = position_dodge(width = 0.8), width = 0.6) +
+  color = scenario
+)) + 
+  geom_pointrange(position = position_dodge(width = 0.4), shape = 18, size = 3, linewidth = 2) +
   labs(title = "C: Uptake Rate of 66.0%") +
   scale_color_manual(
     name = NULL,
     values = c("Low Screening Rate" = "purple", "High Screening Rate" = "darkorange")
   ) +
-  scale_fill_manual(
-    name = NULL,
-    values = c("Low Screening Rate" = "plum", "High Screening Rate" = "moccasin")
-  ) +
+  # scale_fill_manual(
+  #   name = NULL,
+  #   values = c("Low Screening Rate" = "plum", "High Screening Rate" = "moccasin")
+  # ) +
   theme_minimal(base_size = 13) +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, 150000)) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, 500000)) +
   theme(
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
@@ -318,6 +309,7 @@ p3 <- ggplot(df_combined, aes(
     legend.box.background = element_rect(color = "black"),
     legend.margin = margin(0, 0, 0, 0),
     legend.box.margin = margin(0, 0, 0, 0),
+    legend.key.height = unit(3, "lines"),
     plot.title = element_text(hjust = 0.5, margin = margin(b = 0), size = size),
     axis.title.x = element_blank(),
     axis.text.x = element_blank(),
@@ -331,16 +323,16 @@ p3 <- ggplot(df_combined, aes(
 # plot averted cases per prescription
 averted_lowscreeningrate_0.66 <- data.frame(
   group = c('DbE', 'DoD(H)', 'DoD', 'DoA(H)', 'DoA', 'DaR'),
-  ymin = c(0.13, 0.72, 0.57, 0.16, 0.058, 0.16),
-  middle = c(0.70, 2.85, 2.30, 0.75, 0.28, 0.74),
-  ymax = c(1.74, 6.30, 5.01, 3.23, 1.21, 3.18)
+  ymin = c(0.40, 2.22, 1.75, 0.49, 0.18, 0.49),
+  middle = c(2.12, 8.74, 7.04, 2.29, 0.86, 2.28),
+  ymax = c(5.34, 19.38, 15.65, 9.97, 3.73, 9.96)
 )
 
 averted_highscreeningrate_0.66 <- data.frame(
   group = c('DbE', 'DoD(H)', 'DoD', 'DoA(H)', 'DoA', 'DaR'),
-  ymin = c(0.11, 0.64, 0.52, 0.012, 0.003, 0.012),
-  middle = c(0.50, 2.32, 1.94, 0.057, 0.015, 0.057),
-  ymax = c(1.43, 5.58, 4.59, 0.37, 0.13, 0.37)
+  ymin = c(0.34, 1.99, 1.59, 0.036, 0.010, 0.036),
+  middle = c(1.53, 7.17, 5.97, 0.18, 0.047, 0.18),
+  ymax = c(4.37, 17.15, 14.26, 1.15, 0.41, 1.14)
 )
 
 averted_lowscreeningrate_0.66$scenario <- "Low Screening Rate"
@@ -351,25 +343,23 @@ df_combined$group <- factor(df_combined$group, levels = c('DbE', 'DoD(H)', 'DoD'
 
 p6 <- ggplot(df_combined, aes(
   x = group,
+  y = middle,
   ymin = ymin,
-  lower = ymin,
-  middle = middle,
-  upper = ymax,
   ymax = ymax,
-  color = scenario,
-  fill = scenario
-)) +
-  geom_boxplot(stat = "identity", position = position_dodge(width = 0.8), width = 0.6) +
+  color = scenario
+)) + 
+  geom_pointrange(position = position_dodge(width = 0.4), shape = 18, size = 3, linewidth = 2) +
   scale_color_manual(
     name = NULL,
     values = c("Low Screening Rate" = "purple", "High Screening Rate" = "darkorange")
   ) +
-  scale_fill_manual(
-    name = NULL,
-    values = c("Low Screening Rate" = "plum", "High Screening Rate" = "moccasin")
-  ) +
+  # scale_fill_manual(
+  #   name = NULL,
+  #   values = c("Low Screening Rate" = "plum", "High Screening Rate" = "moccasin")
+  # ) +
+  labs(title = "") +
   theme_minimal(base_size = 13) +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, NA)) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, 22)) +
   theme(
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
@@ -380,6 +370,7 @@ p6 <- ggplot(df_combined, aes(
     legend.box.background = element_rect(color = "black"),
     legend.margin = margin(0, 0, 0, 0),
     legend.box.margin = margin(0, 0, 0, 0),
+    legend.key.height = unit(3, "lines"),
     plot.title = element_text(hjust = 0.5, margin = margin(b = 0), size = size),
     axis.title.x = element_blank(),
     axis.text.x = element_text(size = size),
@@ -401,7 +392,7 @@ row_averted <- (p1 + p2 + p3 + plot_layout(ncol = 3, guides = "collect")) &
   ) &
   labs(
     x = "Doxy-PEP Strategy",
-    y = "Total Number of \n Averted Diagnosed Cases"
+    y = "Total Number of \n Averted Cases"
   )
 
 row_averted_per_prescription <- (p4 + p5 + p6 + plot_layout(ncol = 3, guides = "collect")) &
@@ -415,7 +406,7 @@ row_averted_per_prescription <- (p4 + p5 + p6 + plot_layout(ncol = 3, guides = "
   ) &
   labs(
     x = "Doxy-PEP Strategy",
-    y = "Number of Averted Diagnosed \n Cases per Prescription"
+    y = "Number of Averted \n Cases per Prescription"
   )
 
 # combine and plot
