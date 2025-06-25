@@ -7,9 +7,9 @@ size = 35
 # plot averted cases
 averted_lowbehaviouralpattern_0.1 <- data.frame(
   group = c('DbE', 'DoD(H)', 'DoD', 'DoA(H)', 'DoA', 'DaR'),
-  ymin = c(),
-  middle = c(),
-  ymax = c()
+  ymin = c(972, 700, 702, 19499, 19507, 19499),
+  middle = c(4279, 8310, 8321, 73221, 73249, 73221),
+  ymax = c(10117, 55178, 55321, 277301, 277752, 277204)
 )
 
 averted_normalbehaviouralpattern_0.1 <- data.frame(
@@ -21,9 +21,9 @@ averted_normalbehaviouralpattern_0.1 <- data.frame(
 
 averted_highbehaviouralpattern_0.1 <- data.frame(
   group = c('DbE', 'DoD(H)', 'DoD', 'DoA(H)', 'DoA', 'DaR'),
-  ymin = c(),
-  middle = c(),
-  ymax = c()
+  ymin = c(2673, 1927, 1933, 20592, 20601, 20592),
+  middle = c(12251, 19467, 19479, 74628, 74647, 74628),
+  ymax = c(31121, 115829, 115851, 283940, 283947, 283940)
 )
 
 averted_lowbehaviouralpattern_0.1$scenario <- "Low Adherence Behavioural Pattern"
@@ -32,6 +32,7 @@ averted_highbehaviouralpattern_0.1$scenario <- "High Adherence Behavioural Patte
 
 df_combined <- rbind(averted_lowbehaviouralpattern_0.1, averted_normalbehaviouralpattern_0.1, averted_highbehaviouralpattern_0.1)
 df_combined$group <- factor(df_combined$group, levels = c('DbE', 'DoD(H)', 'DoD', 'DoA(H)', 'DoA', 'DaR'))
+df_combined$scenario <- factor(df_combined$scenario, levels = c("High Adherence Behavioural Pattern", "Normal Adherence Behavioural Pattern", "Low Adherence Behavioural Pattern"))
 
 p1 <- ggplot(df_combined, aes(
   x = group,
@@ -46,7 +47,7 @@ p1 <- ggplot(df_combined, aes(
     name = NULL,
     values = c("Low Adherence Behavioural Pattern" = "darkgreen", "Normal Adherence Behavioural Pattern" = "goldenrod", "High Adherence Behavioural Pattern" = "darkred")
   ) +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, 500000), labels = function(x) format(x, scientific = FALSE, big.mark = "", trim = TRUE)) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, 290000), labels = function(x) format(x, scientific = FALSE, big.mark = "", trim = TRUE)) +
   theme_minimal(base_size = 13) +
   theme(
     panel.grid.major = element_blank(),
@@ -77,9 +78,9 @@ p1 <- p1 +
 # plot averted cases per prescription
 averted_lowbehaviouralpattern_0.1 <- data.frame(
   group = c('DbE', 'DoD(H)', 'DoD', 'DoA(H)', 'DoA', 'DaR'),
-  ymin = c(),
-  middle = c(),
-  ymax = c()
+  ymin = c(0.26, 1.19, 0.96, 0.049, 0.014, 0.049),
+  middle = c(1.13, 4.56, 3.78, 0.26, 0.078, 0.26),
+  ymax = c(2.67, 10.76, 8.75, 3.65, 1.44, 3.60)
 )
 
 averted_normalbehaviouralpattern_0.1 <- data.frame(
@@ -91,9 +92,9 @@ averted_normalbehaviouralpattern_0.1 <- data.frame(
 
 averted_highbehaviouralpattern_0.1 <- data.frame(
   group = c('DbE', 'DoD(H)', 'DoD', 'DoA(H)', 'DoA', 'DaR'),
-  ymin = c(),
-  middle = c(),
-  ymax = c()
+  ymin = c(0.71, 3.45, 2.76, 0.12, 0.030, 0.12),
+  middle = c(3.24, 13.01, 10.87, 0.53, 0.14, 0.52),
+  ymax = c(8.22, 31.62, 25.76, 5.25, 1.95, 5.25)
 )
 
 averted_lowbehaviouralpattern_0.1$scenario <- "Low Adherence Behavioural Pattern"
@@ -102,6 +103,7 @@ averted_highbehaviouralpattern_0.1$scenario <- "High Adherence Behavioural Patte
 
 df_combined <- rbind(averted_lowbehaviouralpattern_0.1, averted_normalbehaviouralpattern_0.1, averted_highbehaviouralpattern_0.1)
 df_combined$group <- factor(df_combined$group, levels = c('DbE', 'DoD(H)', 'DoD', 'DoA(H)', 'DoA', 'DaR'))
+df_combined$scenario <- factor(df_combined$scenario, levels = c("High Adherence Behavioural Pattern", "Normal Adherence Behavioural Pattern", "Low Adherence Behavioural Pattern"))
 
 p4 <- ggplot(df_combined, aes(
   x = group,
@@ -117,7 +119,7 @@ p4 <- ggplot(df_combined, aes(
   ) +
   labs(title = "") +
   theme_minimal(base_size = 13) +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, 22)) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, 32)) +
   theme(
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
@@ -148,9 +150,9 @@ p4 <- p4 +
 # plot averted cases
 averted_lowbehaviouralpattern_0.33 <- data.frame(
   group = c('DbE', 'DoD(H)', 'DoD', 'DoA(H)', 'DoA', 'DaR'),
-  ymin = c(),
-  middle = c(),
-  ymax = c()
+  ymin = c(3009, 2124, 2132, 20712, 20713, 20712),
+  middle = c(13200, 21156, 21182, 75181, 75196, 75181),
+  ymax = c(32679, 122282, 122851, 283971, 283975, 283971)
 )
 
 averted_normalbehaviouralpattern_0.33 <- data.frame(
@@ -162,9 +164,9 @@ averted_normalbehaviouralpattern_0.33 <- data.frame(
 
 averted_highbehaviouralpattern_0.33 <- data.frame(
   group = c('DbE', 'DoD(H)', 'DoD', 'DoA(H)', 'DoA', 'DaR'),
-  ymin = c(),
-  middle = c(),
-  ymax = c()
+  ymin = c(7294, 5166, 5179, 20937, 21003, 20937),
+  middle = c(33383, 39818, 39900, 75532, 75554, 75532),
+  ymax = c(94504, 195468, 195900, 283972, 283976, 283972)
 )
 
 averted_lowbehaviouralpattern_0.33$scenario <- "Low Adherence Behavioural Pattern"
@@ -173,6 +175,7 @@ averted_highbehaviouralpattern_0.33$scenario <- "High Adherence Behavioural Patt
 
 df_combined <- rbind(averted_lowbehaviouralpattern_0.33, averted_normalbehaviouralpattern_0.33, averted_highbehaviouralpattern_0.33)
 df_combined$group <- factor(df_combined$group, levels = c('DbE', 'DoD(H)', 'DoD', 'DoA(H)', 'DoA', 'DaR'))
+df_combined$scenario <- factor(df_combined$scenario, levels = c("High Adherence Behavioural Pattern", "Normal Adherence Behavioural Pattern", "Low Adherence Behavioural Pattern"))
 
 p2 <- ggplot(df_combined, aes(
   x = group,
@@ -188,7 +191,7 @@ p2 <- ggplot(df_combined, aes(
     values = c("Low Adherence Behavioural Pattern" = "darkgreen", "Normal Adherence Behavioural Pattern" = "goldenrod", "High Adherence Behavioural Pattern" = "darkred")
   ) +
   theme_minimal(base_size = 13) +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, 500000), labels = function(x) format(x, scientific = FALSE, big.mark = "", trim = TRUE)) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, 290000), labels = function(x) format(x, scientific = FALSE, big.mark = "", trim = TRUE)) +
   theme(
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
@@ -213,9 +216,9 @@ p2 <- ggplot(df_combined, aes(
 # plot averted cases per prescription
 averted_lowbehaviouralpattern_0.33 <- data.frame(
   group = c('DbE', 'DoD(H)', 'DoD', 'DoA(H)', 'DoA', 'DaR'),
-  ymin = c(),
-  middle = c(),
-  ymax = c()
+  ymin = c(0.24, 1.17, 0.94, 0.033, 0.0086, 0.033),
+  middle = c(1.06, 4.36, 3.61, 0.15, 0.042, 0.15),
+  ymax = c(2.62, 10.23, 8.42, 1.62, 0.60, 1.60)
 )
 
 averted_normalbehaviouralpattern_0.33 <- data.frame(
@@ -227,9 +230,9 @@ averted_normalbehaviouralpattern_0.33 <- data.frame(
 
 averted_highbehaviouralpattern_0.33 <- data.frame(
   group = c('DbE', 'DoD(H)', 'DoD', 'DoA(H)', 'DoA', 'DaR'),
-  ymin = c(),
-  middle = c(),
-  ymax = c()
+  ymin = c(0.58, 3.32, 2.65, 0.072, 0.020, 0.072),
+  middle = c(2.67, 12.21, 10.20, 0.34, 0.091, 0.34),
+  ymax = c(7.56, 30.19, 24.87, 2.20, 0.79, 2.19)
 )
 
 averted_lowbehaviouralpattern_0.33$scenario <- "Low Adherence Behavioural Pattern"
@@ -238,6 +241,7 @@ averted_highbehaviouralpattern_0.33$scenario <- "High Adherence Behavioural Patt
 
 df_combined <- rbind(averted_lowbehaviouralpattern_0.33, averted_normalbehaviouralpattern_0.33, averted_highbehaviouralpattern_0.33)
 df_combined$group <- factor(df_combined$group, levels = c('DbE', 'DoD(H)', 'DoD', 'DoA(H)', 'DoA', 'DaR'))
+df_combined$scenario <- factor(df_combined$scenario, levels = c("High Adherence Behavioural Pattern", "Normal Adherence Behavioural Pattern", "Low Adherence Behavioural Pattern"))
 
 p5 <- ggplot(df_combined, aes(
   x = group,
@@ -253,7 +257,7 @@ p5 <- ggplot(df_combined, aes(
   ) +
   labs(title = "") +
   theme_minimal(base_size = 13) +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, 22)) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, 32)) +
   theme(
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
@@ -279,9 +283,9 @@ p5 <- ggplot(df_combined, aes(
 # plot averted cases
 averted_lowbehaviouralpattern_0.66 <- data.frame(
   group = c('DbE', 'DoD(H)', 'DoD', 'DoA(H)', 'DoA', 'DaR'),
-  ymin = c(),
-  middle = c(),
-  ymax = c()
+  ymin = c(5499, 3818, 3839, 21030, 21036, 21030),
+  middle = c(24251, 32459, 32509, 75686, 75707, 75686),
+  ymax = c(63183, 167472, 168138, 283973, 283976, 283973)
 )
 
 averted_normalbehaviouralpattern_0.66 <- data.frame(
@@ -293,9 +297,9 @@ averted_normalbehaviouralpattern_0.66 <- data.frame(
 
 averted_highbehaviouralpattern_0.66 <- data.frame(
   group = c('DbE', 'DoD(H)', 'DoD', 'DoA(H)', 'DoA', 'DaR'),
-  ymin = c(),
-  middle = c(),
-  ymax = c()
+  ymin = c(11268, 8193, 8198, 21157, 21157, 21157),
+  middle = c(50904, 51058, 51080, 75762, 75765, 75762),
+  ymax = c(166182, 213123, 231724, 283974, 283977, 283974)
 )
 
 averted_lowbehaviouralpattern_0.66$scenario <- "Low Adherence Behavioural Pattern"
@@ -304,6 +308,7 @@ averted_highbehaviouralpattern_0.66$scenario <- "High Adherence Behavioural Patt
 
 df_combined <- rbind(averted_lowbehaviouralpattern_0.66, averted_normalbehaviouralpattern_0.66, averted_highbehaviouralpattern_0.66)
 df_combined$group <- factor(df_combined$group, levels = c('DbE', 'DoD(H)', 'DoD', 'DoA(H)', 'DoA', 'DaR'))
+df_combined$scenario <- factor(df_combined$scenario, levels = c("High Adherence Behavioural Pattern", "Normal Adherence Behavioural Pattern", "Low Adherence Behavioural Pattern"))
 
 p3 <- ggplot(df_combined, aes(
   x = group,
@@ -319,7 +324,7 @@ p3 <- ggplot(df_combined, aes(
     values = c("Low Adherence Behavioural Pattern" = "darkgreen", "Normal Adherence Behavioural Pattern" = "goldenrod", "High Adherence Behavioural Pattern" = "darkred")
   ) +
   theme_minimal(base_size = 13) +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, 500000)) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, 290000)) +
   theme(
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
@@ -344,9 +349,9 @@ p3 <- ggplot(df_combined, aes(
 # plot averted cases per prescription
 averted_lowbehaviouralpattern_0.66 <- data.frame(
   group = c('DbE', 'DoD(H)', 'DoD', 'DoA(H)', 'DoA', 'DaR'),
-  ymin = c(),
-  middle = c(),
-  ymax = c()
+  ymin = c(0.22, 1.14, 0.92, 0.025, 0.0068, 0.025),
+  middle = c(0.97, 4.17, 3.46, 0.12, 0.032, 0.12),
+  ymax = c(2.53, 9.77, 8.06, 0.98, 0.35, 0.98)
 )
 
 averted_normalbehaviouralpattern_0.66 <- data.frame(
@@ -358,9 +363,9 @@ averted_normalbehaviouralpattern_0.66 <- data.frame(
 
 averted_highbehaviouralpattern_0.66 <- data.frame(
   group = c('DbE', 'DoD(H)', 'DoD', 'DoA(H)', 'DoA', 'DaR'),
-  ymin = c(),
-  middle = c(),
-  ymax = c()
+  ymin = c(0.45, 3.17, 2.52, 0.045, 0.014, 0.045),
+  middle = c(2.04, 11.51, 9.61, 0.25, 0.068, 0.25),
+  ymax = c(6.65, 29.06, 24.04, 1.59, 0.48, 1.59)
 )
 
 averted_lowbehaviouralpattern_0.66$scenario <- "Low Adherence Behavioural Pattern"
@@ -369,6 +374,7 @@ averted_highbehaviouralpattern_0.66$scenario <- "High Adherence Behavioural Patt
 
 df_combined <- rbind(averted_lowbehaviouralpattern_0.66, averted_normalbehaviouralpattern_0.66, averted_highbehaviouralpattern_0.66)
 df_combined$group <- factor(df_combined$group, levels = c('DbE', 'DoD(H)', 'DoD', 'DoA(H)', 'DoA', 'DaR'))
+df_combined$scenario <- factor(df_combined$scenario, levels = c("High Adherence Behavioural Pattern", "Normal Adherence Behavioural Pattern", "Low Adherence Behavioural Pattern"))
 
 p6 <- ggplot(df_combined, aes(
   x = group,
@@ -384,7 +390,7 @@ p6 <- ggplot(df_combined, aes(
   ) +
   labs(title = "") +
   theme_minimal(base_size = 13) +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, 22)) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, 32)) +
   theme(
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
@@ -873,6 +879,7 @@ row_averted_per_prescription_uk <- (p10 + p11 + p12 + plot_layout(ncol = 3, guid
   )
 
 # combine and plot
+# (48, 24)
 final_plot <- plot_spacer() / row_averted /
   plot_spacer() /
   row_averted_per_prescription /
