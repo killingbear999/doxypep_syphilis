@@ -6,4 +6,4 @@ Requires: RStan (version 2.32.7), R (version 4.5.0), deSolve package (version 1.
 
 The code is not organized yet.
 
-![alt text](https://github.com/killingbear999/doxypep_syphilis/blob/main/doxyPEP_syphilis.png)
+![alt text]()
