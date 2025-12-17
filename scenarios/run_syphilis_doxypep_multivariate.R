@@ -29,16 +29,16 @@ get_pi <- function(c_target, N_target, c_remain, N_remain) {
 }
 
 get_lambda <- function(t, t_0, c, beta, phi_beta, epsilon, C_target, N_target, pi_target, C_remain, N_remain, pi_remain, isFixed) {
-  if (isFixed && t > 17) {
-    t <- 17
+  if (isFixed && t > 20) {
+    t <- 20
   }
   return(c * beta * (1 + phi_beta * (t - t_0)) * (epsilon * C_target / N_target + (1 - epsilon) * 
                                                     (pi_target * C_target / N_target + pi_remain * C_remain / N_remain)))
 }
 
 get_eta <- function(t, t_0, eta_H_init, phi_eta, isFixed) {
-  if (isFixed && t > 17) {
-    t <- 17
+  if (isFixed && t > 20) {
+    t <- 20
   }
   return(eta_H_init * (1 + phi_eta * (t - t_0)))
 }
@@ -214,15 +214,15 @@ syphilis_model <- function(t, y, parms) {
 run_doxypep <- function(is_p_DbE, is_p_DoD_H, is_p_DoD_L, is_p_DoS_H, is_p_DoS_L) {
   
   # Annual MSM population entrants (at age 15)
-  alpha <- 12000
+  alpha <- 2524
   
   # Proportion of the MSM population in group j
-  q_H <- 0.15
-  q_L <- 0.85
+  q_H <- 0.207
+  q_L <- 0.793
   
   # Annual rate of partner change in group j
-  c_H <- 15.6
-  c_L <- 0.6
+  c_H <- 14.866
+  c_L <- 1.989
   
   # Years spent in the sexually-active population
   gamma <- 50
@@ -238,7 +238,7 @@ run_doxypep <- function(is_p_DbE, is_p_DoD_H, is_p_DoD_L, is_p_DoS_H, is_p_DoS_L
   xi_M <- -log(1-0.02)/1.5
   
   # load calibrated parameters
-  fit_syphilis_negbin <- readRDS("fit_results_fixedinitialstate_burntin_UK.rds")
+  fit_syphilis_negbin <- readRDS("fit_results_fixedinitialstate_burntin_main.rds")
   
   # extract all posterior samples for these parameters as a list (permuted = TRUE merges chains)
   pars=c('beta', 'phi_beta', 'epsilon', 'rho', 'eta_H_init', 'phi_eta', 'omega', 'sigma', 'mu', 'psi_S', 'psi_E', 'psi_L', 'kappa_D')
@@ -266,8 +266,8 @@ run_doxypep <- function(is_p_DbE, is_p_DoD_H, is_p_DoD_L, is_p_DoS_H, is_p_DoS_L
   cases_baseline_secondary <- matrix(NA, nrow = n_iter, ncol = n_years)
   cases_baseline_others <- matrix(NA, nrow = n_iter, ncol = n_years)
   cases_baseline_diagnosed <- matrix(NA, nrow = n_iter, ncol = n_years)
-  foi_baseline_high <- matrix(NA, nrow = n_iter, ncol = n_years-3)
-  foi_baseline_low <- matrix(NA, nrow = n_iter, ncol = n_years-3)
+  foi_baseline_high <- matrix(NA, nrow = n_iter, ncol = n_years)
+  foi_baseline_low <- matrix(NA, nrow = n_iter, ncol = n_years)
   
   # define parameters for projection
   cases <- matrix(NA, nrow = n_iter, ncol = n_years)
@@ -315,7 +315,7 @@ run_doxypep <- function(is_p_DbE, is_p_DoD_H, is_p_DoD_L, is_p_DoS_H, is_p_DoS_L
     #################################################################### Projection ####################################################################
     for (i in 1:n_iter_calibration) {
       # times
-      t <- seq(17, 17+n_years+1, by = 1)
+      t <- seq(20, 20+n_years+1, by = 1)
       t_0 = 0 
       t <- t[-1]
       
@@ -326,14 +326,14 @@ run_doxypep <- function(is_p_DbE, is_p_DoD_H, is_p_DoD_L, is_p_DoS_H, is_p_DoS_L
       samples_y <- rstan::extract(fit_syphilis_negbin, pars = "y", permuted = TRUE)
       # high-risk group
       # non-doxy-pep (N)
-      U_N_H = median(samples_y$y[, 17, 1])
-      I_N_H = median(samples_y$y[, 17, 2])
-      P_N_H = median(samples_y$y[, 17, 3])
-      S_N_H = median(samples_y$y[, 17, 4])
-      E_N_H = median(samples_y$y[, 17, 5])
-      L_N_H = median(samples_y$y[, 17, 6])
-      T_N_H = median(samples_y$y[, 17, 7])
-      R_N_H = median(samples_y$y[, 17, 8])
+      U_N_H = median(samples_y$y[, 20, 1])
+      I_N_H = median(samples_y$y[, 20, 2])
+      P_N_H = median(samples_y$y[, 20, 3])
+      S_N_H = median(samples_y$y[, 20, 4])
+      E_N_H = median(samples_y$y[, 20, 5])
+      L_N_H = median(samples_y$y[, 20, 6])
+      T_N_H = median(samples_y$y[, 20, 7])
+      R_N_H = median(samples_y$y[, 20, 8])
       # doxy-inconsistent (X)
       U_X_H = 0
       I_X_H = 0
@@ -363,14 +363,14 @@ run_doxypep <- function(is_p_DbE, is_p_DoD_H, is_p_DoD_L, is_p_DoS_H, is_p_DoS_L
       R_M_H = 0
       # low-risk group
       # non-doxy-pep (N)
-      U_N_L = median(samples_y$y[, 17, 9])
-      I_N_L = median(samples_y$y[, 17, 10])
-      P_N_L = median(samples_y$y[, 17, 11])
-      S_N_L = median(samples_y$y[, 17, 12])
-      E_N_L = median(samples_y$y[, 17, 13])
-      L_N_L = median(samples_y$y[, 17, 14])
-      T_N_L = median(samples_y$y[, 17, 15])
-      R_N_L = median(samples_y$y[, 17, 16])
+      U_N_L = median(samples_y$y[, 20, 9])
+      I_N_L = median(samples_y$y[, 20, 10])
+      P_N_L = median(samples_y$y[, 20, 11])
+      S_N_L = median(samples_y$y[, 20, 12])
+      E_N_L = median(samples_y$y[, 20, 13])
+      L_N_L = median(samples_y$y[, 20, 14])
+      T_N_L = median(samples_y$y[, 20, 15])
+      R_N_L = median(samples_y$y[, 20, 16])
       # doxy-inconsistent (X)
       U_X_L = 0
       I_X_L = 0
@@ -446,21 +446,21 @@ run_doxypep <- function(is_p_DbE, is_p_DoD_H, is_p_DoD_L, is_p_DoS_H, is_p_DoS_L
         
         # Trapezoidal rule: (f(a) + f(b)) / 2 * (b - a)
         I = 0.5 * (params$sigma) * (out[t, 3] + out[t + 1, 3] + out[t, 11] + out[t + 1, 11] + out[t, 19] + out[t + 1, 19] + out[t, 27] + out[t + 1, 27] + 
-                                                       out[t, 35] + out[t + 1, 35] + out[t, 43] + out[t + 1, 43] + out[t, 51] + out[t + 1, 51] + out[t, 59] + out[t + 1, 59])
+                                      out[t, 35] + out[t + 1, 35] + out[t, 43] + out[t + 1, 43] + out[t, 51] + out[t + 1, 51] + out[t, 59] + out[t + 1, 59])
         
         incidence_diagnosed[t] = 0.5 * (params$rho) * (out[t, 9] + out[t + 1, 9] + out[t, 17] + out[t + 1, 17] + out[t, 25] + out[t + 1, 25] + out[t, 33] + out[t + 1, 33] + 
-                                                                          out[t, 41] + out[t + 1, 41] + out[t, 49] + out[t + 1, 49] + out[t, 57] + out[t + 1, 57] + out[t, 65] + out[t + 1, 65])
+                                                         out[t, 41] + out[t + 1, 41] + out[t, 49] + out[t + 1, 49] + out[t, 57] + out[t + 1, 57] + out[t, 65] + out[t + 1, 65])
         
         incidence_primary[t] = 0.5 * (params$mu + params$psi_S) * (out[t, 4] + out[t + 1, 4] + out[t, 12] + out[t + 1, 12] + out[t, 20] + out[t + 1, 20] 
-                                                                                    + out[t, 28] + out[t + 1, 28] + out[t, 36] + out[t + 1, 36] + out[t, 44] + out[t + 1, 44] 
-                                                                                    + out[t, 52] + out[t + 1, 52] + out[t, 60] + out[t + 1, 60])
+                                                                   + out[t, 28] + out[t + 1, 28] + out[t, 36] + out[t + 1, 36] + out[t, 44] + out[t + 1, 44] 
+                                                                   + out[t, 52] + out[t + 1, 52] + out[t, 60] + out[t + 1, 60])
         
         incidence_secondary[t] = 0.5 * (params$mu + params$psi_E) * (out[t, 5] + out[t + 1, 5] + out[t, 13] + out[t + 1, 13] + out[t, 21] + out[t + 1, 21] 
-                                                                                      + out[t, 29] + out[t + 1, 29] + out[t, 37] + out[t + 1, 37] + out[t, 45] + out[t + 1, 45] 
-                                                                                      + out[t, 53] + out[t + 1, 53] + out[t, 61] + out[t + 1, 61])
+                                                                     + out[t, 29] + out[t + 1, 29] + out[t, 37] + out[t + 1, 37] + out[t, 45] + out[t + 1, 45] 
+                                                                     + out[t, 53] + out[t + 1, 53] + out[t, 61] + out[t + 1, 61])
         
-        eta_H_t <- eta_H_random # get_eta(t+17, t_0, params$eta_H_init, params$phi_eta, isFixed)
-        eta_H_t1 <- eta_H_random # get_eta(t+17+1, t_0, params$eta_H_init, params$phi_eta, isFixed)
+        eta_H_t <- eta_H_random # get_eta(t+20, t_0, params$eta_H_init, params$phi_eta, isFixed)
+        eta_H_t1 <- eta_H_random # get_eta(t+20+1, t_0, params$eta_H_init, params$phi_eta, isFixed)
         Y_U_N_H <- 0.5 * (eta_H_t * out[t, 2] + eta_H_t1 * out[t + 1, 2])
         Y_U_X_H <- 0.5 * (eta_H_t * out[t, 10] + eta_H_t1 * out[t + 1, 10])
         Y_D_N_H <- 0.5 * params$rho * (out[t, 9] + out[t + 1, 9])
@@ -484,8 +484,8 @@ run_doxypep <- function(is_p_DbE, is_p_DoD_H, is_p_DoD_L, is_p_DoS_H, is_p_DoS_L
                                      + (eta_L_t1 + params$psi_L) * (out[t + 1, 38] + out[t + 1, 46] + out[t + 1, 54] + out[t + 1, 62])
                                      + (eta_L_t1 + params$psi_T) * (out[t + 1, 39] + out[t + 1, 47] + out[t + 1, 55] + out[t + 1, 63]) 
                                      + (params$mu + params$nu) * (out[t, 8] + out[t + 1, 8] + out[t, 16] + out[t + 1, 16] + out[t, 24] 
-                                                                                   + out[t + 1, 24] + out[t, 32] + out[t + 1, 32] + out[t, 40] + out[t + 1, 40] 
-                                                                                   + out[t, 48] + out[t + 1, 48] + out[t, 56] + out[t + 1, 56] + out[t, 64] + out[t + 1, 64]))
+                                                                  + out[t + 1, 24] + out[t, 32] + out[t + 1, 32] + out[t, 40] + out[t + 1, 40] 
+                                                                  + out[t, 48] + out[t + 1, 48] + out[t, 56] + out[t + 1, 56] + out[t, 64] + out[t + 1, 64]))
         
         incidence[t] =  I # + incidence_primary[t] + incidence_secondary[t] + incidence_others[t] + incidence_diagnosed[t]
         
@@ -498,8 +498,8 @@ run_doxypep <- function(is_p_DbE, is_p_DoD_H, is_p_DoD_L, is_p_DoS_H, is_p_DoS_L
         
         pi_H <- get_pi(c_H, N_H, c_L, N_L)
         pi_L <- get_pi(c_L, N_L, c_H, N_H)
-        lambda_high[t] <- get_lambda(t+17, t_0, c_H, params$beta, params$phi_beta, params$epsilon, C_H, N_H, pi_H, C_L, N_L, pi_L, isFixed)
-        lambda_low[t] <- get_lambda(t+17, t_0, c_L, params$beta, params$phi_beta, params$epsilon, C_L, N_L, pi_L, C_H, N_H, pi_H, isFixed)
+        lambda_high[t] <- get_lambda(t+20, t_0, c_H, params$beta, params$phi_beta, params$epsilon, C_H, N_H, pi_H, C_L, N_L, pi_L, isFixed)
+        lambda_low[t] <- get_lambda(t+20, t_0, c_L, params$beta, params$phi_beta, params$epsilon, C_L, N_L, pi_L, C_H, N_H, pi_H, isFixed)
       }
       
       cases[k,] <- incidence
@@ -523,7 +523,7 @@ run_doxypep <- function(is_p_DbE, is_p_DoD_H, is_p_DoD_L, is_p_DoS_H, is_p_DoS_L
     #################################################################### Baseline ####################################################################
     for (i in 1:n_iter_calibration) {
       # times
-      t <- seq(17, 17+n_years+1, by = 1)
+      t <- seq(20, 20+n_years+1, by = 1)
       t_0 = 0 
       t <- t[-1] # start with t = 21
       
@@ -532,22 +532,55 @@ run_doxypep <- function(is_p_DbE, is_p_DoD_H, is_p_DoD_L, is_p_DoS_H, is_p_DoS_L
       
       # initial conditions
       samples_y <- rstan::extract(fit_syphilis_negbin, pars = "y", permuted = TRUE)
-      U_N_H = median(samples_y$y[, 17, 1])
-      I_N_H = median(samples_y$y[, 17, 2])
-      P_N_H = median(samples_y$y[, 17, 3])
-      S_N_H = median(samples_y$y[, 17, 4])
-      E_N_H = median(samples_y$y[, 17, 5])
-      L_N_H = median(samples_y$y[, 17, 6])
-      T_N_H = median(samples_y$y[, 17, 7])
-      R_N_H = median(samples_y$y[, 17, 8])
-      U_N_L = median(samples_y$y[, 17, 9])
-      I_N_L = median(samples_y$y[, 17, 10])
-      P_N_L = median(samples_y$y[, 17, 11])
-      S_N_L = median(samples_y$y[, 17, 12])
-      E_N_L = median(samples_y$y[, 17, 13])
-      L_N_L = median(samples_y$y[, 17, 14])
-      T_N_L = median(samples_y$y[, 17, 15])
-      R_N_L = median(samples_y$y[, 17, 16])
+      U_N_H = median(samples_y$y[, 20, 1])
+      I_N_H = median(samples_y$y[, 20, 2])
+      P_N_H = median(samples_y$y[, 20, 3])
+      S_N_H = median(samples_y$y[, 20, 4])
+      E_N_H = median(samples_y$y[, 20, 5])
+      L_N_H = median(samples_y$y[, 20, 6])
+      T_N_H = median(samples_y$y[, 20, 7])
+      R_N_H = median(samples_y$y[, 20, 8])
+      U_N_L = median(samples_y$y[, 20, 9])
+      I_N_L = median(samples_y$y[, 20, 10])
+      P_N_L = median(samples_y$y[, 20, 11])
+      S_N_L = median(samples_y$y[, 20, 12])
+      E_N_L = median(samples_y$y[, 20, 13])
+      L_N_L = median(samples_y$y[, 20, 14])
+      T_N_L = median(samples_y$y[, 20, 15])
+      R_N_L = median(samples_y$y[, 20, 16])
+      y0 = c(U_N_H=U_N_H, I_N_H=I_N_H, P_N_H=P_N_H, S_N_H=S_N_H, E_N_H=E_N_H, L_N_H=L_N_H, T_N_H=T_N_H, R_N_H=R_N_H,
+             U_N_L=U_N_L, I_N_L=I_N_L, P_N_L=P_N_L, S_N_L=S_N_L, E_N_L=E_N_L, L_N_L=L_N_L, T_N_L=T_N_L, R_N_L=R_N_L)
+      
+      params <- list(
+        q_H = q_H, c_H = c_H, c_L = c_L, q_L = q_L,
+        t_0 = t_0, alpha = alpha, gamma = gamma,
+        sigma = posterior_df$sigma[idx], psi_S = posterior_df$psi_S[idx], psi_E = posterior_df$psi_E[idx], psi_L = posterior_df$psi_L[idx], 
+        psi_T = psi_T, nu = nu, beta = posterior_df$beta[idx], phi_beta = posterior_df$phi_beta[idx], epsilon=posterior_df$epsilon[idx], rho=posterior_df$rho[idx], 
+        eta_H_init=posterior_df$eta_H_init[idx], phi_eta=posterior_df$phi_eta[idx], omega=posterior_df$omega[idx], mu=posterior_df$mu[idx], eta_H_random=eta_H_random
+      )
+      
+      # solve the system
+      out <- ode(y = y0, times = t, func = syphilis_model, parms = params)
+      out <- as.data.frame(out)
+      
+      # initial conditions
+      samples_y <- rstan::extract(fit_syphilis_negbin, pars = "y", permuted = TRUE)
+      U_N_H = median(samples_y$y[, 20, 1])
+      I_N_H = median(samples_y$y[, 20, 2])
+      P_N_H = median(samples_y$y[, 20, 3])
+      S_N_H = median(samples_y$y[, 20, 4])
+      E_N_H = median(samples_y$y[, 20, 5])
+      L_N_H = median(samples_y$y[, 20, 6])
+      T_N_H = median(samples_y$y[, 20, 7])
+      R_N_H = median(samples_y$y[, 20, 8])
+      U_N_L = median(samples_y$y[, 20, 9])
+      I_N_L = median(samples_y$y[, 20, 10])
+      P_N_L = median(samples_y$y[, 20, 11])
+      S_N_L = median(samples_y$y[, 20, 12])
+      E_N_L = median(samples_y$y[, 20, 13])
+      L_N_L = median(samples_y$y[, 20, 14])
+      T_N_L = median(samples_y$y[, 20, 15])
+      R_N_L = median(samples_y$y[, 20, 16])
       y0 = c(U_N_H=U_N_H, I_N_H=I_N_H, P_N_H=P_N_H, S_N_H=S_N_H, E_N_H=E_N_H, L_N_H=L_N_H, T_N_H=T_N_H, R_N_H=R_N_H,
              U_N_L=U_N_L, I_N_L=I_N_L, P_N_L=P_N_L, S_N_L=S_N_L, E_N_L=E_N_L, L_N_L=L_N_L, T_N_L=T_N_L, R_N_L=R_N_L)
       
@@ -571,8 +604,8 @@ run_doxypep <- function(is_p_DbE, is_p_DoD_H, is_p_DoD_L, is_p_DoS_H, is_p_DoS_L
       incidence_secondary <- numeric(n_years)
       incidence_others <- numeric(n_years)
       incidence_diagnosed <- numeric(n_years)
-      lambda_high <- numeric(n_years-3)
-      lambda_low <- numeric(n_years-3)
+      lambda_high <- numeric(n_years)
+      lambda_low <- numeric(n_years)
       for (t in 1:(n_years)) {
         # Trapezoidal rule: (f(a) + f(b)) / 2 * (b - a)
         I = 0.5 * (params$sigma) * (out[t, 3] + out[t + 1, 3] + out[t, 11] + out[t + 1, 11])
@@ -581,8 +614,8 @@ run_doxypep <- function(is_p_DbE, is_p_DoD_H, is_p_DoD_L, is_p_DoS_H, is_p_DoS_L
         incidence_secondary[t] = 0.5 * (params$mu + params$psi_E) * (out[t, 5] + out[t + 1, 5] + out[t, 13] + out[t + 1, 13])
         
         isFixed = TRUE
-        eta_H_t <- eta_H_random # get_eta(t+17, t_0, params$eta_H_init, params$phi_eta, isFixed)
-        eta_H_t1 <- eta_H_random # get_eta(t+17+1, t_0, params$eta_H_init, params$phi_eta, isFixed)
+        eta_H_t <- eta_H_random # get_eta(t+20, t_0, params$eta_H_init, params$phi_eta, isFixed)
+        eta_H_t1 <- eta_H_random # get_eta(t+20+1, t_0, params$eta_H_init, params$phi_eta, isFixed)
         eta_L_t <- params$omega * eta_H_t
         eta_L_t1 <- params$omega * eta_H_t1
         incidence_others[t] = 0.5 * ((eta_H_t + params$psi_L) * out[t, 6] + (eta_L_t + params$psi_L) * out[t, 14] 
@@ -593,22 +626,20 @@ run_doxypep <- function(is_p_DbE, is_p_DoD_H, is_p_DoD_L, is_p_DoS_H, is_p_DoS_L
         
         incidence[t] = I # + incidence_primary[t] + incidence_secondary[t] + incidence_others[t] + incidence_diagnosed[t]
         
-        if (t <= 12) {
-          # Population sizes
-          C_H_t <- get_C_baseline(out[t, 3], out[t, 4], out[t, 5], out[t, 6])
-          C_L_t <- get_C_baseline(out[t, 11], out[t, 12], out[t, 13], out[t, 14])
-          N_H_t <- get_N_baseline(out[t, 2], out[t, 3], out[t, 4], out[t, 5], out[t, 6], out[t, 7], out[t, 8], out[t, 9])
-          N_L_t <- get_N_baseline(out[t, 10], out[t, 11], out[t, 12], out[t, 13], out[t, 14], out[t, 15], out[t, 16], out[t, 17])
-          
-          # Mixing
-          pi_H_t <- get_pi(c_H, N_H_t, c_L, N_L_t)
-          pi_L_t <- get_pi(c_L, N_L_t, c_H, N_H_t)
-          lambda_H_t <- get_lambda(t+5, t_0, c_H, params$beta, params$phi_beta, params$epsilon, C_H_t, N_H_t, pi_H_t, C_L_t, N_L_t, pi_L_t, isFixed)
-          lambda_L_t <- get_lambda(t+5, t_0, c_L, params$beta, params$phi_beta, params$epsilon, C_L_t, N_L_t, pi_L_t, C_H_t, N_H_t, pi_H_t, isFixed)
-          
-          lambda_high[t] = lambda_H_t
-          lambda_low[t] = lambda_L_t
-        }
+        # Population sizes
+        C_H_t <- get_C_baseline(out[t, 3], out[t, 4], out[t, 5], out[t, 6])
+        C_L_t <- get_C_baseline(out[t, 11], out[t, 12], out[t, 13], out[t, 14])
+        N_H_t <- get_N_baseline(out[t, 2], out[t, 3], out[t, 4], out[t, 5], out[t, 6], out[t, 7], out[t, 8], out[t, 9])
+        N_L_t <- get_N_baseline(out[t, 10], out[t, 11], out[t, 12], out[t, 13], out[t, 14], out[t, 15], out[t, 16], out[t, 17])
+        
+        # Mixing
+        pi_H_t <- get_pi(c_H, N_H_t, c_L, N_L_t)
+        pi_L_t <- get_pi(c_L, N_L_t, c_H, N_H_t)
+        lambda_H_t <- get_lambda(t+5, t_0, c_H, params$beta, params$phi_beta, params$epsilon, C_H_t, N_H_t, pi_H_t, C_L_t, N_L_t, pi_L_t, isFixed)
+        lambda_L_t <- get_lambda(t+5, t_0, c_L, params$beta, params$phi_beta, params$epsilon, C_L_t, N_L_t, pi_L_t, C_H_t, N_H_t, pi_H_t, isFixed)
+        
+        lambda_high[t] = lambda_H_t
+        lambda_low[t] = lambda_L_t
       }
       
       cases_baseline[l,] <- incidence
@@ -913,7 +944,7 @@ df_combined_DaR_cases_high <- result_DaR$df_combined_cases_high
 df_combined_DaR_foi_high <- result_DaR$df_foi_high
 
 ############################################################## plot cases ##############################################################
-# load("workspace_0.66_fixed_uk.RData")
+# load("workspace_0.66_fixed_main.RData")
 df_combined_DbE_cases$group <- factor(paste0("'", 26:40))
 df_combined_DoD_H_cases$group <- factor(paste0("'", 26:40))
 df_combined_DoD_cases$group <- factor(paste0("'", 26:40))
@@ -922,7 +953,7 @@ df_combined_DoA_cases$group <- factor(paste0("'", 26:40))
 df_combined_DaR_cases$group <- factor(paste0("'", 26:40))
 size = 35
 
-p25 <- ggplot(df_combined_DbE_cases, aes(
+p1 <- ggplot(df_combined_DbE_cases, aes(
   x = group,
   ymin = ymin,
   lower = ymin,
@@ -933,7 +964,7 @@ p25 <- ggplot(df_combined_DbE_cases, aes(
   fill = scenario
 )) +
   geom_boxplot(stat = "identity", position = position_dodge(width = 0.8), width = 0.6) +
-  labs(title = "") +
+  labs(title = "A: DbE") +
   scale_color_manual(
     name = NULL,
     values = c("Baseline" = "darkred", "Intervention" = "steelblue")
@@ -943,7 +974,7 @@ p25 <- ggplot(df_combined_DbE_cases, aes(
     values = c("Baseline" = "salmon", "Intervention" = "lightblue")
   ) +
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, NA)) +
-  scale_x_discrete(breaks = c("'26", "'33", "'40")) +
+  scale_x_discrete(breaks = c("'26", "'33", "'40")) + 
   theme_minimal(base_size = 13) +
   theme(
     panel.grid.major = element_blank(),
@@ -963,14 +994,14 @@ p25 <- ggplot(df_combined_DbE_cases, aes(
     axis.line.x = element_line(color = "black", size = 0.5),
     axis.line.y = element_line(color = "black", size = 0.5)
   )
-p25 <- p25 +
-  labs(tag = "(3) England") +
+p1 <- p1 +
+  labs(tag = "(1) Singapore") +
   theme(
     plot.tag.position = c(0, 1),
-    plot.tag = element_text(size = size, hjust = 0, vjust = 0, face = "bold")
+    plot.tag = element_text(size = size, hjust = 0, vjust = 0, face = 'bold')
   )
 
-p26 <- ggplot(df_combined_DoD_H_cases, aes(
+p2 <- ggplot(df_combined_DoD_H_cases, aes(
   x = group,
   ymin = ymin,
   lower = ymin,
@@ -981,7 +1012,7 @@ p26 <- ggplot(df_combined_DoD_H_cases, aes(
   fill = scenario
 )) +
   geom_boxplot(stat = "identity", position = position_dodge(width = 0.8), width = 0.6) +
-  labs(title = "") +
+  labs(title = "B: DoD(H)") +
   scale_color_manual(
     name = NULL,
     values = c("Baseline" = "darkred", "Intervention" = "steelblue")
@@ -991,7 +1022,7 @@ p26 <- ggplot(df_combined_DoD_H_cases, aes(
     values = c("Baseline" = "salmon", "Intervention" = "lightblue")
   ) +
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, NA)) +
-  scale_x_discrete(breaks = c("'26", "'33", "'40")) +
+  scale_x_discrete(breaks = c("'26", "'33", "'40")) + 
   theme_minimal(base_size = 13) +
   theme(
     panel.grid.major = element_blank(),
@@ -1012,8 +1043,14 @@ p26 <- ggplot(df_combined_DoD_H_cases, aes(
     axis.line.x = element_line(color = "black", size = 0.5),
     axis.line.y = element_line(color = "black", size = 0.5)
   )
+# p2 <- p2 +
+#   labs(tag = "(B)") +
+#   theme(
+#     plot.tag.position = c(0, 0.95),
+#     plot.tag = element_text(size = size+10, hjust = 0, vjust = 0)
+#   )
 
-p27 <- ggplot(df_combined_DoD_cases, aes(
+p3 <- ggplot(df_combined_DoD_cases, aes(
   x = group,
   ymin = ymin,
   lower = ymin,
@@ -1024,7 +1061,7 @@ p27 <- ggplot(df_combined_DoD_cases, aes(
   fill = scenario
 )) +
   geom_boxplot(stat = "identity", position = position_dodge(width = 0.8), width = 0.6) +
-  labs(title = "") +
+  labs(title = "C: DoD") +
   scale_color_manual(
     name = NULL,
     values = c("Baseline" = "darkred", "Intervention" = "steelblue")
@@ -1034,7 +1071,7 @@ p27 <- ggplot(df_combined_DoD_cases, aes(
     values = c("Baseline" = "salmon", "Intervention" = "lightblue")
   ) +
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, NA)) +
-  scale_x_discrete(breaks = c("'26", "'33", "'40")) +
+  scale_x_discrete(breaks = c("'26", "'33", "'40")) + 
   theme_minimal(base_size = 13) +
   theme(
     panel.grid.major = element_blank(),
@@ -1055,8 +1092,14 @@ p27 <- ggplot(df_combined_DoD_cases, aes(
     axis.line.x = element_line(color = "black", size = 0.5),
     axis.line.y = element_line(color = "black", size = 0.5)
   )
+# p3 <- p3 +
+#   labs(tag = "(C)") +
+#   theme(
+#     plot.tag.position = c(0, 0.95),
+#     plot.tag = element_text(size = size+10, hjust = 0, vjust = 0)
+#   )
 
-p28 <- ggplot(df_combined_DoA_H_cases, aes(
+p4 <- ggplot(df_combined_DoA_H_cases, aes(
   x = group,
   ymin = ymin,
   lower = ymin,
@@ -1067,7 +1110,7 @@ p28 <- ggplot(df_combined_DoA_H_cases, aes(
   fill = scenario
 )) +
   geom_boxplot(stat = "identity", position = position_dodge(width = 0.8), width = 0.6) +
-  labs(title = "") +
+  labs(title = "D: DoA(H)") +
   scale_color_manual(
     name = NULL,
     values = c("Baseline" = "darkred", "Intervention" = "steelblue")
@@ -1077,7 +1120,7 @@ p28 <- ggplot(df_combined_DoA_H_cases, aes(
     values = c("Baseline" = "salmon", "Intervention" = "lightblue")
   ) +
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, NA)) +
-  scale_x_discrete(breaks = c("'26", "'33", "'40")) +
+  scale_x_discrete(breaks = c("'26", "'33", "'40")) + 
   theme_minimal(base_size = 13) +
   theme(
     panel.grid.major = element_blank(),
@@ -1098,8 +1141,14 @@ p28 <- ggplot(df_combined_DoA_H_cases, aes(
     axis.line.x = element_line(color = "black", size = 0.5),
     axis.line.y = element_line(color = "black", size = 0.5)
   )
+# p4 <- p4 +
+#   labs(tag = "(D)") +
+#   theme(
+#     plot.tag.position = c(0, 0.95),
+#     plot.tag = element_text(size = size+10, hjust = 0, vjust = 0)
+#   )
 
-p29 <- ggplot(df_combined_DoA_cases, aes(
+p5 <- ggplot(df_combined_DoA_cases, aes(
   x = group,
   ymin = ymin,
   lower = ymin,
@@ -1110,7 +1159,7 @@ p29 <- ggplot(df_combined_DoA_cases, aes(
   fill = scenario
 )) +
   geom_boxplot(stat = "identity", position = position_dodge(width = 0.8), width = 0.6) +
-  labs(title = "") +
+  labs(title = "E: DoA") +
   scale_color_manual(
     name = NULL,
     values = c("Baseline" = "darkred", "Intervention" = "steelblue")
@@ -1120,7 +1169,7 @@ p29 <- ggplot(df_combined_DoA_cases, aes(
     values = c("Baseline" = "salmon", "Intervention" = "lightblue")
   ) +
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, NA)) +
-  scale_x_discrete(breaks = c("'26", "'33", "'40")) +
+  scale_x_discrete(breaks = c("'26", "'33", "'40")) + 
   theme_minimal(base_size = 13) +
   theme(
     panel.grid.major = element_blank(),
@@ -1141,8 +1190,14 @@ p29 <- ggplot(df_combined_DoA_cases, aes(
     axis.line.x = element_line(color = "black", size = 0.5),
     axis.line.y = element_line(color = "black", size = 0.5)
   )
+# p5 <- p5 +
+#   labs(tag = "(E)") +
+#   theme(
+#     plot.tag.position = c(0, 0.95),
+#     plot.tag = element_text(size = size+10, hjust = 0, vjust = 0)
+#   )
 
-p30 <- ggplot(df_combined_DaR_cases, aes(
+p6 <- ggplot(df_combined_DaR_cases, aes(
   x = group,
   ymin = ymin,
   lower = ymin,
@@ -1153,7 +1208,7 @@ p30 <- ggplot(df_combined_DaR_cases, aes(
   fill = scenario
 )) +
   geom_boxplot(stat = "identity", position = position_dodge(width = 0.8), width = 0.6) +
-  labs(title = "") +
+  labs(title = "F: DaR") +
   scale_color_manual(
     name = NULL,
     values = c("Baseline" = "darkred", "Intervention" = "steelblue")
@@ -1163,7 +1218,7 @@ p30 <- ggplot(df_combined_DaR_cases, aes(
     values = c("Baseline" = "salmon", "Intervention" = "lightblue")
   ) +
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, NA)) +
-  scale_x_discrete(breaks = c("'26", "'33", "'40")) +
+  scale_x_discrete(breaks = c("'26", "'33", "'40")) + 
   theme_minimal(base_size = 13) +
   theme(
     panel.grid.major = element_blank(),
@@ -1184,8 +1239,14 @@ p30 <- ggplot(df_combined_DaR_cases, aes(
     axis.line.x = element_line(color = "black", size = 0.5),
     axis.line.y = element_line(color = "black", size = 0.5)
   )
+# p6 <- p6 +
+#   labs(tag = "(F)") +
+#   theme(
+#     plot.tag.position = c(0, 0.95),
+#     plot.tag = element_text(size = size+10, hjust = 0, vjust = 0)
+#   )
 
-row_cases_uk <- (p25 + p26 + p27 + p28 + p29 + p30 + plot_layout(ncol = 6, guides = "collect")) &
+row_cases <- (p1 + p2 + p3 + p4 + p5 + p6 + plot_layout(ncol = 6, guides = "collect")) &
   theme(legend.position = "right", legend.text = element_text(size = size)) &
   plot_annotation(
     title = NULL,
@@ -1199,6 +1260,566 @@ row_cases_uk <- (p25 + p26 + p27 + p28 + p29 + p30 + plot_layout(ncol = 6, guide
     y = "Annual Number of \n Syphilis Cases"
   )
 
+# ############################################################## plot high-risk cases ##############################################################
+# df_combined_DbE_cases_high$group <- factor(paste0("'", 26:40))
+# df_combined_DoD_H_cases_high$group <- factor(paste0("'", 26:40))
+# df_combined_DoD_cases_high$group <- factor(paste0("'", 26:40))
+# df_combined_DoA_H_cases_high$group <- factor(paste0("'", 26:40))
+# df_combined_DoA_cases_high$group <- factor(paste0("'", 26:40))
+# df_combined_DaR_cases_high$group <- factor(paste0("'", 26:40))
+# size = 35
+# 
+# p7 <- ggplot(df_combined_DbE_cases_high, aes(
+#   x = group,
+#   ymin = ymin,
+#   lower = ymin,
+#   middle = middle,
+#   upper = ymax,
+#   ymax = ymax,
+#   color = scenario,
+#   fill = scenario
+# )) +
+#   geom_boxplot(stat = "identity", position = position_dodge(width = 0.8), width = 0.6) +
+#   scale_color_manual(
+#     name = NULL,
+#     values = c("Baseline" = "darkred", "Intervention" = "steelblue")
+#   ) +
+#   scale_fill_manual(
+#     name = NULL,
+#     values = c("Baseline" = "salmon", "Intervention" = "lightblue")
+#   ) +
+#   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, NA)) +
+#   scale_x_discrete(breaks = c("'26", "'33", "'40")) + 
+#   theme_minimal(base_size = 13) +
+#   theme(
+#     panel.grid.major = element_blank(),
+#     panel.grid.minor = element_blank(),
+#     legend.position = "inside",
+#     legend.position.inside = c(0.20, 0.85),
+#     legend.justification = c("right", "top"),
+#     legend.background = element_rect(fill = alpha("white", 0.6), color = NA),
+#     legend.box.background = element_rect(color = "black"),
+#     legend.margin = margin(0, 0, 0, 0),
+#     legend.box.margin = margin(0, 0, 0, 0),
+#     plot.title = element_blank(),
+#     axis.title.x = element_blank(),
+#     axis.text.x = element_text(size = size),
+#     axis.text.y = element_text(size = size),
+#     axis.title.y = element_text(size = size),
+#     axis.line.x = element_line(color = "black", size = 0.5),
+#     axis.line.y = element_line(color = "black", size = 0.5)
+#   )
+# # p7 <- p7 + 
+# #   labs(tag = "(B)") + 
+# #   theme(
+# #     plot.tag.position = c(0, 0.95),
+# #     plot.tag = element_text(size = size+10, hjust = 0, vjust = 0)
+# #   )
+# 
+# p8 <- ggplot(df_combined_DoD_H_cases_high, aes(
+#   x = group,
+#   ymin = ymin,
+#   lower = ymin,
+#   middle = middle,
+#   upper = ymax,
+#   ymax = ymax,
+#   color = scenario,
+#   fill = scenario
+# )) +
+#   geom_boxplot(stat = "identity", position = position_dodge(width = 0.8), width = 0.6) +
+#   scale_color_manual(
+#     name = NULL,
+#     values = c("Baseline" = "darkred", "Intervention" = "steelblue")
+#   ) +
+#   scale_fill_manual(
+#     name = NULL,
+#     values = c("Baseline" = "salmon", "Intervention" = "lightblue")
+#   ) +
+#   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, NA)) +
+#   scale_x_discrete(breaks = c("'26", "'33", "'40")) + 
+#   theme_minimal(base_size = 13) +
+#   theme(
+#     panel.grid.major = element_blank(),
+#     panel.grid.minor = element_blank(),
+#     legend.position = "inside",
+#     legend.position.inside = c(0.20, 0.85),
+#     legend.justification = c("right", "top"),
+#     legend.background = element_rect(fill = alpha("white", 0.6), color = NA),
+#     legend.box.background = element_rect(color = "black"),
+#     legend.margin = margin(0, 0, 0, 0),
+#     legend.box.margin = margin(0, 0, 0, 0),
+#     plot.title = element_blank(),
+#     axis.title.x = element_blank(),
+#     axis.text.x = element_text(size = size),
+#     axis.title.y = element_blank(),
+#     axis.text.y = element_blank(),
+#     axis.ticks.y = element_blank(),
+#     axis.line.x = element_line(color = "black", size = 0.5),
+#     axis.line.y = element_line(color = "black", size = 0.5)
+#   )
+# 
+# p9 <- ggplot(df_combined_DoD_cases_high, aes(
+#   x = group,
+#   ymin = ymin,
+#   lower = ymin,
+#   middle = middle,
+#   upper = ymax,
+#   ymax = ymax,
+#   color = scenario,
+#   fill = scenario
+# )) +
+#   geom_boxplot(stat = "identity", position = position_dodge(width = 0.8), width = 0.6) +
+#   scale_color_manual(
+#     name = NULL,
+#     values = c("Baseline" = "darkred", "Intervention" = "steelblue")
+#   ) +
+#   scale_fill_manual(
+#     name = NULL,
+#     values = c("Baseline" = "salmon", "Intervention" = "lightblue")
+#   ) +
+#   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, NA)) +
+#   scale_x_discrete(breaks = c("'26", "'33", "'40")) + 
+#   theme_minimal(base_size = 13) +
+#   theme(
+#     panel.grid.major = element_blank(),
+#     panel.grid.minor = element_blank(),
+#     legend.position = "inside",
+#     legend.position.inside = c(0.20, 0.85),
+#     legend.justification = c("right", "top"),
+#     legend.background = element_rect(fill = alpha("white", 0.6), color = NA),
+#     legend.box.background = element_rect(color = "black"),
+#     legend.margin = margin(0, 0, 0, 0),
+#     legend.box.margin = margin(0, 0, 0, 0),
+#     plot.title = element_blank(),
+#     axis.title.x = element_blank(),
+#     axis.text.x = element_text(size = size),
+#     axis.title.y = element_blank(),
+#     axis.text.y = element_blank(),
+#     axis.ticks.y = element_blank(),
+#     axis.line.x = element_line(color = "black", size = 0.5),
+#     axis.line.y = element_line(color = "black", size = 0.5)
+#   )
+# 
+# p10 <- ggplot(df_combined_DoA_H_cases_high, aes(
+#   x = group,
+#   ymin = ymin,
+#   lower = ymin,
+#   middle = middle,
+#   upper = ymax,
+#   ymax = ymax,
+#   color = scenario,
+#   fill = scenario
+# )) +
+#   geom_boxplot(stat = "identity", position = position_dodge(width = 0.8), width = 0.6) +
+#   scale_color_manual(
+#     name = NULL,
+#     values = c("Baseline" = "darkred", "Intervention" = "steelblue")
+#   ) +
+#   scale_fill_manual(
+#     name = NULL,
+#     values = c("Baseline" = "salmon", "Intervention" = "lightblue")
+#   ) +
+#   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, NA)) +
+#   scale_x_discrete(breaks = c("'26", "'33", "'40")) + 
+#   theme_minimal(base_size = 13) +
+#   theme(
+#     panel.grid.major = element_blank(),
+#     panel.grid.minor = element_blank(),
+#     legend.position = "inside",
+#     legend.position.inside = c(0.20, 0.85),
+#     legend.justification = c("right", "top"),
+#     legend.background = element_rect(fill = alpha("white", 0.6), color = NA),
+#     legend.box.background = element_rect(color = "black"),
+#     legend.margin = margin(0, 0, 0, 0),
+#     legend.box.margin = margin(0, 0, 0, 0),
+#     plot.title = element_blank(),
+#     axis.title.x = element_blank(),
+#     axis.text.x = element_text(size = size),
+#     axis.title.y = element_blank(),
+#     axis.text.y = element_blank(),
+#     axis.ticks.y = element_blank(),
+#     axis.line.x = element_line(color = "black", size = 0.5),
+#     axis.line.y = element_line(color = "black", size = 0.5)
+#   )
+# 
+# p11 <- ggplot(df_combined_DoA_cases_high, aes(
+#   x = group,
+#   ymin = ymin,
+#   lower = ymin,
+#   middle = middle,
+#   upper = ymax,
+#   ymax = ymax,
+#   color = scenario,
+#   fill = scenario
+# )) +
+#   geom_boxplot(stat = "identity", position = position_dodge(width = 0.8), width = 0.6) +
+#   scale_color_manual(
+#     name = NULL,
+#     values = c("Baseline" = "darkred", "Intervention" = "steelblue")
+#   ) +
+#   scale_fill_manual(
+#     name = NULL,
+#     values = c("Baseline" = "salmon", "Intervention" = "lightblue")
+#   ) +
+#   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, NA)) +
+#   scale_x_discrete(breaks = c("'26", "'33", "'40")) + 
+#   theme_minimal(base_size = 13) +
+#   theme(
+#     panel.grid.major = element_blank(),
+#     panel.grid.minor = element_blank(),
+#     legend.position = "inside",
+#     legend.position.inside = c(0.20, 0.85),
+#     legend.justification = c("right", "top"),
+#     legend.background = element_rect(fill = alpha("white", 0.6), color = NA),
+#     legend.box.background = element_rect(color = "black"),
+#     legend.margin = margin(0, 0, 0, 0),
+#     legend.box.margin = margin(0, 0, 0, 0),
+#     plot.title = element_blank(),
+#     axis.title.x = element_blank(),
+#     axis.text.x = element_text(size = size),
+#     axis.title.y = element_blank(),
+#     axis.text.y = element_blank(),
+#     axis.ticks.y = element_blank(),
+#     axis.line.x = element_line(color = "black", size = 0.5),
+#     axis.line.y = element_line(color = "black", size = 0.5)
+#   )
+# 
+# p12 <- ggplot(df_combined_DaR_cases_high, aes(
+#   x = group,
+#   ymin = ymin,
+#   lower = ymin,
+#   middle = middle,
+#   upper = ymax,
+#   ymax = ymax,
+#   color = scenario,
+#   fill = scenario
+# )) +
+#   geom_boxplot(stat = "identity", position = position_dodge(width = 0.8), width = 0.6) +
+#   scale_color_manual(
+#     name = NULL,
+#     values = c("Baseline" = "darkred", "Intervention" = "steelblue")
+#   ) +
+#   scale_fill_manual(
+#     name = NULL,
+#     values = c("Baseline" = "salmon", "Intervention" = "lightblue")
+#   ) +
+#   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, NA)) +
+#   scale_x_discrete(breaks = c("'26", "'33", "'40")) + 
+#   theme_minimal(base_size = 13) +
+#   theme(
+#     panel.grid.major = element_blank(),
+#     panel.grid.minor = element_blank(),
+#     legend.position = "inside",
+#     legend.position.inside = c(0.20, 0.85),
+#     legend.justification = c("right", "top"),
+#     legend.background = element_rect(fill = alpha("white", 0.6), color = NA),
+#     legend.box.background = element_rect(color = "black"),
+#     legend.margin = margin(0, 0, 0, 0),
+#     legend.box.margin = margin(0, 0, 0, 0),
+#     plot.title = element_blank(),
+#     axis.title.x = element_blank(),
+#     axis.text.x = element_text(size = size),
+#     axis.title.y = element_blank(),
+#     axis.text.y = element_blank(),
+#     axis.ticks.y = element_blank(),
+#     axis.line.x = element_line(color = "black", size = 0.5),
+#     axis.line.y = element_line(color = "black", size = 0.5)
+#   )
+# 
+# row_cases_high <- (p7 + p8 + p9 + p10 + p11 + p12 + plot_layout(ncol = 6, guides = "collect")) &
+#   theme(legend.position = "right", legend.text = element_text(size = size)) &
+#   plot_annotation(
+#     title = NULL,
+#     theme = theme(
+#       axis.title.x = element_text(size = size, margin = margin(t = 10)),
+#       axis.title.y = element_text(size = size, margin = margin(r = 10))
+#     )
+#   ) &
+#   labs(
+#     x = "Year",
+#     y = "Annual Number of \n Diagnosed Cases \n (High-Risk)"
+#   )
+# 
+# ############################################################## plot low-risk cases ##############################################################
+# df_combined_DbE_cases_low$group <- factor(paste0("'", 26:40))
+# df_combined_DoD_H_cases_low$group <- factor(paste0("'", 26:40))
+# df_combined_DoD_cases_low$group <- factor(paste0("'", 26:40))
+# df_combined_DoA_H_cases_low$group <- factor(paste0("'", 26:40))
+# df_combined_DoA_cases_low$group <- factor(paste0("'", 26:40))
+# df_combined_DaR_cases_low$group <- factor(paste0("'", 26:40))
+# size = 35
+# 
+# p13 <- ggplot(df_combined_DbE_cases_low, aes(
+#   x = group,
+#   ymin = ymin,
+#   lower = ymin,
+#   middle = middle,
+#   upper = ymax,
+#   ymax = ymax,
+#   color = scenario,
+#   fill = scenario
+# )) +
+#   geom_boxplot(stat = "identity", position = position_dodge(width = 0.8), width = 0.6) +
+#   scale_color_manual(
+#     name = NULL,
+#     values = c("Baseline" = "darkred", "Intervention" = "steelblue")
+#   ) +
+#   scale_fill_manual(
+#     name = NULL,
+#     values = c("Baseline" = "salmon", "Intervention" = "lightblue")
+#   ) +
+#   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, NA)) +
+#   scale_x_discrete(breaks = c("'26", "'33", "'40")) + 
+#   theme_minimal(base_size = 13) +
+#   theme(
+#     panel.grid.major = element_blank(),
+#     panel.grid.minor = element_blank(),
+#     legend.position = "inside",
+#     legend.position.inside = c(0.20, 0.85),
+#     legend.justification = c("right", "top"),
+#     legend.background = element_rect(fill = alpha("white", 0.6), color = NA),
+#     legend.box.background = element_rect(color = "black"),
+#     legend.margin = margin(0, 0, 0, 0),
+#     legend.box.margin = margin(0, 0, 0, 0),
+#     plot.title = element_blank(),
+#     axis.title.x = element_blank(),
+#     axis.text.x = element_text(size = size),
+#     axis.text.y = element_text(size = size),
+#     axis.title.y = element_text(size = size),
+#     axis.line.x = element_line(color = "black", size = 0.5),
+#     axis.line.y = element_line(color = "black", size = 0.5)
+#   )
+# # p13 <- p13 + 
+# #   labs(tag = "(C)") + 
+# #   theme(
+# #     plot.tag.position = c(0, 0.95),
+# #     plot.tag = element_text(size = size+10, hjust = 0, vjust = 0)
+# #   )
+# 
+# p14 <- ggplot(df_combined_DoD_H_cases_low, aes(
+#   x = group,
+#   ymin = ymin,
+#   lower = ymin,
+#   middle = middle,
+#   upper = ymax,
+#   ymax = ymax,
+#   color = scenario,
+#   fill = scenario
+# )) +
+#   geom_boxplot(stat = "identity", position = position_dodge(width = 0.8), width = 0.6) +
+#   scale_color_manual(
+#     name = NULL,
+#     values = c("Baseline" = "darkred", "Intervention" = "steelblue")
+#   ) +
+#   scale_fill_manual(
+#     name = NULL,
+#     values = c("Baseline" = "salmon", "Intervention" = "lightblue")
+#   ) +
+#   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, NA)) +
+#   scale_x_discrete(breaks = c("'26", "'33", "'40")) + 
+#   theme_minimal(base_size = 13) +
+#   theme(
+#     panel.grid.major = element_blank(),
+#     panel.grid.minor = element_blank(),
+#     legend.position = "inside",
+#     legend.position.inside = c(0.20, 0.85),
+#     legend.justification = c("right", "top"),
+#     legend.background = element_rect(fill = alpha("white", 0.6), color = NA),
+#     legend.box.background = element_rect(color = "black"),
+#     legend.margin = margin(0, 0, 0, 0),
+#     legend.box.margin = margin(0, 0, 0, 0),
+#     plot.title = element_blank(),
+#     axis.title.x = element_blank(),
+#     axis.text.x = element_text(size = size),
+#     axis.title.y = element_blank(),
+#     axis.text.y = element_blank(),
+#     axis.ticks.y = element_blank(),
+#     axis.line.x = element_line(color = "black", size = 0.5),
+#     axis.line.y = element_line(color = "black", size = 0.5)
+#   )
+# 
+# p15 <- ggplot(df_combined_DoD_cases_low, aes(
+#   x = group,
+#   ymin = ymin,
+#   lower = ymin,
+#   middle = middle,
+#   upper = ymax,
+#   ymax = ymax,
+#   color = scenario,
+#   fill = scenario
+# )) +
+#   geom_boxplot(stat = "identity", position = position_dodge(width = 0.8), width = 0.6) +
+#   scale_color_manual(
+#     name = NULL,
+#     values = c("Baseline" = "darkred", "Intervention" = "steelblue")
+#   ) +
+#   scale_fill_manual(
+#     name = NULL,
+#     values = c("Baseline" = "salmon", "Intervention" = "lightblue")
+#   ) +
+#   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, NA)) +
+#   scale_x_discrete(breaks = c("'26", "'33", "'40")) + 
+#   theme_minimal(base_size = 13) +
+#   theme(
+#     panel.grid.major = element_blank(),
+#     panel.grid.minor = element_blank(),
+#     legend.position = "inside",
+#     legend.position.inside = c(0.20, 0.85),
+#     legend.justification = c("right", "top"),
+#     legend.background = element_rect(fill = alpha("white", 0.6), color = NA),
+#     legend.box.background = element_rect(color = "black"),
+#     legend.margin = margin(0, 0, 0, 0),
+#     legend.box.margin = margin(0, 0, 0, 0),
+#     plot.title = element_blank(),
+#     axis.title.x = element_blank(),
+#     axis.text.x = element_text(size = size),
+#     axis.title.y = element_blank(),
+#     axis.text.y = element_blank(),
+#     axis.ticks.y = element_blank(),
+#     axis.line.x = element_line(color = "black", size = 0.5),
+#     axis.line.y = element_line(color = "black", size = 0.5)
+#   )
+# 
+# p16 <- ggplot(df_combined_DoA_H_cases_low, aes(
+#   x = group,
+#   ymin = ymin,
+#   lower = ymin,
+#   middle = middle,
+#   upper = ymax,
+#   ymax = ymax,
+#   color = scenario,
+#   fill = scenario
+# )) +
+#   geom_boxplot(stat = "identity", position = position_dodge(width = 0.8), width = 0.6) +
+#   scale_color_manual(
+#     name = NULL,
+#     values = c("Baseline" = "darkred", "Intervention" = "steelblue")
+#   ) +
+#   scale_fill_manual(
+#     name = NULL,
+#     values = c("Baseline" = "salmon", "Intervention" = "lightblue")
+#   ) +
+#   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, NA)) +
+#   scale_x_discrete(breaks = c("'26", "'33", "'40")) + 
+#   theme_minimal(base_size = 13) +
+#   theme(
+#     panel.grid.major = element_blank(),
+#     panel.grid.minor = element_blank(),
+#     legend.position = "inside",
+#     legend.position.inside = c(0.20, 0.85),
+#     legend.justification = c("right", "top"),
+#     legend.background = element_rect(fill = alpha("white", 0.6), color = NA),
+#     legend.box.background = element_rect(color = "black"),
+#     legend.margin = margin(0, 0, 0, 0),
+#     legend.box.margin = margin(0, 0, 0, 0),
+#     plot.title = element_blank(),
+#     axis.title.x = element_blank(),
+#     axis.text.x = element_text(size = size),
+#     axis.title.y = element_blank(),
+#     axis.text.y = element_blank(),
+#     axis.ticks.y = element_blank(),
+#     axis.line.x = element_line(color = "black", size = 0.5),
+#     axis.line.y = element_line(color = "black", size = 0.5)
+#   )
+# 
+# p17 <- ggplot(df_combined_DoA_cases_low, aes(
+#   x = group,
+#   ymin = ymin,
+#   lower = ymin,
+#   middle = middle,
+#   upper = ymax,
+#   ymax = ymax,
+#   color = scenario,
+#   fill = scenario
+# )) +
+#   geom_boxplot(stat = "identity", position = position_dodge(width = 0.8), width = 0.6) +
+#   scale_color_manual(
+#     name = NULL,
+#     values = c("Baseline" = "darkred", "Intervention" = "steelblue")
+#   ) +
+#   scale_fill_manual(
+#     name = NULL,
+#     values = c("Baseline" = "salmon", "Intervention" = "lightblue")
+#   ) +
+#   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, NA)) +
+#   scale_x_discrete(breaks = c("'26", "'33", "'40")) + 
+#   theme_minimal(base_size = 13) +
+#   theme(
+#     panel.grid.major = element_blank(),
+#     panel.grid.minor = element_blank(),
+#     legend.position = "inside",
+#     legend.position.inside = c(0.20, 0.85),
+#     legend.justification = c("right", "top"),
+#     legend.background = element_rect(fill = alpha("white", 0.6), color = NA),
+#     legend.box.background = element_rect(color = "black"),
+#     legend.margin = margin(0, 0, 0, 0),
+#     legend.box.margin = margin(0, 0, 0, 0),
+#     plot.title = element_blank(),
+#     axis.title.x = element_blank(),
+#     axis.text.x = element_text(size = size),
+#     axis.title.y = element_blank(),
+#     axis.text.y = element_blank(),
+#     axis.ticks.y = element_blank(),
+#     axis.line.x = element_line(color = "black", size = 0.5),
+#     axis.line.y = element_line(color = "black", size = 0.5)
+#   )
+# 
+# p18 <- ggplot(df_combined_DaR_cases_low, aes(
+#   x = group,
+#   ymin = ymin,
+#   lower = ymin,
+#   middle = middle,
+#   upper = ymax,
+#   ymax = ymax,
+#   color = scenario,
+#   fill = scenario
+# )) +
+#   geom_boxplot(stat = "identity", position = position_dodge(width = 0.8), width = 0.6) +
+#   scale_color_manual(
+#     name = NULL,
+#     values = c("Baseline" = "darkred", "Intervention" = "steelblue")
+#   ) +
+#   scale_fill_manual(
+#     name = NULL,
+#     values = c("Baseline" = "salmon", "Intervention" = "lightblue")
+#   ) +
+#   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, NA)) +
+#   scale_x_discrete(breaks = c("'26", "'33", "'40")) + 
+#   theme_minimal(base_size = 13) +
+#   theme(
+#     panel.grid.major = element_blank(),
+#     panel.grid.minor = element_blank(),
+#     legend.position = "inside",
+#     legend.position.inside = c(0.20, 0.85),
+#     legend.justification = c("right", "top"),
+#     legend.background = element_rect(fill = alpha("white", 0.6), color = NA),
+#     legend.box.background = element_rect(color = "black"),
+#     legend.margin = margin(0, 0, 0, 0),
+#     legend.box.margin = margin(0, 0, 0, 0),
+#     plot.title = element_blank(),
+#     axis.title.x = element_blank(),
+#     axis.text.x = element_text(size = size),
+#     axis.title.y = element_blank(),
+#     axis.text.y = element_blank(),
+#     axis.ticks.y = element_blank(),
+#     axis.line.x = element_line(color = "black", size = 0.5),
+#     axis.line.y = element_line(color = "black", size = 0.5)
+#   )
+# 
+# row_cases_low <- (p13 + p14 + p15 + p16 + p17 + p18 + plot_layout(ncol = 6, guides = "collect")) &
+#   theme(legend.position = "right", legend.text = element_text(size = size)) &
+#   plot_annotation(
+#     title = NULL,
+#     theme = theme(
+#       axis.title.x = element_text(size = size, margin = margin(t = 10)),
+#       axis.title.y = element_text(size = size, margin = margin(r = 10))
+#     )
+#   ) &
+#   labs(
+#     x = "Year",
+#     y = "Annual Number of \n Diagnosed Cases \n (Low-Risk)"
+#   )
+
 ############################################################## plot susceptible ##############################################################
 df_combined_DbE_susceptible$group <- factor(paste0("'", 26:40))
 df_combined_DoD_H_susceptible$group <- factor(paste0("'", 26:40))
@@ -1208,7 +1829,7 @@ df_combined_DoA_susceptible$group <- factor(paste0("'", 26:40))
 df_combined_DaR_susceptible$group <- factor(paste0("'", 26:40))
 size = 35
 
-p31 <- ggplot(df_combined_DbE_susceptible, aes(
+p19 <- ggplot(df_combined_DbE_susceptible, aes(
   x = group,
   ymin = lower,
   lower = lower,
@@ -1229,7 +1850,7 @@ p31 <- ggplot(df_combined_DbE_susceptible, aes(
   ) +
   labs(title = "") +
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, NA)) +
-  scale_x_discrete(breaks = c("'26", "'33", "'40")) +
+  scale_x_discrete(breaks = c("'26", "'33", "'40")) + 
   theme_minimal(base_size = 13) +
   theme(
     panel.grid.major = element_blank(),
@@ -1249,14 +1870,14 @@ p31 <- ggplot(df_combined_DbE_susceptible, aes(
     axis.line.x = element_line(color = "black", size = 0.5),
     axis.line.y = element_line(color = "black", size = 0.5)
   )
-p31 <- p31 +
-  labs(tag = "(4) England") +
+p19 <- p19 +
+  labs(tag = "(2) Singapore") +
   theme(
     plot.tag.position = c(0, 1),
-    plot.tag = element_text(size = size, hjust = 0, vjust = 0, face = "bold")
+    plot.tag = element_text(size = size, hjust = 0, vjust = 0, face = 'bold')
   )
 
-p32 <- ggplot(df_combined_DoD_H_susceptible, aes(
+p20 <- ggplot(df_combined_DoD_H_susceptible, aes(
   x = group,
   ymin = lower,
   lower = lower,
@@ -1277,7 +1898,7 @@ p32 <- ggplot(df_combined_DoD_H_susceptible, aes(
   ) +
   labs(title = "") +
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, NA)) +
-  scale_x_discrete(breaks = c("'26", "'33", "'40")) +
+  scale_x_discrete(breaks = c("'26", "'33", "'40")) + 
   theme_minimal(base_size = 13) +
   theme(
     panel.grid.major = element_blank(),
@@ -1298,8 +1919,14 @@ p32 <- ggplot(df_combined_DoD_H_susceptible, aes(
     axis.line.x = element_line(color = "black", size = 0.5),
     axis.line.y = element_line(color = "black", size = 0.5)
   )
+# p20 <- p20 +
+#   labs(tag = "(H)") +
+#   theme(
+#     plot.tag.position = c(0, 0.95),
+#     plot.tag = element_text(size = size+10, hjust = 0, vjust = 0)
+#   )
 
-p33 <- ggplot(df_combined_DoD_susceptible, aes(
+p21 <- ggplot(df_combined_DoD_susceptible, aes(
   x = group,
   ymin = lower,
   lower = lower,
@@ -1320,7 +1947,7 @@ p33 <- ggplot(df_combined_DoD_susceptible, aes(
   ) +
   labs(title = "") +
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, NA)) +
-  scale_x_discrete(breaks = c("'26", "'33", "'40")) +
+  scale_x_discrete(breaks = c("'26", "'33", "'40")) + 
   theme_minimal(base_size = 13) +
   theme(
     panel.grid.major = element_blank(),
@@ -1341,8 +1968,14 @@ p33 <- ggplot(df_combined_DoD_susceptible, aes(
     axis.line.x = element_line(color = "black", size = 0.5),
     axis.line.y = element_line(color = "black", size = 0.5)
   )
+# p21 <- p21 +
+#   labs(tag = "(I)") +
+#   theme(
+#     plot.tag.position = c(0, 0.95),
+#     plot.tag = element_text(size = size+10, hjust = 0, vjust = 0)
+#   )
 
-p34 <- ggplot(df_combined_DoA_H_susceptible, aes(
+p22 <- ggplot(df_combined_DoA_H_susceptible, aes(
   x = group,
   ymin = lower,
   lower = lower,
@@ -1352,6 +1985,7 @@ p34 <- ggplot(df_combined_DoA_H_susceptible, aes(
   color = scenario,
   fill = scenario
 )) +
+  labs(title = "") +
   geom_boxplot(stat = "identity", position = position_dodge(width = 0.8), width = 0.6) +
   scale_color_manual(
     name = NULL,
@@ -1361,9 +1995,8 @@ p34 <- ggplot(df_combined_DoA_H_susceptible, aes(
     name = NULL,
     values = c("Non-Doxy-PEP" = "#83A0BE", "Doxy-Inconsistent" = "#F9CB80", "Doxy-PEP" = "#E18791")
   ) +
-  labs(title = "") +
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, NA)) +
-  scale_x_discrete(breaks = c("'26", "'33", "'40")) +
+  scale_x_discrete(breaks = c("'26", "'33", "'40")) + 
   theme_minimal(base_size = 13) +
   theme(
     panel.grid.major = element_blank(),
@@ -1376,7 +2009,7 @@ p34 <- ggplot(df_combined_DoA_H_susceptible, aes(
     legend.margin = margin(0, 0, 0, 0),
     legend.box.margin = margin(0, 0, 0, 0),
     plot.title = element_text(hjust = 0.5, margin = margin(b = 0), size = size),
-    axis.title.x = element_text(size = size, hjust = 0),
+    axis.title.x = element_blank(),
     axis.text.x = element_text(size = size),
     axis.title.y = element_blank(),
     axis.text.y = element_blank(),
@@ -1384,8 +2017,14 @@ p34 <- ggplot(df_combined_DoA_H_susceptible, aes(
     axis.line.x = element_line(color = "black", size = 0.5),
     axis.line.y = element_line(color = "black", size = 0.5)
   )
+# p22 <- p22 +
+#   labs(tag = "(J)") +
+#   theme(
+#     plot.tag.position = c(0, 0.95),
+#     plot.tag = element_text(size = size+10, hjust = 0, vjust = 0)
+#   )
 
-p35 <- ggplot(df_combined_DoA_susceptible, aes(
+p23 <- ggplot(df_combined_DoA_susceptible, aes(
   x = group,
   ymin = lower,
   lower = lower,
@@ -1395,6 +2034,7 @@ p35 <- ggplot(df_combined_DoA_susceptible, aes(
   color = scenario,
   fill = scenario
 )) +
+  labs(title = "") +
   geom_boxplot(stat = "identity", position = position_dodge(width = 0.8), width = 0.6) +
   scale_color_manual(
     name = NULL,
@@ -1404,9 +2044,8 @@ p35 <- ggplot(df_combined_DoA_susceptible, aes(
     name = NULL,
     values = c("Non-Doxy-PEP" = "#83A0BE", "Doxy-Inconsistent" = "#F9CB80", "Doxy-PEP" = "#E18791")
   ) +
-  labs(title = "") +
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, NA)) +
-  scale_x_discrete(breaks = c("'26", "'33", "'40")) +
+  scale_x_discrete(breaks = c("'26", "'33", "'40")) + 
   theme_minimal(base_size = 13) +
   theme(
     panel.grid.major = element_blank(),
@@ -1427,8 +2066,14 @@ p35 <- ggplot(df_combined_DoA_susceptible, aes(
     axis.line.x = element_line(color = "black", size = 0.5),
     axis.line.y = element_line(color = "black", size = 0.5),
   )
+# p23 <- p23 +
+#   labs(tag = "(K)") +
+#   theme(
+#     plot.tag.position = c(0, 0.95),
+#     plot.tag = element_text(size = size+10, hjust = 0, vjust = 0)
+#   )
 
-p36 <- ggplot(df_combined_DaR_susceptible, aes(
+p24 <- ggplot(df_combined_DaR_susceptible, aes(
   x = group,
   ymin = lower,
   lower = lower,
@@ -1449,7 +2094,7 @@ p36 <- ggplot(df_combined_DaR_susceptible, aes(
   ) +
   labs(title = "") +
   scale_y_continuous(expand = expansion(mult = c(0, 0.05)), limits = c(0, NA)) +
-  scale_x_discrete(breaks = c("'26", "'33", "'40")) +
+  scale_x_discrete(breaks = c("'26", "'33", "'40")) + 
   theme_minimal(base_size = 13) +
   theme(
     panel.grid.major = element_blank(),
@@ -1470,8 +2115,14 @@ p36 <- ggplot(df_combined_DaR_susceptible, aes(
     axis.line.x = element_line(color = "black", size = 0.5),
     axis.line.y = element_line(color = "black", size = 0.5)
   )
+# p24 <- p24 +
+#   labs(tag = "(L)") +
+#   theme(
+#     plot.tag.position = c(0, 0.95),
+#     plot.tag = element_text(size = size+10, hjust = 0, vjust = 0)
+#   )
 
-row_susceptible_uk <- (p31 + p32 + p33 + p34 + p35 + p36 + plot_layout(ncol = 6, guides = "collect")) &
+row_susceptible <- (p19 + p20 + p21 + p22 + p23 + p24 + plot_layout(ncol = 6, guides = "collect")) &
   theme(legend.position = "right", legend.text = element_text(size = size)) &
   plot_annotation(
     title = NULL,
@@ -1486,10 +2137,9 @@ row_susceptible_uk <- (p31 + p32 + p33 + p34 + p35 + p36 + plot_layout(ncol = 6,
   )
 
 # combine and plot
-final_plot_uk <- row_cases_uk / row_susceptible_uk
-final_plot_uk
+final_plot <- row_cases / row_susceptible
+final_plot
 
-# save.image("workspace_multivariate_fixed_uk.RData")
 ############################################################## plot FOI ##############################################################
 df_combined_DbE_foi_high$scenario <- "DbE"
 df_combined_DoD_H_foi_high$scenario <- "DoD(H)"
@@ -1574,9 +2224,4 @@ ggplot(df_combined_foi, aes(
     axis.line.y = element_line(color = "black", size = 0.5)
   )
 
-load("workspace_multivariate_fixed_uk.RData")
-load("workspace_multivariate_fixed_main.RData")
-
-# combine and plot
-final_plot_uk <- plot_spacer() /row_cases / plot_spacer() /row_susceptible / plot_spacer() /row_cases_uk / plot_spacer() / row_susceptible_uk + plot_layout(ncol = 1, heights = c(0.08, 1, 0.08, 1, 0.08, 1, 0.08, 1))
-final_plot_uk
+save.image("workspace_multivariate_fixed_main.RData")
