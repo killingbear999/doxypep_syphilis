@@ -1,6 +1,8 @@
-# Long-Run Public Health Impact of Doxycycline Post-Exposure Prophylaxis and Behavioural Factors on Syphilis Transmission: A Modelling Study in Singapore and England
+# Long-term public health impact of doxycycline post-exposure prophylaxis on syphilis transmission
 
 Zihao Wang, Dariya Nikitin, Borame L. Dickens, Liang En Wee, Martin T.W. Chio, Rayner Kay Jin Tan, Keisuke Ejima, Yi Wang, David N. Fisman, Lilith K. Whittles, Jue Tao Lim </br>
+**Nature Health** </br>
+Paper: https://doi.org/10.1038/s44360-026-00092-3 </br>
 
 Requires: RStan (version 2.32.7), R (version 4.5.0), deSolve package (version 1.40) </br>
 
