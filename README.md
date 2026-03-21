@@ -18,7 +18,7 @@ Requires: RStan (version 2.32.7), R (version 4.5.0), deSolve package (version 1.
 * Integrates trial-derived efficacy with real-world behavioural factors, such as screening frequency, uptake, adherence, and discontinuation, to provide a more realistic assessment of intervention impact.
 
 ### Methodology
-* Please refer to Supplementary Information from the publisher: https://static-content.springer.com/esm/art%3A10.1038%2Fs44360-026-00092-3/MediaObjects/44360_2026_92_MOESM1_ESM.pdf
+* Please refer to Supplementary Information from the publisher for full implementation details: https://static-content.springer.com/esm/art%3A10.1038%2Fs44360-026-00092-3/MediaObjects/44360_2026_92_MOESM1_ESM.pdf
   
 ![alt text](https://github.com/killingbear999/doxypep_syphilis/blob/main/doxyPEP_syphilis.png)
 
