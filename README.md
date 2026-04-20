@@ -28,12 +28,12 @@ Our work highlights that effective implementation of doxy-PEP programmes should 
 ## Citation </br>
 If you find our work relevant to your research, please cite:
 ```
-@article{wang2025long,
-  title={Long-Run Public Health Impact of Doxycycline Post-Exposure Prophylaxis and Behavioural Factors on Syphilis Transmission: A Modelling Study in Singapore and England},
+@article{wang2026long,
+  title={Long-term public health impact of doxycycline post-exposure prophylaxis on syphilis transmission},
   author={Wang, Zihao and Nikitin, Dariya and Dickens, Borame L and Wee, Liang En and Chio, Martin TW and Tan, Rayner Kay Jin and Ejima, Keisuke and Wang, Yi and Fisman, David N and Whittles, Lilith K and others},
-  journal={medRxiv},
-  pages={2025--07},
-  year={2025},
-  publisher={Cold Spring Harbor Laboratory Press}
+  journal={Nature Health},
+  pages={1--13},
+  year={2026},
+  publisher={Nature Publishing Group UK London}
 }
 ```
