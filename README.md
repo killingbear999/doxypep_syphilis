@@ -32,7 +32,9 @@ If you find our work relevant to your research, please cite:
   title={Long-term public health impact of doxycycline post-exposure prophylaxis on syphilis transmission},
   author={Wang, Zihao and Nikitin, Dariya and Dickens, Borame L and Wee, Liang En and Chio, Martin TW and Tan, Rayner Kay Jin and Ejima, Keisuke and Wang, Yi and Fisman, David N and Whittles, Lilith K and others},
   journal={Nature Health},
-  pages={1--13},
+  volume={1},
+  number={7},
+  pages={724--736},
   year={2026},
   publisher={Nature Publishing Group UK London}
 }
